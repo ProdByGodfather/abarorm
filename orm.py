@@ -1,14 +1,7 @@
-# orm.py
-
 import sqlite3
-from typing import List, Optional, Type
-
-class Field:
-    def __init__(self, max_length=None, min_length=None, unique=False, auto_now=False):
-        self.max_length = max_length
-        self.min_length = min_length
-        self.unique = unique
-        self.auto_now = auto_now
+from typing import List, Optional, Type, Dict
+import datetime
+from fields import Field, DateTimeField
 
 class BaseModel:
     table_name = ''
@@ -19,21 +12,32 @@ class BaseModel:
 
     @classmethod
     def connect(cls):
+        # This method should be overridden by subclasses to provide the database connection
         raise NotImplementedError("Connect method must be implemented.")
-    
+
     @classmethod
     def create_table(cls):
         conn = cls.connect()
         cursor = conn.cursor()
         columns = []
-        for attr, value in cls.__dict__.items():
-            if isinstance(value, Field):
-                col_type = 'TEXT'
-                if isinstance(value, ForeignKey):
-                    col_type = 'INTEGER'
-                columns.append(f"{attr} {col_type}")
-                if value.unique:
-                    columns[-1] += " UNIQUE"
+        for attr, field in cls.__dict__.items():
+            if isinstance(field, Field):
+                col_type = field.field_type
+                column_definition = f"{attr} {col_type}"
+                if field.unique:
+                    column_definition += " UNIQUE"
+                if field.null:
+                    column_definition += " NULL"
+                else:
+                    column_definition += " NOT NULL"
+                if field.default is not None:
+                    if isinstance(field.default, str):
+                        column_definition += f" DEFAULT '{field.default}'"
+                    else:
+                        column_definition += f" DEFAULT {field.default}"
+                columns.append(column_definition)
+        if not columns:
+            raise ValueError("Table must have at least one field.")
         cursor.execute(f"CREATE TABLE IF NOT EXISTS {cls.table_name} (id INTEGER PRIMARY KEY, {', '.join(columns)})")
         conn.commit()
         conn.close()
@@ -73,9 +77,20 @@ class BaseModel:
     def create(cls, **kwargs) -> None:
         conn = cls.connect()
         cursor = conn.cursor()
-        columns = ', '.join(kwargs.keys())
-        placeholders = ', '.join(['?'] * len(kwargs))
-        cursor.execute(f"INSERT INTO {cls.table_name} ({columns}) VALUES ({placeholders})", tuple(kwargs.values()))
+        columns = []
+        placeholders = []
+        values = []
+        for attr, field in cls.__dict__.items():
+            if isinstance(field, Field):
+                if attr in kwargs:
+                    columns.append(attr)
+                    placeholders.append('?')
+                    values.append(kwargs[attr])
+                elif isinstance(field, DateTimeField) and field.auto_now:
+                    columns.append(attr)
+                    placeholders.append('?')
+                    values.append(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        cursor.execute(f"INSERT INTO {cls.table_name} ({', '.join(columns)}) VALUES ({', '.join(placeholders)})", tuple(values))
         conn.commit()
         conn.close()
 
@@ -84,7 +99,13 @@ class BaseModel:
         conn = cls.connect()
         cursor = conn.cursor()
         set_clause = ', '.join([f"{k} = ?" for k in kwargs.keys()])
-        cursor.execute(f"UPDATE {cls.table_name} SET {set_clause} WHERE id = ?", (*kwargs.values(), id))
+        values = []
+        for key, value in kwargs.items():
+            field = getattr(cls, key)
+            if isinstance(field, DateTimeField) and field.auto_now:
+                value = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            values.append(value)
+        cursor.execute(f"UPDATE {cls.table_name} SET {set_clause} WHERE id = ?", (*values, id))
         conn.commit()
         conn.close()
 
@@ -96,14 +117,8 @@ class BaseModel:
         conn.commit()
         conn.close()
 
-class ForeignKey(Field):
-    def __init__(self, to: Type['BaseModel'], on_delete='CASCADE'):
-        super().__init__()
-        self.to = to  # مدل مقصد
-        self.on_delete = on_delete  # نوع حذف (CASCADE, SET NULL, etc.)
-
 class SQLiteModel(BaseModel):
-    def __init__(self, db_config, **kwargs):
+    def __init__(self, db_config: Dict[str, str], **kwargs):
         super().__init__(**kwargs)
         self.db_name = db_config['db_name']
 
