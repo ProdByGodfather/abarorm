@@ -1,29 +1,19 @@
-# main.py
-
-from orm import SQLiteModel, Field, ForeignKey
-
-# تعریف مدل‌ها
-class Category(SQLiteModel):
-    table_name = 'categories'
-    title = Field(max_length=200, unique=True)
-
-class Post(SQLiteModel):
-    table_name = 'posts'
-    title = Field(max_length=100, unique=True)
-    create_time = Field(auto_now=True)
-    category = ForeignKey(Field())
+from db import Category, Post
 
 # بارگذاری و ایجاد جداول
 if __name__ == "__main__":
-    Category.create_table()
-    Post.create_table()
+    # ایجاد جداول
+    Category().create_table()
+    Post().create_table()
 
     # ایجاد یک دسته بندی
-    Category.create(title='Movies')
+    category = Category()
+    category.create(title='Movidfadfes')
 
     # ایجاد یک پست
     category_id = 1  # فرض بر اینکه این ID دسته بندی موجود است
-    Post.create(title='Godfather', category=category_id)
+    post = Post()
+    post.create(title='Godadsffather', category=category_id)
 
     # خواندن تمام پست‌ها
     all_posts = Post.all()
@@ -34,14 +24,14 @@ if __name__ == "__main__":
     print("Filtered Posts:", filtered_posts)
 
     # به‌روزرسانی یک پست
-    Post.update(1, title='Updated Godfather')
+    post.update(1, title='Updated Godfatsgsgher')
 
     # خواندن پست‌ها پس از به‌روزرسانی
     updated_posts = Post.all()
     print("Updated Posts:", updated_posts)
 
     # حذف پست
-    Post.delete(1)
+    post.delete(1)
 
     # خواندن پست‌ها پس از حذف
     final_posts = Post.all()

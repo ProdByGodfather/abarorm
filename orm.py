@@ -1,8 +1,7 @@
 # orm.py
 
 import sqlite3
-from datetime import datetime
-from typing import List, Optional, Any
+from typing import List, Optional
 
 class Field:
     def __init__(self, max_length=None, min_length=None, unique=False, auto_now=False):
@@ -14,6 +13,9 @@ class Field:
 class BaseModel:
     table_name = ''
     
+    def __init__(self, db_config):
+        self.db_config = db_config
+
     @classmethod
     def connect(cls):
         raise NotImplementedError("Connect method must be implemented.")
@@ -68,29 +70,33 @@ class BaseModel:
         conn.commit()
         conn.close()
 
+class ForeignKey(Field):
+    def __init__(self, to, on_delete='CASCADE'):
+        super().__init__()
+        self.to = to  # مدل مقصد
+        self.on_delete = on_delete  # نوع حذف (CASCADE, SET NULL, etc.)
+
 class SQLiteModel(BaseModel):
-    db_name = 'example.db'  # نام دیتابیس
+    def __init__(self, db_config):
+        super().__init__(db_config)
+        self.db_name = db_config['db_name']
 
     @classmethod
     def connect(cls):
-        return sqlite3.connect(cls.db_name)
+        return sqlite3.connect(cls().db_name)
 
-    @classmethod
-    def create_table(cls):
-        conn = cls.connect()
+    def create_table(self):
+        conn = self.connect()
         cursor = conn.cursor()
         columns = []
-        for attr, value in cls.__dict__.items():
+        for attr, value in self.__class__.__dict__.items():
             if isinstance(value, Field):
                 col_type = 'TEXT'
+                if isinstance(value, ForeignKey):
+                    col_type = 'INTEGER'
                 columns.append(f"{attr} {col_type}")
                 if value.unique:
                     columns[-1] += " UNIQUE"
-        cursor.execute(f"CREATE TABLE IF NOT EXISTS {cls.table_name} (id INTEGER PRIMARY KEY, {', '.join(columns)})")
+        cursor.execute(f"CREATE TABLE IF NOT EXISTS {self.table_name} (id INTEGER PRIMARY KEY, {', '.join(columns)})")
         conn.commit()
         conn.close()
-
-class ForeignKey(Field):
-    def __init__(self, field: Field):
-        super().__init__()
-        self.field = field

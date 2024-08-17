@@ -1,19 +1,27 @@
-from main import SQLiteModel
+from orm import SQLiteModel, Field, ForeignKey
 
-class MyModel(SQLiteModel):
-    table_name = 'my_models'
+# تنظیمات دیتابیس
+DATABASE_CONFIG = {
+    'sqlite': {
+        'db_name': 'example.db',
+    }
+}
 
-if __name__ == "__main__":
-    MyModel.create_table()
-    
-    MyModel.create(name='Test Model')
+# تعریف مدل‌ها
+class Category(SQLiteModel):
+    table_name = 'categories'
 
-    all_models = MyModel.all()
-    print(all_models)
+    title = Field(max_length=200, unique=True)
 
-    filtered_models = MyModel.filter(name='Test Model')
-    print(filtered_models)
+    def __init__(self):
+        super().__init__(DATABASE_CONFIG['sqlite'])
 
-    MyModel.update(1, name='Updated Model')
+class Post(SQLiteModel):
+    table_name = 'posts'
 
-    MyModel.delete(1)
+    title = Field(max_length=100, unique=True)
+    create_time = Field(auto_now=True)
+    category = ForeignKey(Category)  # اشاره به مدل Category
+
+    def __init__(self):
+        super().__init__(DATABASE_CONFIG['sqlite'])
