@@ -28,15 +28,27 @@ Create a new Python file (e.g., `models.py`) and define your models by inheritin
 from abarorm import SQLiteModel
 from abarorm.fields import CharField, DateTimeField, ForeignKey
 
+DATABASE_CONFIG = {
+    'sqlite': {
+        'db_name': 'example.db',  # Name of the SQLite database file
+    }
+}
+
 class Category(SQLiteModel):
     table_name = 'categories'
     title = CharField(max_length=200, unique=True)
-
+    def __init__(self, **kwargs):
+        # Initialize the Category model with database configuration
+        super().__init__(db_config=DATABASE_CONFIG['sqlite'], **kwargs)
+        
 class Post(SQLiteModel):
     table_name = 'posts'
     title = CharField(max_length=100, unique=True)
     create_time = DateTimeField(auto_now=True)
     category = ForeignKey(Category)
+    def __init__(self, **kwargs):
+        # Initialize the Category model with database configuration
+        super().__init__(db_config=DATABASE_CONFIG['sqlite'], **kwargs)
 ```
 
 ## Creating Tables

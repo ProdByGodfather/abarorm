@@ -1,7 +1,7 @@
 import sqlite3
 from typing import List, Optional, Type, Dict
 import datetime
-from fields import Field, DateTimeField
+from .fields import Field, DateTimeField
 
 class BaseModel:
     table_name = ''
