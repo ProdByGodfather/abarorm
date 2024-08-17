@@ -1,6 +1,5 @@
-# main.py
-
-from orm import SQLiteModel, Field, ForeignKey
+from orm import SQLiteModel
+from fields import CharField, DateTimeField, ForeignKey
 
 # تنظیمات دیتابیس
 DATABASE_CONFIG = {
@@ -13,20 +12,20 @@ DATABASE_CONFIG = {
 class Category(SQLiteModel):
     table_name = 'categories'
 
-    title = Field(max_length=200, unique=True)
+    title = CharField(max_length=200, unique=True, null=False)
 
     def __init__(self, **kwargs):
-        super().__init__(DATABASE_CONFIG['sqlite'], **kwargs)
+        super().__init__(db_config=DATABASE_CONFIG['sqlite'], **kwargs)
 
 class Post(SQLiteModel):
     table_name = 'posts'
 
-    title = Field(max_length=100, unique=True)
-    create_time = Field(auto_now=True)
-    category = ForeignKey(Category)  # اشاره به مدل Category
+    title = CharField(max_length=100, unique=True, null=False)
+    create_time = DateTimeField(auto_now=True)
+    category = ForeignKey(to=Category)  # اشاره به مدل Category
 
     def __init__(self, **kwargs):
-        super().__init__(DATABASE_CONFIG['sqlite'], **kwargs)
+        super().__init__(db_config=DATABASE_CONFIG['sqlite'], **kwargs)
 
 # بارگذاری و ایجاد جداول
 if __name__ == "__main__":
@@ -37,11 +36,11 @@ if __name__ == "__main__":
     # ایجاد یک دسته بندی
     Category.create(title='Movies')
 
-    # ایجاد یک پست
-    category = Category.get(id=1)  # فرض بر اینکه این ID دسته بندی موجود است
+    # دریافت دسته بندی برای استفاده در ایجاد پست
+    category = Category.get(id=1)
     if category:
-        post = Post()
-        post.create(title='Godfather', category=category.id)
+        # ایجاد یک پست
+        Post.create(title='Godfather', category=category.id)
 
         # خواندن تمام پست‌ها
         all_posts = Post.all()
@@ -52,7 +51,7 @@ if __name__ == "__main__":
         if post_data:
             print("Post with ID 1:", post_data.title, post_data.category)
 
-        # فیلتر کردن پست‌ها بر اساس عنوان دسته بندی
+        # فیلتر کردن پست‌ها بر اساس ID دسته بندی
         filtered_posts = Post.filter(category=category.id)
         print("Filtered Posts:", [(post.title, post.category) for post in filtered_posts])
 
@@ -64,7 +63,7 @@ if __name__ == "__main__":
         print("Updated Posts:", [(post.title, post.category) for post in updated_posts])
 
         # حذف پست
-        Post.delete(1)
+        # Post.delete(1)
 
         # خواندن پست‌ها پس از حذف
         final_posts = Post.all()
