@@ -2,3 +2,5 @@ venv
 .venv
 __pycache__
 example.db
+build
+dist

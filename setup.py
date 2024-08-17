@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='abarorm',
-    version='0.7.3',
+    version='0.7.4',
     description='A simple ORM library',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
