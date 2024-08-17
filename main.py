@@ -15,8 +15,8 @@ class Category(SQLiteModel):
 
     title = Field(max_length=200, unique=True)
 
-    def __init__(self):
-        super().__init__(DATABASE_CONFIG['sqlite'])
+    def __init__(self, **kwargs):
+        super().__init__(DATABASE_CONFIG['sqlite'], **kwargs)
 
 class Post(SQLiteModel):
     table_name = 'posts'
@@ -25,46 +25,49 @@ class Post(SQLiteModel):
     create_time = Field(auto_now=True)
     category = ForeignKey(Category)  # اشاره به مدل Category
 
-    def __init__(self):
-        super().__init__(DATABASE_CONFIG['sqlite'])
+    def __init__(self, **kwargs):
+        super().__init__(DATABASE_CONFIG['sqlite'], **kwargs)
 
 # بارگذاری و ایجاد جداول
 if __name__ == "__main__":
     # ایجاد جداول
-    Category().create_table()
-    Post().create_table()
+    Category.create_table()
+    Post.create_table()
 
     # ایجاد یک دسته بندی
-    category = Category()
-    category.create(title='Movies')
+    Category.create(title='Movies')
 
     # ایجاد یک پست
-    category_id = 1  # فرض بر اینکه این ID دسته بندی موجود است
-    post = Post()
-    post.create(title='Godfather', category=category_id)
+    category = Category.get(id=1)  # فرض بر اینکه این ID دسته بندی موجود است
+    if category:
+        post = Post()
+        post.create(title='Godfather', category=category.id)
 
-    # خواندن تمام پست‌ها
-    all_posts = Post.all()
-    print("All Posts:", all_posts)
+        # خواندن تمام پست‌ها
+        all_posts = Post.all()
+        print("All Posts:", [(post.title, post.category) for post in all_posts])
 
-    # استفاده از متد get برای دریافت یک پست بر اساس ID
-    post_data = Post.get(id=1)
-    print("Post with ID 1:", post_data)
+        # استفاده از متد get برای دریافت یک پست بر اساس ID
+        post_data = Post.get(id=1)
+        if post_data:
+            print("Post with ID 1:", post_data.title, post_data.category)
 
-    # فیلتر کردن پست‌ها بر اساس عنوان دسته بندی
-    filtered_posts = Post.filter(category=category_id)
-    print("Filtered Posts:", filtered_posts)
+        # فیلتر کردن پست‌ها بر اساس عنوان دسته بندی
+        filtered_posts = Post.filter(category=category.id)
+        print("Filtered Posts:", [(post.title, post.category) for post in filtered_posts])
 
-    # به‌روزرسانی یک پست
-    post.update(1, title='Updated Godfather')
+        # به‌روزرسانی یک پست
+        Post.update(1, title='Updated Godfather')
 
-    # خواندن پست‌ها پس از به‌روزرسانی
-    updated_posts = Post.all()
-    print("Updated Posts:", updated_posts)
+        # خواندن پست‌ها پس از به‌روزرسانی
+        updated_posts = Post.all()
+        print("Updated Posts:", [(post.title, post.category) for post in updated_posts])
 
-    # حذف پست
-    post.delete(1)
+        # حذف پست
+        Post.delete(1)
 
-    # خواندن پست‌ها پس از حذف
-    final_posts = Post.all()
-    print("Final Posts:", final_posts)
+        # خواندن پست‌ها پس از حذف
+        final_posts = Post.all()
+        print("Final Posts:", [(post.title, post.category) for post in final_posts])
+    else:
+        print("Category with ID 1 does not exist.")
