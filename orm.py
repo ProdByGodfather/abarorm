@@ -44,6 +44,17 @@ class BaseModel:
         return results
 
     @classmethod
+    def get(cls, **kwargs) -> Optional[dict]:
+        """دریافت یک رکورد بر اساس فیلدهای مشخص شده"""
+        conn = cls.connect()
+        cursor = conn.cursor()
+        query = f"SELECT * FROM {cls.table_name} WHERE " + " AND ".join([f"{k} = ?" for k in kwargs.keys()])
+        cursor.execute(query, tuple(kwargs.values()))
+        result = cursor.fetchone()
+        conn.close()
+        return result
+
+    @classmethod
     def create(cls, **kwargs) -> None:
         conn = cls.connect()
         cursor = conn.cursor()
