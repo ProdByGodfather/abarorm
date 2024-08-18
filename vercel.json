@@ -4,6 +4,9 @@
         "src": "Dockerfile",
         "use": "@vercel/docker"
       }
+    ],
+    "routes": [
+      { "src": "/(.*)", "dest": "/site/$1" }
     ]
   }
   
