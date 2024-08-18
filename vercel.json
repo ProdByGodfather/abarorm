@@ -1,16 +1,9 @@
 {
     "builds": [
       {
-        "src": "mkdocs.yml",
-        "use": "@vercel/static-build",
-        "config": {
-          "distDir": "site"
-        }
+        "src": "Dockerfile",
+        "use": "@vercel/docker"
       }
-    ],
-    "build": {
-      "env": {
-        "PIP_NO_CACHE_DIR": "off"
-      }
-    }
+    ]
   }
+  
