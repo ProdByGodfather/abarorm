@@ -12,6 +12,7 @@ setup(
     packages=find_packages(),
     python_requires='>=3.6',
     install_requires=[
+        'mysql-connector-python', 
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
