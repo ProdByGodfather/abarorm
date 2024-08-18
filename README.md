@@ -1,13 +1,8 @@
 # abarorm
 
-<div style="display: flex; align-items: center;">
-    <img src="abarorm/abarorm.png" alt="abarorm Logo" style="width: 200px; margin-right: 20px;">
 
-        **abarorm** is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite databases in Python. It aims to provide a simple and intuitive interface for managing database models and interactions.
-
-    
-</div>
-
+| ![abarorm Logo](abarorm/abarorm.png) | **abarorm** is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite databases in Python. It aims to provide a simple and intuitive interface for managing database models and interactions. |
+|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 ## Features
 
 - Define models using Python classes
