@@ -195,7 +195,7 @@ Post.delete(1)
 Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request on [github](https://github.com/prodbygodfather/abarorm).
 
 ## License
-This project is licensed under the MIT License - see the [License](https://github.com/prodbygodfather/abarorm/LICENSE) file for details.
+This project is licensed under the MIT License - see the [License](https://github.com/ProdByGodfather/abarorm/blob/main/LICENSE) file for details.
 
 ## Acknowledgements
 
