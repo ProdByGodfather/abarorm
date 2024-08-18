@@ -63,7 +63,24 @@ In **abarorm**, fields define the types of data stored in your database models. 
         ```python
         category = ForeignKey(Category, on_delete='CASCADE')
         ```
-
+4. **BooleanField**
+    - **Description:** Represents a Boolean value (`True` or `False`).
+    - **Parameters:**
+        - `default` : The default value for the field if none is provided.
+        - `null` : if `True`, the field can contain `NULL` values.
+    - **Example:**
+        ```python
+        is_active = BooleanField(default=True)
+        ```
+5. **IntegerField**
+    - **Description:** Represents an integer value.
+    - **Parameters:**
+        - `default` : The default value for the field if none is provided.
+        - `null` : If True, the field can contain NULL values.
+    - **Example:**
+        ```py
+        age = IntegerField(default=0)
+        ```
 
 ## Defining Models
 Create a new Python file (e.g., `models.py`) and define your models by inheriting from `SQLiteModel` for SQLite or `MySQLModel` for MySQL. Update your database configuration accordingly.
