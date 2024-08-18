@@ -3,8 +3,10 @@ README.md
 setup.py
 abarorm/__init__.py
 abarorm/fields.py
+abarorm/mysql.py
 abarorm/orm.py
 abarorm.egg-info/PKG-INFO
 abarorm.egg-info/SOURCES.txt
 abarorm.egg-info/dependency_links.txt
+abarorm.egg-info/requires.txt
 abarorm.egg-info/top_level.txt
