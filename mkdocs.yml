@@ -1,0 +1,35 @@
+site_name: abarorm
+site_url: https://abarorm-mtnqjv7yh-prodbygodfathers-projects.vercel.app/
+site_description: 'abarorm is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite databases in Python. It aims to provide a simple and intuitive interface for managing database models and interactions.'
+site_author: 'Mahdi GHasemi'
+repo_url: https://github.com/prodbygodfather/abarorm
+repo_name: 'abarorm'
+edit_uri: '/edit/main/docs/'
+
+theme:
+  name: 'material'
+  language: 'en'
+  palette:
+    scheme: slate 
+    primary: 'yellow'
+    accent: 'yellow'
+    toggle:
+      icon: 'images/logo.png'
+      name: Switch to dark mode
+  font:
+    text: 'Roboto'
+    code: 'Roboto Mono'
+  favicon: 'images/favicon.ico'
+
+
+plugins:
+  - search
+
+markdown_extensions:
+  - codehilite:
+      guess_lang: false
+  - admonition
+  - toc:
+      permalink: true
+
+use_directory_urls: false
