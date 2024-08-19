@@ -7,7 +7,7 @@
   </div>
   <div style="flex: 2;">
     <p>
-     <b>abarorm</b> is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite and MySQL databases in Python. It aims to provide a simple and intuitive interface for managing database models and interactions. 
+     <b>abarorm</b> is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite, PostgreSQL and MySQL databases in Python. It aims to provide a simple and intuitive interface for managing database models and interactions. 
     </p>
   </div>
 </div>
@@ -29,8 +29,12 @@ You can install **abarorm** from PyPI using pip:
 pip install abarorm
 ```
 
-For MySQL support, you also need to install `mysql-connector-python`:
+For MySQL support, you also need to install `mysql-connector-python`: (Required)
 
 ```bash
 pip install mysql-connector-python
+```
+For PostgreSQL support, install `psycopg2-binary`: (Required)
+```bash
+pip install psycopg2-binary
 ```

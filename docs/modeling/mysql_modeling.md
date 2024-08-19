@@ -36,13 +36,15 @@ class Post(MySQLModel):
         super().__init__(db_config=DATABASE_CONFIG['mysql'], **kwargs)
 ```
 
-## Creating Tables
+## Automatic Table Management
+In the latest version of AbarORM, you no longer need to manually create tables. The library automatically handles the creation and management of your tables based on the model definitions. This means that as soon as you start interacting with your models, AbarORM will ensure that the corresponding tables are created if they do not already exist.
 
-To create the tables in the SQLite database, call the `create_table` method on your model classes:
-```python
-if __name__ == "__main__":
-    Category.create_table()
-    Post.create_table()
-```
+## Automatic Schema Updates
+AbarORM also supports automatic schema updates. If you add new fields to your models while the application is running, AbarORM will automatically update the database schema to reflect these changes. This eliminates the need for manual migration scripts or database rebuilds.
+
+???+ warning
+    While schema updates are handled automatically, it is advisable to recreate your database schema after completing development to ensure that all fields and constraints are correctly applied. This helps to avoid potential issues and ensures that your database is in a consistent state before moving to production.
+
+
 ## CRUD
 There is no difference in the type and method of CRUD in modeling and using databases, and to create them, you can refer to a [Basic Usage - CRUD](/basic_usage/#step-3-perform-crud-operations) page.

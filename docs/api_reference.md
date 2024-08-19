@@ -37,8 +37,8 @@ The `SQLiteModel` class is the base class for defining models that interact with
   - **Parameters**:
     - `id`: The ID of the record to retrieve.
 
-- **`all(cls)`**
-  - **Description**: Retrieves all records from the table.
+- **`all(cls, order_by)`**
+  - **Description**: Retrieves all records from the table and order them.
   - **Parameters**: None
 
 - **`filter(cls, **kwargs)`**

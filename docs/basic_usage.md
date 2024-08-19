@@ -44,17 +44,7 @@ In the example above:
 **Category** and Post are two models representing database tables.
 Each class inherits from `SQLiteModel` and defines fields using AbarORM’s built-in field types.
 
-## Step 2: Create Tables
-After defining your models, you need to create the corresponding tables in the database. Use the create_table method provided by AbarORM.
-```python
-# Create tables in the database
-if __name__ == "__main__":
-    Category.create_table()
-    Post.create_table()
-```
-This script will create the tables `categories` and `posts` in the example.db `SQLite` database file.
-
-## Step 3: Perform CRUD Operations
+## Step 2: Perform CRUD Operations
 Once your tables are created, you can perform CRUD (Create, Read, Update, Delete) operations on your models.
 
 ### Create Records
@@ -72,7 +62,7 @@ if category:
 To retrieve records from the database, use the `all`, `get`, or `filter` methods:
 ```python
 # Retrieve all posts
-all_posts = Post.all()
+all_posts = Post.all(order_by='-create_time')
 print("All Posts:", [(post.title, post.category) for post in all_posts])
 
 # Retrieve a specific post

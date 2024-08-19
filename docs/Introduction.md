@@ -2,16 +2,17 @@
 
 
 ## What is AbarORM?
-**AbarORM** is a lightweight and easy-to-use Object-Relational Mapping (ORM) library designed for SQLite databases in Python. It provides a simple and intuitive interface for managing database models and interactions, making it easier for developers to work with databases without needing to write raw SQL queries.
-
+**AbarORM** is a lightweight and easy-to-use Object-Relational Mapping (ORM) library designed for SQLite and PostgreSQL databases in Python. It provides a simple and intuitive interface for managing database models and interactions, making it easier for developers to work with databases without needing to write raw SQL queries.
 ## Key Features
 
-- **Simplicity**: AbarORM is designed to be straightforward and easy to use. With a clean API, you can define your database models and interact with your database using Python objects.
-- **Automatic Schema Management**: The library handles the creation and management of the database schema automatically, so you don't have to worry about writing migration scripts.
-- **CRUD Operations**: It supports all basic CRUD (Create, Read, Update, Delete) operations, allowing you to perform database operations with minimal code.
-- **Relationships**: AbarORM supports foreign key relationships between models, making it easier to manage complex data structures.
-- **Custom Fields**: You can define custom field types with validation and constraints to suit your specific needs.
 
+- **Simplicity:** AbarORM is designed to be straightforward and easy to use. With a clean API, you can define your database models and interact with your database using Python objects.
+- **Automatic Schema Management:** The library handles the creation and management of the database schema automatically, so you don't have to worry about writing migration scripts. Tables are created or updated based on your model definitions.
+- **CRUD Operations:** It supports all basic CRUD (Create, Read, Update, Delete) operations, allowing you to perform database operations with minimal code.
+- **Order By Support:** AbarORM includes support for ordering query results, providing more flexibility in retrieving data.
+- **Foreign Key Relationships:** AbarORM supports foreign key relationships between models, making it easier to manage complex data structures.
+- **Custom Fields:** You can define custom field types with validation and constraints to suit your specific needs.
+- **PostgreSQL Support:** In addition to SQLite, AbarORM now supports PostgreSQL, providing a broader range of database options.
 
 ## Why Choose AbarORM?
 
@@ -40,10 +41,22 @@ The library follows Pythonic principles, offering a seamless integration with Py
 
 To get started with AbarORM, follow these steps:
 
-1. **Installation**: Install the library via pip:
-   ```bash
-   pip install abarorm
-   ```
+**Installation**: 
+To get started with AbarORM, follow these steps:
+
+Install the library via pip:
+```bash
+pip install abarorm
+```
+For MySQL support, you also need to install `mysql-connector-python`: (Required)
+```bash
+pip install mysql-connector-python
+```
+For PostgreSQL support, install `psycopg2-binary`: (Required)
+```bash
+pip install psycopg2-binary
+```
+
 **Setup:** Configure your database connection and define your models by inheriting from `SQLiteModel` or `MySQLModel` depending on your database type.
 
 **Define Models:** Create Python classes that represent your database tables. Use built-in field types to define the attributes of each model.
@@ -69,13 +82,17 @@ DATABASE_CONFIG = {
 class Category(SQLiteModel):
     table_name = 'categories'
     title = CharField(max_length=200, unique=True)
+    create_time = DateTimeField(auto_now_add=True)
+    update_time = DateTimeField(auto_now=True)
 
     def __init__(self, **kwargs):
         super().__init__(db_config=DATABASE_CONFIG['sqlite'], **kwargs)
 
-# Create the table in the database
-Category.create_table()
-
 # Add a new category
 Category.create(title='Movies')
+
 ```
+Models are automatically managed by AbarORM, which means that any changes to your models, such as adding new fields, are automatically applied to the database without the need for manual migration steps. This feature streamlines development by reducing the overhead associated with schema changes.
+
+???+ warning 
+    While this automatic management is convenient during development, it's advisable to recreate your database after completing development. This ensures that all schema changes are properly applied and that the database structure is optimized for production.

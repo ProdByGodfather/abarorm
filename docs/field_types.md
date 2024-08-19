@@ -21,6 +21,8 @@ In AbarORM, fields define the types of data stored in your database models. Each
 - **Description:** Represents a date and time value.
 - **Parameters:**
     - `auto_now:` If True, the field will be automatically set to the current date and time whenever the record is updated.
+    - `auto_now:` If True, the field will be automatically set to the current date and time whenever the record is created.
+    - `auto_now_add:` 
 - **Example:**
   ```python
   create_time = DateTimeField(auto_now=True)
@@ -61,3 +63,55 @@ In AbarORM, fields define the types of data stored in your database models. Each
     ```python
     age = IntegerField(default=0)
     ```
+
+### 6. FloatField
+- **Description:** Represents a floating-point number.
+- **Parameters:**
+    - `default:` The default values for the field if none is provided.
+    - `null:` If True, the field can contain NULL values.
+- **Example:**
+```python
+price = FloatField(default=0.0)
+```
+
+### 7. DecimalField
+- **Description:** Represents a decimal number with fixed precision and scale.
+- **Parameters:**
+    - `max_digits:` The maximum number of digits (including both integer and decimal places).
+    - `decimal_places:` The number of decimal places.
+    - `default:` The default values for the field if none is provided.
+    - `null:` If True, the field can contain NULL values.
+- **Example:**
+```python
+salary = DecimalField(max_digits=10, decimal_places=2, default=0.00)
+```
+
+### 8. DateField
+- **Description:** Represents a decimal number with fixed precision and scale.
+- **Parameters:**
+    - `default:` The default values for the field if none is provided.
+    - `null:` If True, the field can contain NULL values.
+- **Example:**
+```python
+birth_date = DateField(default='2000-01-01')
+```
+
+### 9. TimeField
+- **Description:** Represents a decimal number with fixed precision and scale.
+- **Parameters:**
+    - `default:` The default values for the field if none is provided.
+    - `null:` If True, the field can contain NULL values.
+- **Example:**
+```python
+meeting_time = TimeField(default='09:00:00')
+```
+
+### 10. TextField
+- **Description:** Represents a decimal number with fixed precision and scale.
+- **Parameters:**
+    - `default:` The default values for the field if none is provided.
+    - `null:` If True, the field can contain NULL values.
+- **Example:**
+```python
+description = TextField(null=True)
+```
