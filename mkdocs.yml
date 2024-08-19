@@ -1,0 +1,52 @@
+site_name: abarorm
+site_description: 'abarorm is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite databases in Python. It aims to provide a simple and intuitive interface for managing database models and interactions.'
+site_author: 'Mahdi Ghasemi, AbarVision co'
+
+nav:
+  - Home: index.md
+  - Introduction: Introduction.md
+  - Basic Usage: basic_usage.md
+  - Field Types: field_types.md
+  - API Reference: api_refrence.md
+
+theme:
+  name: 'material'
+  logo: 'images/logo.png' 
+  favicon: 'images/favicon.ico' 
+  palette:
+    - scheme: slate 
+      primary: 'yellow'
+      accent: 'amber'
+    - scheme: default
+      primary: 'yellow'
+      accent: 'amber'
+  font:
+    text: 'Roboto'
+    code: 'Roboto Mono'
+
+markdown_extensions:
+  - codehilite:
+      guess_lang: false
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - toc:
+      permalink: true
+  - tables
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: 'https://github.com/prodbygodfather/abarorm'
+    - icon: fontawesome/brands/linkedin
+      link: 'https://www.linkedin.com/in/prodbygodfather'
+
+features:
+  - navigation.tabs
+  - navigation.top
+  - navigation.expand
+  - navigation.sections
+  - navigation.instant
+  - search.highlight
+  - search.share
+  - toc.integrate
+  - content.tabs.link
