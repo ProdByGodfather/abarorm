@@ -32,3 +32,4 @@ class ForeignKey(Field):
         super().__init__(field_type='INTEGER', **kwargs)
         self.to = to
         self.on_delete = on_delete
+

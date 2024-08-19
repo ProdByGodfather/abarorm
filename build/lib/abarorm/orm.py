@@ -1,9 +1,16 @@
 import sqlite3
-from typing import List, Optional, Type, Dict
+from typing import List, Optional, Dict
 import datetime
 from .fields import Field, DateTimeField
 
-class BaseModel:
+class ModelMeta(type):
+    def __new__(cls, name, bases, dct):
+        new_cls = super().__new__(cls, name, bases, dct)
+        if 'table_name' in dct and dct['table_name']:  # Check if table_name is defined
+            new_cls.create_table()  # Automatically create the table
+        return new_cls
+
+class BaseModel(metaclass=ModelMeta):
     table_name = ''
 
     def __init__(self, **kwargs):
@@ -12,13 +19,21 @@ class BaseModel:
 
     @classmethod
     def connect(cls):
-        # This method should be overridden by subclasses to provide the database connection
         raise NotImplementedError("Connect method must be implemented.")
 
     @classmethod
     def create_table(cls):
         conn = cls.connect()
         cursor = conn.cursor()
+        columns = cls._get_column_definitions(cursor)
+        
+        cursor.execute(f"CREATE TABLE IF NOT EXISTS {cls.table_name} (id INTEGER PRIMARY KEY, {', '.join(columns)})")
+        cls._update_table_structure(cursor)
+        conn.commit()
+        conn.close()
+
+    @classmethod
+    def _get_column_definitions(cls, cursor):
         columns = []
         for attr, field in cls.__dict__.items():
             if isinstance(field, Field):
@@ -35,12 +50,39 @@ class BaseModel:
                         column_definition += f" DEFAULT '{field.default}'"
                     else:
                         column_definition += f" DEFAULT {field.default}"
+                else:
+                    column_definition += " DEFAULT NULL"  # Allow NULL by default to avoid errors
                 columns.append(column_definition)
-        if not columns:
-            raise ValueError("Table must have at least one field.")
-        cursor.execute(f"CREATE TABLE IF NOT EXISTS {cls.table_name} (id INTEGER PRIMARY KEY, {', '.join(columns)})")
-        conn.commit()
-        conn.close()
+        return columns
+
+    @classmethod
+    def _update_table_structure(cls, cursor):
+        existing_columns = cls._get_existing_columns(cursor)
+        new_columns = [attr for attr in cls.__dict__ if isinstance(cls.__dict__[attr], Field) and attr not in existing_columns]
+        
+        for column in new_columns:
+            field = cls.__dict__[column]
+            col_type = field.field_type
+            column_definition = f"ALTER TABLE {cls.table_name} ADD COLUMN {column} {col_type}"
+            if field.unique:
+                column_definition += " UNIQUE"
+            if field.null:
+                column_definition += " NULL"
+            else:
+                column_definition += " NOT NULL"
+            if field.default is not None:
+                if isinstance(field.default, str):
+                    column_definition += f" DEFAULT '{field.default}'"
+                else:
+                    column_definition += f" DEFAULT {field.default}"
+            else:
+                column_definition += " DEFAULT NULL"  # Allow NULL by default
+            cursor.execute(column_definition)
+    
+    @classmethod
+    def _get_existing_columns(cls, cursor):
+        cursor.execute(f"PRAGMA table_info({cls.table_name})")
+        return {row[1] for row in cursor.fetchall()}
 
     @classmethod
     def all(cls) -> List['BaseModel']:
