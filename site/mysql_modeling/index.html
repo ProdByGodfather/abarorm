@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../basic_usage/">
+        <link rel="prev" href="../sqlite_modeling/">
       
       
-        <link rel="next" href="../api_reference/">
+        <link rel="next" href="../basic_usage/">
       
       
       <link rel="icon" href="../images/favicon.ico">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Field Types - abarorm</title>
+        <title>MySQL Modeling - abarorm</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#field-types-in-abarorm" class="md-skip">
+        <a href="#mysql-model-modeling" class="md-skip">
           Skip to content
         </a>
       
@@ -111,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Field Types
+              MySQL Modeling
             
           </span>
         </div>
@@ -258,17 +258,19 @@
       
   
   
+    
   
   
+  
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -282,7 +284,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Modelsing
@@ -314,10 +316,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../mysql_modeling/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    MySQL Modeling
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -326,6 +348,53 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#basic-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Example
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating Tables
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crud" class="md-nav__link">
+    <span class="md-ellipsis">
+      CRUD
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -362,30 +431,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Field Types
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../field_types/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -394,86 +443,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#basic-field-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      Basic Field Types
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Basic Field Types">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-charfield" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. CharField
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-datetimefield" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. DateTimeField
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-foreignkey" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. ForeignKey
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-booleanfield" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. BooleanField
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#5-integerfield" class="md-nav__link">
-    <span class="md-ellipsis">
-      5. IntegerField
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -525,62 +494,29 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#basic-field-types" class="md-nav__link">
+  <a href="#basic-example" class="md-nav__link">
     <span class="md-ellipsis">
-      Basic Field Types
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Basic Field Types">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-charfield" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. CharField
+      Basic Example
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#2-datetimefield" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#creating-tables" class="md-nav__link">
     <span class="md-ellipsis">
-      2. DateTimeField
+      Creating Tables
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#3-foreignkey" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#crud" class="md-nav__link">
     <span class="md-ellipsis">
-      3. ForeignKey
+      CRUD
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-booleanfield" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. BooleanField
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#5-integerfield" class="md-nav__link">
-    <span class="md-ellipsis">
-      5. IntegerField
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -599,77 +535,46 @@
                   
 
 
-<h1 id="field-types-in-abarorm">Field Types in AbarORM<a class="headerlink" href="#field-types-in-abarorm" title="Permanent link">&para;</a></h1>
-<p>In AbarORM, fields define the types of data stored in your database models. Each field type represents a specific kind of data and provides options for validation and constraints. This guide covers the available field types and their usage.</p>
-<h2 id="basic-field-types">Basic Field Types<a class="headerlink" href="#basic-field-types" title="Permanent link">&para;</a></h2>
-<h3 id="1-charfield">1. CharField<a class="headerlink" href="#1-charfield" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Description</strong>: Represents a text field with a maximum length.</li>
-<li><strong>Parameters</strong>:</li>
-<li><code>max_length</code>: The maximum number of characters allowed.</li>
-<li><code>unique</code>: If <code>True</code>, the field must contain unique values across the table.</li>
-<li><code>null</code>: If <code>True</code>, the field can contain <code>NULL</code> values.</li>
-<li><code>default</code>: The default value if none is provided.</li>
-<li><strong>Example</strong>:
-  <div class="highlight"><pre><span></span><code><span class="n">title</span> <span class="o">=</span> <span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</code></pre></div></li>
-</ul>
-<h3 id="2-datetimefield">2. DateTimeField<a class="headerlink" href="#2-datetimefield" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Description:</strong> Represents a date and time value.</li>
-<li><strong>Parameters:</strong><ul>
-<li><code>auto_now:</code> If True, the field will be automatically set to the current date and time whenever the record is updated.</li>
-</ul>
-</li>
-<li><strong>Example:</strong>
-  <div class="highlight"><pre><span></span><code><span class="n">create_time</span> <span class="o">=</span> <span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</code></pre></div></li>
-</ul>
-<h3 id="3-foreignkey">3. ForeignKey<a class="headerlink" href="#3-foreignkey" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Description:</strong> Represents a many-to-one relationship between models.</li>
-<li>
-<p><strong>Parameters:</strong></p>
-<ul>
-<li><code>to:</code> The model that this field points to.</li>
-<li><code>on_delete:</code> Defines the behavior when the referenced record is deleted. Common options include:</li>
-<li><code>CASCADE:</code> Automatically delete records that reference the deleted record.</li>
-<li><code>SET NULL:</code> Set the field to NULL when the referenced record is deleted.</li>
-<li><code>PROTECT:</code> Prevent deletion of the referenced record by raising an error.</li>
-<li><code>SET_DEFAULT:</code> Set the field to a default value when the referenced record is deleted.</li>
-<li><code>DO_NOTHING:</code> Do nothing and leave the field unchanged.</li>
-</ul>
-</li>
-<li>
-<p><strong>Example:</strong>
-  <div class="highlight"><pre><span></span><code><span class="n">category</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Category</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="s1">&#39;CASCADE&#39;</span><span class="p">)</span>
+<h1 id="mysql-model-modeling">MySQL Model Modeling<a class="headerlink" href="#mysql-model-modeling" title="Permanent link">&para;</a></h1>
+<p>In this section, we cover how to define models for MySQL using the AbarORM library.</p>
+<h2 id="basic-example">Basic Example<a class="headerlink" href="#basic-example" title="Permanent link">&para;</a></h2>
+<p>To use MySQL with AbarORM, you need to define your models by inheriting from <code>MySQLModel</code>. Here is a basic example:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">abarorm</span> <span class="kn">import</span> <span class="n">MySQLModel</span>
+<span class="kn">from</span> <span class="nn">abarorm.fields</span> <span class="kn">import</span> <span class="n">CharField</span><span class="p">,</span> <span class="n">DateTimeField</span><span class="p">,</span> <span class="n">ForeignKey</span>
+
+<span class="n">DATABASE_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;mysql&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;host&#39;</span><span class="p">:</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="s1">&#39;your_user&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="s1">&#39;your_password&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;db_name&#39;</span><span class="p">:</span> <span class="s1">&#39;example_db&#39;</span><span class="p">,</span>  <span class="c1"># MySQL database name</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">Category</span><span class="p">(</span><span class="n">MySQLModel</span><span class="p">):</span>
+    <span class="n">table_name</span> <span class="o">=</span> <span class="s1">&#39;categories&#39;</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">db_config</span><span class="o">=</span><span class="n">DATABASE_CONFIG</span><span class="p">[</span><span class="s1">&#39;mysql&#39;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Post</span><span class="p">(</span><span class="n">MySQLModel</span><span class="p">):</span>
+    <span class="n">table_name</span> <span class="o">=</span> <span class="s1">&#39;posts&#39;</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">create_time</span> <span class="o">=</span> <span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">category</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Category</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">db_config</span><span class="o">=</span><span class="n">DATABASE_CONFIG</span><span class="p">[</span><span class="s1">&#39;mysql&#39;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="creating-tables">Creating Tables<a class="headerlink" href="#creating-tables" title="Permanent link">&para;</a></h2>
+<p>To create the tables in the SQLite database, call the <code>create_table</code> method on your model classes:
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">Category</span><span class="o">.</span><span class="n">create_table</span><span class="p">()</span>
+    <span class="n">Post</span><span class="o">.</span><span class="n">create_table</span><span class="p">()</span>
 </code></pre></div></p>
-</li>
-</ul>
-<h3 id="4-booleanfield">4. BooleanField<a class="headerlink" href="#4-booleanfield" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Description:</strong> Represents a Boolean value (<code>True</code> or <code>False</code>).</li>
-<li><strong>Parameters:</strong><ul>
-<li><code>default:</code> The default value for the field if none is provided.</li>
-<li><code>null:</code> If True, the field can contain NULL values.</li>
-</ul>
-</li>
-<li><strong>Example:</strong>
-  <div class="highlight"><pre><span></span><code><span class="n">is_active</span> <span class="o">=</span> <span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</code></pre></div></li>
-</ul>
-<h3 id="5-integerfield">5. IntegerField<a class="headerlink" href="#5-integerfield" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Description:</strong> Represents an integer value.</li>
-<li><strong>Parameters:</strong><ul>
-<li><code>default:</code> The default value for the field if none is provided.</li>
-<li><code>null:</code> If True, the field can contain NULL values.</li>
-</ul>
-</li>
-<li><strong>Example:</strong>
-    <div class="highlight"><pre><span></span><code><span class="n">age</span> <span class="o">=</span> <span class="n">IntegerField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</code></pre></div></li>
-</ul>
+<h2 id="crud">CRUD<a class="headerlink" href="#crud" title="Permanent link">&para;</a></h2>
+<p>There is no difference in the type and method of CRUD in modeling and using databases, and to create them, you can refer to a <a href="http://127.0.0.1:8000/basic_usage/#step-3-perform-crud-operations">Basic Usage - CRUD</a> page.</p>
 
 
 

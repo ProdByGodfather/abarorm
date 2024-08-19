@@ -5,6 +5,9 @@ site_author: 'Mahdi Ghasemi, AbarVision co'
 nav:
   - Home: index.md
   - Introduction: Introduction.md
+  - Modelsing:
+     SQLite Modeling: sqlite_modeling.md
+     MySQL Modeling: mysql_modeling.md
   - Basic Usage: basic_usage.md
   - Field Types: field_types.md
   - API Reference: api_reference.md
