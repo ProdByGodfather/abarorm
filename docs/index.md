@@ -7,7 +7,7 @@
   </div>
   <div style="flex: 2;">
     <p>
-     <b>abarorm</b> is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite databases in Python. It aims to provide a simple and intuitive interface for managing database models and interactions. 
+     <b>abarorm</b> is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite and MySQL databases in Python. It aims to provide a simple and intuitive interface for managing database models and interactions. 
     </p>
   </div>
 </div>

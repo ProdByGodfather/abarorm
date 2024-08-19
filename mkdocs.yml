@@ -1,13 +1,13 @@
 site_name: abarorm
 site_description: 'abarorm is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite databases in Python. It aims to provide a simple and intuitive interface for managing database models and interactions.'
-site_author: 'Mahdi Ghasemi, AbarVision co'
-
+repo_url: 'https://github.com/prodbygodfather/abarorm'
+repo_name: 'abarorm'
 nav:
   - Home: index.md
   - Introduction: Introduction.md
-  - Modelsing:
-     SQLite Modeling: sqlite_modeling.md
-     MySQL Modeling: mysql_modeling.md
+  - Modeling:
+      - SQLite Modeling: sqlite_modeling.md
+      - MySQL Modeling: mysql_modeling.md
   - Basic Usage: basic_usage.md
   - Field Types: field_types.md
   - API Reference: api_reference.md
@@ -17,24 +17,62 @@ theme:
   logo: 'images/logo.png' 
   favicon: 'images/favicon.ico' 
   palette:
-    - scheme: slate 
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
       primary: 'yellow'
       accent: 'amber'
-    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"  
+      scheme: default
       primary: 'yellow'
       accent: 'amber'
+      toggle:
+        icon: material/brightness-4
+        name: Switch to dark mode
   font:
     text: 'Roboto'
     code: 'Roboto Mono'
+  features:
+    - 'navigation.instant'
+    - 'search.highlight'
+    - 'mermaid'
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
+    - navigation.tabs 
+    - navigation.toggle 
 
 markdown_extensions:
-  - codehilite:
-      guess_lang: false
-  - pymdownx.superfences
-  - pymdownx.inlinehilite
+  - admonition
+  - codehilite
+  - footnotes
   - toc:
       permalink: true
-  - tables
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
 
 extra:
   social:
@@ -42,14 +80,14 @@ extra:
       link: 'https://github.com/prodbygodfather/abarorm'
     - icon: fontawesome/brands/linkedin
       link: 'https://www.linkedin.com/in/prodbygodfather'
+  navbar:
+    - text: 'GitHub'
+      link: 'https://github.com/prodbygodfather/abarorm'
+      icon: 'fab fa-github'
 
-features:
-  - navigation.tabs
-  - navigation.top
-  - navigation.expand
-  - navigation.sections
-  - navigation.instant
-  - search.highlight
-  - search.share
-  - toc.integrate
-  - content.tabs.link
+plugins:
+  - search
+  - git-revision-date
+
+
+copyright: Copyright &copy; 2024 AbarVision co - Mahdi Ghasemi (Dokey)

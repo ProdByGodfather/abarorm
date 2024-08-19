@@ -45,4 +45,4 @@ if __name__ == "__main__":
     Post.create_table()
 ```
 ## CRUD
-There is no difference in the type and method of CRUD in modeling and using databases, and to create them, you can refer to a [Basic Usage - CRUD](http://127.0.0.1:8000/basic_usage/#step-3-perform-crud-operations) page.
+There is no difference in the type and method of CRUD in modeling and using databases, and to create them, you can refer to a [Basic Usage - CRUD](/basic_usage/#step-3-perform-crud-operations) page.
