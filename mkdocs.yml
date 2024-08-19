@@ -7,7 +7,7 @@ nav:
   - Introduction: Introduction.md
   - Basic Usage: basic_usage.md
   - Field Types: field_types.md
-  - API Reference: api_refrence.md
+  - API Reference: api_reference.md
 
 theme:
   name: 'material'
