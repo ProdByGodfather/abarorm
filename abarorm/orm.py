@@ -1,7 +1,7 @@
 import sqlite3
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Type, Union
 import datetime
-from .fields import Field, DateTimeField
+from .fields import Field, DateTimeField, DecimalField, TimeField, DateField
 
 class ModelMeta(type):
     def __new__(cls, name, bases, dct):
@@ -38,6 +38,8 @@ class BaseModel(metaclass=ModelMeta):
         for attr, field in cls.__dict__.items():
             if isinstance(field, Field):
                 col_type = field.field_type
+                if isinstance(field, DecimalField):
+                    col_type += f"({field.max_digits}, {field.decimal_places})"
                 column_definition = f"{attr} {col_type}"
                 if field.unique:
                     column_definition += " UNIQUE"
@@ -63,6 +65,8 @@ class BaseModel(metaclass=ModelMeta):
         for column in new_columns:
             field = cls.__dict__[column]
             col_type = field.field_type
+            if isinstance(field, DecimalField):
+                col_type += f"({field.max_digits}, {field.decimal_places})"
             column_definition = f"ALTER TABLE {cls.table_name} ADD COLUMN {column} {col_type}"
             if field.unique:
                 column_definition += " UNIQUE"
@@ -85,10 +89,13 @@ class BaseModel(metaclass=ModelMeta):
         return {row[1] for row in cursor.fetchall()}
 
     @classmethod
-    def all(cls) -> List['BaseModel']:
+    def all(cls, order_by: Optional[str] = None) -> List['BaseModel']:
         conn = cls.connect()
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM {cls.table_name}")
+        query = f"SELECT * FROM {cls.table_name}"
+        if order_by:
+            query += f" ORDER BY {order_by}"
+        cursor.execute(query)
         results = cursor.fetchall()
         conn.close()
         return [cls(**dict(zip([c[0] for c in cursor.description], row))) for row in results]
@@ -128,6 +135,14 @@ class BaseModel(metaclass=ModelMeta):
                     columns.append(attr)
                     placeholders.append('?')
                     values.append(kwargs[attr])
+                elif isinstance(field, DateTimeField) and field.auto_now_add:
+                    columns.append(attr)
+                    placeholders.append('?')
+                    values.append(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                elif isinstance(field, DateField) and field.auto_now_add:
+                    columns.append(attr)
+                    placeholders.append('?')
+                    values.append(datetime.datetime.now().strftime('%Y-%m-%d'))
                 elif isinstance(field, DateTimeField) and field.auto_now:
                     columns.append(attr)
                     placeholders.append('?')
@@ -146,6 +161,8 @@ class BaseModel(metaclass=ModelMeta):
             field = getattr(cls, key)
             if isinstance(field, DateTimeField) and field.auto_now:
                 value = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            if isinstance(field, DateField) and field.auto_now:
+                value = datetime.datetime.now().strftime('%Y-%m-%d')
             values.append(value)
         cursor.execute(f"UPDATE {cls.table_name} SET {set_clause} WHERE id = ?", (*values, id))
         conn.commit()

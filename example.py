@@ -1,27 +1,39 @@
-from abarorm.orm import SQLiteModel
+from abarorm.orm import SQLiteModel, MySQLModel, PostgreSQLModel
 from abarorm.fields import CharField, DateTimeField, ForeignKey
 
 # Database configuration
 DATABASE_CONFIG = {
     'sqlite': {
         'db_name': 'example.db',  # Name of the SQLite database file
+    },
+    'mysql': {
+        'host': 'localhost',
+        'user': 'your_mysql_user',
+        'password': 'your_mysql_password',
+        'database': 'example_db',
+    },
+    'postgresql': {
+        'host': 'localhost',
+        'user': 'your_pg_user',
+        'password': 'your_pg_password',
+        'database': 'example_db',
     }
 }
 
-
-# Define the Category model
+# Define the Category model for SQLite
 class Category(SQLiteModel):
     table_name = 'categories'  # Name of the table in the database
 
     # Define the fields of the Category model
     title = CharField(max_length=200, null=False)  # Title of the category, must be unique and not null
-    create_time = DateTimeField(auto_now=True)  # Creation time of the category, automatically set to current datetime
-    update_time = DateTimeField(auto_now=True)
+    create_time = DateTimeField(auto_now=True, auto_now_add=True)  # Creation time of the category, automatically set to current datetime
+    update_time = DateTimeField(auto_now=True)  # Update time of the category, automatically set to current datetime
+
     def __init__(self, **kwargs):
         # Initialize the Category model with database configuration
         super().__init__(db_config=DATABASE_CONFIG['sqlite'], **kwargs)
 
-# Define the Post model
+# Define the Post model for SQLite
 class Post(SQLiteModel):
     table_name = 'posts'  # Name of the table in the database
 
@@ -37,8 +49,8 @@ class Post(SQLiteModel):
 # Main execution block
 if __name__ == "__main__":
     # Create tables in the database
-    # Category.create_table()  # This will create the 'categories' table
-    # Post.create_table()  # This will create the 'posts' table
+    Category.create_table()  # This will create the 'categories' table
+    Post.create_table()  # This will create the 'posts' table
 
     # Create a new category
     Category.create(title='Movies')  # Add a new category with title 'Movies'
@@ -51,9 +63,9 @@ if __name__ == "__main__":
 
         # Read all posts
         all_posts = Post.all()  # Retrieve all posts from the database
-        all_categoires = Category.all()
+        all_categories = Category.all()  # Retrieve all categories from the database
         print("All Posts:", [(post.title, post.category) for post in all_posts])  # Print all posts with their titles and associated categories
-        print("All Categories:", [(post.title, post.create_time, post.update_time) for post in all_categoires])  # Print all posts with their titles and associated categories
+        print("All Categories:", [(cat.title, cat.create_time, cat.update_time) for cat in all_categories])  # Print all categories with their details
 
         # Use the get method to retrieve a post by ID
         post_data = Post.get(id=1)  # Fetch the post with ID 1

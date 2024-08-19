@@ -23,9 +23,20 @@ class BooleanField(Field):
         super().__init__(field_type='BOOLEAN', default=default, **kwargs)
 
 class DateTimeField(Field):
-    def __init__(self, auto_now: bool = False, **kwargs):
+    def __init__(self, auto_now: bool = False, auto_now_add: Optional[bool] = None, **kwargs):
         super().__init__(field_type='DATETIME', **kwargs)
         self.auto_now = auto_now
+        self.auto_now_add = auto_now_add
+
+class DateField(Field):
+    def __init__(self, auto_now: bool = False, auto_now_add: Optional[bool] = None, **kwargs):
+        super().__init__(field_type='DATE', **kwargs)
+        self.auto_now = auto_now
+        self.auto_now_add = auto_now_add
+
+class TimeField(Field):
+    def __init__(self, **kwargs):
+        super().__init__(field_type='TIME', **kwargs)
 
 class ForeignKey(Field):
     def __init__(self, to: Type['BaseModel'], on_delete: str = 'CASCADE', **kwargs):
@@ -33,3 +44,24 @@ class ForeignKey(Field):
         self.to = to
         self.on_delete = on_delete
 
+class FloatField(Field):
+    def __init__(self, **kwargs):
+        super().__init__(field_type='FLOAT', **kwargs)
+
+class DecimalField(Field):
+    def __init__(self, max_digits: int, decimal_places: int, **kwargs):
+        super().__init__(field_type='DECIMAL', **kwargs)
+        self.max_digits = max_digits
+        self.decimal_places = decimal_places
+
+class TextField(Field):
+    def __init__(self, **kwargs):
+        super().__init__(field_type='TEXT', **kwargs)
+
+class EmailField(CharField):
+    def __init__(self, **kwargs):
+        super().__init__(max_length=254, **kwargs)
+
+class URLField(CharField):
+    def __init__(self, **kwargs):
+        super().__init__(max_length=1000, **kwargs)

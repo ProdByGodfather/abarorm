@@ -1,13 +1,13 @@
 import mysql.connector
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Type, Union
 import datetime
-from .fields import Field, DateTimeField
+from .fields import Field, DateTimeField, DecimalField, TimeField, DateField
 
 class ModelMeta(type):
     def __new__(cls, name, bases, dct):
         new_cls = super().__new__(cls, name, bases, dct)
-        if 'table_name' in dct and dct['table_name']:  # اگر table_name تعریف شده بود
-            new_cls.create_table()  # به صورت اتوماتیک جدول ایجاد می‌شود
+        if 'table_name' in dct and dct['table_name']:  # Check if table_name is defined
+            new_cls.create_table()  # Automatically create the table
         return new_cls
 
 class BaseModel(metaclass=ModelMeta):
@@ -19,7 +19,7 @@ class BaseModel(metaclass=ModelMeta):
 
     @classmethod
     def connect(cls):
-        raise NotImplementedError("متد Connect باید پیاده‌سازی شود.")
+        raise NotImplementedError("Connect method must be implemented.")
 
     @classmethod
     def create_table(cls):
@@ -27,10 +27,10 @@ class BaseModel(metaclass=ModelMeta):
         cursor = conn.cursor()
         columns = cls._get_column_definitions(cursor)
         
-        # ایجاد جدول اگر وجود ندارد
+        # Create table if it does not exist
         cursor.execute(f"CREATE TABLE IF NOT EXISTS {cls.table_name} (id INT AUTO_INCREMENT PRIMARY KEY, {', '.join(columns)})")
         
-        # به روزرسانی ساختار جدول در صورت نیاز
+        # Update table structure if needed
         cls._update_table_structure(cursor)
 
         conn.commit()
@@ -42,6 +42,8 @@ class BaseModel(metaclass=ModelMeta):
         for attr, field in cls.__dict__.items():
             if isinstance(field, Field):
                 col_type = field.field_type
+                if isinstance(field, DecimalField):
+                    col_type += f"({field.max_digits}, {field.decimal_places})"
                 column_definition = f"{attr} {col_type}"
                 if field.unique:
                     column_definition += " UNIQUE"
@@ -55,7 +57,7 @@ class BaseModel(metaclass=ModelMeta):
                     else:
                         column_definition += f" DEFAULT {field.default}"
                 else:
-                    column_definition += " DEFAULT NULL"
+                    column_definition += " DEFAULT NULL"  # Allow NULL by default to avoid errors
                 columns.append(column_definition)
         return columns
 
@@ -67,6 +69,8 @@ class BaseModel(metaclass=ModelMeta):
         for column in new_columns:
             field = cls.__dict__[column]
             col_type = field.field_type
+            if isinstance(field, DecimalField):
+                col_type += f"({field.max_digits}, {field.decimal_places})"
             column_definition = f"ALTER TABLE {cls.table_name} ADD COLUMN {column} {col_type}"
             if field.unique:
                 column_definition += " UNIQUE"
@@ -80,7 +84,7 @@ class BaseModel(metaclass=ModelMeta):
                 else:
                     column_definition += f" DEFAULT {field.default}"
             else:
-                column_definition += " DEFAULT NULL"
+                column_definition += " DEFAULT NULL"  # Allow NULL by default
             cursor.execute(column_definition)
 
     @classmethod
@@ -89,10 +93,13 @@ class BaseModel(metaclass=ModelMeta):
         return {row[0] for row in cursor.fetchall()}
 
     @classmethod
-    def all(cls) -> List['BaseModel']:
+    def all(cls, order_by: Optional[str] = None) -> List['BaseModel']:
         conn = cls.connect()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute(f"SELECT * FROM {cls.table_name}")
+        query = f"SELECT * FROM {cls.table_name}"
+        if order_by:
+            query += f" ORDER BY {order_by}"
+        cursor.execute(query)
         results = cursor.fetchall()
         conn.close()
         return [cls(**row) for row in results]
@@ -132,6 +139,14 @@ class BaseModel(metaclass=ModelMeta):
                     columns.append(attr)
                     placeholders.append('%s')
                     values.append(kwargs[attr])
+                elif isinstance(field, DateTimeField) and field.auto_now_add:
+                    columns.append(attr)
+                    placeholders.append('%s')
+                    values.append(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                elif isinstance(field, DateField) and field.auto_now_add:
+                    columns.append(attr)
+                    placeholders.append('%s')
+                    values.append(datetime.datetime.now().strftime('%Y-%m-%d'))
                 elif isinstance(field, DateTimeField) and field.auto_now:
                     columns.append(attr)
                     placeholders.append('%s')
@@ -150,6 +165,8 @@ class BaseModel(metaclass=ModelMeta):
             field = getattr(cls, key)
             if isinstance(field, DateTimeField) and field.auto_now:
                 value = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            if isinstance(field, DateField) and field.auto_now:
+                value = datetime.datetime.now().strftime('%Y-%m-%d')
             values.append(value)
         cursor.execute(f"UPDATE {cls.table_name} SET {set_clause} WHERE id = %s", (*values, id))
         conn.commit()
