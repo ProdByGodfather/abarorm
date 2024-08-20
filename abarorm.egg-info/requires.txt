@@ -1,6 +1,0 @@
-
-[mysql]
-mysql-connector-python>=8.0.0
-
-[postgresql]
-psycopg2-binary>=2.9.0

@@ -1,4 +1,4 @@
-from abarorm.orm import SQLiteModel, MySQLModel, PostgreSQLModel
+from abarorm import SQLiteModel, MySQLModel, PostgreSQLModel
 from abarorm.fields import CharField, DateTimeField, ForeignKey
 
 # Database configuration
@@ -22,35 +22,28 @@ DATABASE_CONFIG = {
 
 # Define the Category model for SQLite
 class Category(SQLiteModel):
-    table_name = 'categories'  # Name of the table in the database
+    class Meta:
+        db_name = DATABASE_CONFIG['sqlite']
 
     # Define the fields of the Category model
     title = CharField(max_length=200, null=False)  # Title of the category, must be unique and not null
     create_time = DateTimeField(auto_now=True, auto_now_add=True)  # Creation time of the category, automatically set to current datetime
     update_time = DateTimeField(auto_now=True)  # Update time of the category, automatically set to current datetime
 
-    def __init__(self, **kwargs):
-        # Initialize the Category model with database configuration
-        super().__init__(db_config=DATABASE_CONFIG['sqlite'], **kwargs)
 
 # Define the Post model for SQLite
-class Post(SQLiteModel):
-    table_name = 'posts'  # Name of the table in the database
+class Post(MySQLModel):
+    class Meta:
+        db_name = DATABASE_CONFIG['mysql']
 
     # Define the fields of the Post model
     title = CharField(max_length=100, null=False)  # Title of the post, must be unique and not null
     create_time = DateTimeField(auto_now=True)  # Creation time of the post, automatically set to current datetime
     category = ForeignKey(to=Category)  # Foreign key referring to the Category model
 
-    def __init__(self, **kwargs):
-        # Initialize the Post model with database configuration
-        super().__init__(db_config=DATABASE_CONFIG['sqlite'], **kwargs)
 
 # Main execution block
 if __name__ == "__main__":
-    # Create tables in the database
-    Category.create_table()  # This will create the 'categories' table
-    Post.create_table()  # This will create the 'posts' table
 
     # Create a new category
     Category.create(title='Movies')  # Add a new category with title 'Movies'

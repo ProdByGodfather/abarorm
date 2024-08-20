@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='abarorm',
-    version='2.0.0',
+    version='2.1.0',
     description='abarorm is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite & PostgreSQL and MySQL databases in Python. It aims to provide a simple and intuitive interface for managing database models and interactions.',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
@@ -12,7 +12,8 @@ setup(
     packages=find_packages(),
     python_requires='>=3.8',
     install_requires=[
-        # Default dependencies (might include shared libraries or utilities)
+        'mysql-connector-python>=8.0.0',
+        'psycopg2-binary>=2.9.0',
     ],
     extras_require={
         'mysql': ['mysql-connector-python>=8.0.0'],

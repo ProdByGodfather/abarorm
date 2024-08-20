@@ -1,17 +1,23 @@
 import sqlite3
-from typing import List, Optional, Dict, Type, Union
+from typing import List, Optional, Dict
 import datetime
-from .fields import Field, DateTimeField, DecimalField, TimeField, DateField
+from .fields import Field, DateTimeField, DecimalField, TimeField, DateField, CharField
 
 class ModelMeta(type):
     def __new__(cls, name, bases, dct):
         new_cls = super().__new__(cls, name, bases, dct)
-        if 'table_name' in dct and dct['table_name']:  # Check if table_name is defined
-            new_cls.create_table()  # Automatically create the table
+        if not hasattr(new_cls, 'table_name') or not new_cls.table_name:
+            new_cls.table_name = name.lower()  # Automatically set table_name from model class name
+        
+        if hasattr(new_cls.Meta, 'db_config') and new_cls.Meta.db_config:
+            new_cls.create_table()  # Automatically create the table if db_config is present
         return new_cls
 
 class BaseModel(metaclass=ModelMeta):
     table_name = ''
+    
+    class Meta:
+        db_config = {}  # Default empty config, should be overridden in the actual model
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -19,7 +25,10 @@ class BaseModel(metaclass=ModelMeta):
 
     @classmethod
     def connect(cls):
-        raise NotImplementedError("Connect method must be implemented.")
+        config = getattr(cls.Meta, 'db_config', None)
+        if not config or 'db_name' not in config:
+            raise ValueError("Database configuration 'db_name' is missing in Meta class")
+        return sqlite3.connect(config['db_name'])
 
     @classmethod
     def create_table(cls):
@@ -177,10 +186,6 @@ class BaseModel(metaclass=ModelMeta):
         conn.close()
 
 class SQLiteModel(BaseModel):
-    def __init__(self, db_config: Dict[str, str], **kwargs):
-        super().__init__(**kwargs)
-        self.db_name = db_config['db_name']
+    class Meta:
+        db_config = {}  # To be overridden by the model class
 
-    @classmethod
-    def connect(cls):
-        return sqlite3.connect(cls().db_name)
