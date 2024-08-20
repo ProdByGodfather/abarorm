@@ -80,18 +80,19 @@ DATABASE_CONFIG = {
 }
 
 class Category(SQLiteModel):
-    table_name = 'categories'
     title = CharField(max_length=200, unique=True)
     create_time = DateTimeField(auto_now_add=True)
     update_time = DateTimeField(auto_now=True)
-
-    def __init__(self, **kwargs):
-        super().__init__(db_config=DATABASE_CONFIG['sqlite'], **kwargs)
+    
+    class Meta:
+        db_config = DATABASE_CONFIG['sqlite']
 
 # Add a new category
 Category.create(title='Movies')
 
 ```
+The configuration of each database is different, but the simplest available configuration is for sqlite, which can be connected to it simply with a database name.
+
 Models are automatically managed by AbarORM, which means that any changes to your models, such as adding new fields, are automatically applied to the database without the need for manual migration steps. This feature streamlines development by reducing the overhead associated with schema changes.
 
 ???+ warning 

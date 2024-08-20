@@ -17,20 +17,16 @@ DATABASE_CONFIG = {
 }
 
 class Category(SQLiteModel):
-    table_name = 'categories'
     title = CharField(max_length=200, unique=True)
-
-    def __init__(self, **kwargs):
-        super().__init__(db_config=DATABASE_CONFIG['sqlite'], **kwargs)
+    class Meta:
+        db_config = DATABASE_CONFIG['sqlite']
 
 class Post(SQLiteModel):
-    table_name = 'posts'
     title = CharField(max_length=100, unique=True)
     create_time = DateTimeField(auto_now=True)
     category = ForeignKey(Category)
-
-    def __init__(self, **kwargs):
-        super().__init__(db_config=DATABASE_CONFIG['sqlite'], **kwargs)
+    class Meta:
+        db_config = DATABASE_CONFIG['sqlite']s)
 ```
 ## Automatic Table Management
 In the latest version of AbarORM, you no longer need to manually create tables. The library automatically handles the creation and management of your tables based on the model definitions. This means that as soon as you start interacting with your models, AbarORM will ensure that the corresponding tables are created if they do not already exist.

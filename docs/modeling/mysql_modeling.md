@@ -20,20 +20,17 @@ DATABASE_CONFIG = {
 }
 
 class Category(MySQLModel):
-    table_name = 'categories'
     title = CharField(max_length=200, unique=True)
+    class Meta:
+        db_config = DATABASE_CONFIG['mysql']
 
-    def __init__(self, **kwargs):
-        super().__init__(db_config=DATABASE_CONFIG['mysql'], **kwargs)
 
 class Post(MySQLModel):
-    table_name = 'posts'
     title = CharField(max_length=100, unique=True)
     create_time = DateTimeField(auto_now=True)
     category = ForeignKey(Category)
-
-    def __init__(self, **kwargs):
-        super().__init__(db_config=DATABASE_CONFIG['mysql'], **kwargs)
+    class Meta:
+        db_config = DATABASE_CONFIG['mysql']
 ```
 
 ## Automatic Table Management

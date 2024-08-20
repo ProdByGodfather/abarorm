@@ -23,21 +23,17 @@ DATABASE_CONFIG = {
 
 # Define the Category model
 class Category(SQLiteModel):
-    table_name = 'categories'
     title = CharField(max_length=200, unique=True)
-
-    def __init__(self, **kwargs):
-        super().__init__(db_config=DATABASE_CONFIG['sqlite'], **kwargs)
+    class Meta:
+        db_config = DATABASE_CONFIG['sqlite']
 
 # Define the Post model
 class Post(SQLiteModel):
-    table_name = 'posts'
     title = CharField(max_length=100, unique=True)
     create_time = DateTimeField(auto_now=True)
     category = ForeignKey(Category)
-
-    def __init__(self, **kwargs):
-        super().__init__(db_config=DATABASE_CONFIG['sqlite'], **kwargs)
+    class Meta:
+        db_config = DATABASE_CONFIG['sqlite']
 ```
 In the example above:
 

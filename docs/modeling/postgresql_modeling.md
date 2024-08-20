@@ -21,20 +21,16 @@ DATABASE_CONFIG = {
 }
 
 class Category(PostgreSQLModel):
-    table_name = 'categories'
     title = CharField(max_length=200, unique=True)
-
-    def __init__(self, **kwargs):
-        super().__init__(db_config=DATABASE_CONFIG['postgresql'], **kwargs)
+    class Meta:
+        db_config = DATABASE_CONFIG['postgresql']
 
 class Post(PostgreSQLModel):
-    table_name = 'posts'
     title = CharField(max_length=100, unique=True)
     create_time = DateTimeField(auto_now=True)
     category = ForeignKey(Category)
-
-    def __init__(self, **kwargs):
-        super().__init__(db_config=DATABASE_CONFIG['postgresql'], **kwargs)
+    class Meta:
+        db_config = DATABASE_CONFIG['postgresql']
 
 ```
 

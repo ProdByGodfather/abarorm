@@ -12,9 +12,12 @@ nav:
   - Basic Usage: basic_usage.md
   - Field Types: field_types.md
   - API Reference: api_reference.md
+  - Issues: issuse.md
 
 theme:
   name: 'material'
+  icon:
+    repo: "fontawesome/brands/github"
   logo: 'images/logo.png' 
   favicon: 'images/favicon.ico' 
   palette:

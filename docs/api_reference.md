@@ -10,19 +10,12 @@ The `SQLiteModel` class is the base class for defining models that interact with
 
 #### Methods
 
-- **`__init__(self, db_config, **kwargs)`**
+- **`class Meta:`**
   - **Description**: Initializes the model with the given database configuration.
   - **Parameters**:
     - `db_config`: Dictionary containing the database configuration.
     - `**kwargs`: Additional keyword arguments.
   
-- **`create_table(cls)`**
-  - **Description**: Creates the table in the SQLite database based on the model definition.
-  - **Parameters**: None
-
-- **`drop_table(cls)`**
-  - **Description**: Drops the table from the SQLite database.
-  - **Parameters**: None
 
 - **`save(self)`**
   - **Description**: Saves the current instance to the database. If it’s a new record, it will be inserted; if it exists, it will be updated.
@@ -52,7 +45,16 @@ The `MySQLModel` class is similar to `SQLiteModel` but designed for MySQL databa
 
 #### Methods
 
-The methods for `MySQLModel` are identical to those for `SQLiteModel`, with differences primarily in how they interact with the MySQL database.
+The methods for `MySQLModel` and `PostgreSQLModel` are identical to those for `SQLiteModel`, with differences primarily in how they interact with the MySQL database.
+
+
+### 3. `PostgreSQLModel`
+
+The `PostgreSQLModel` class is similar to `SQLiteModel` but designed for Postgresql databases. It provides the same methods as `SQLiteModel` but interacts with Postgresql instead.
+
+#### Methods
+
+The methods for `MySQLModel` and `PostgreSQLModel` are identical to those for `SQLiteModel`, with differences primarily in how they interact with the MySQL database.
 
 ## Fields
 

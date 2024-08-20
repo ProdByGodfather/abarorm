@@ -14,12 +14,18 @@
 
 
 ## Features
-
 - Define models using Python classes
 - Automatically handle database schema creation and management
 - Support for basic CRUD operations
 - Foreign key relationships
 - Custom field types with validation and constraints
+- Easy changeability to start developing
+
+### Supported Databases
+![psql](https://img.shields.io/badge/Postgresql-%2320232a.svg?style=for-the-badge&logo=postgresql)
+![mysql](https://img.shields.io/badge/mysql-%2320232a.svg?style=for-the-badge&logo=mysql)
+![sqlite](https://img.shields.io/badge/sqlite-%2320232a.svg?style=for-the-badge&logo=sqlite)
+
 
 ## Installation
 
@@ -38,3 +44,5 @@ For PostgreSQL support, install `psycopg2-binary`: (Required)
 ```bash
 pip install psycopg2-binary
 ```
+
+[Start with abarorm](Introduction.md)
