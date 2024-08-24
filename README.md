@@ -17,7 +17,7 @@
 
 ## Installation
 
-You can install **abarorm** from PyPI using pip:
+You can install **abarorm** from [PyPI using pip](https://pypi.org/project/abarorm/):
 
 ```bash
 pip install abarorm
