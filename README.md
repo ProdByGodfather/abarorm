@@ -17,6 +17,9 @@
 
 ## Installation
 
+> [!CAUTION]
+> **This version of the library is still full of problems**
+
 You can install [**abarorm**](https://pypi.org/project/abarorm/) from PyPI using pip:
 
 ```bash
