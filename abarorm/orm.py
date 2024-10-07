@@ -187,7 +187,12 @@ class BaseModel(metaclass=ModelMeta):
                     columns.append(attr)
                     placeholders.append('?')
                     values.append(datetime.datetime.now().strftime('%Y-%m-%d'))
-        
+                elif isinstance(field, DateTimeField) and field.auto_now:
+                    columns.append(attr)
+                    placeholders.append('?')
+                    values.append(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                    
+                    
         cursor.execute(f"INSERT INTO {cls.table_name} ({', '.join(columns)}) VALUES ({', '.join(placeholders)})", tuple(values))
         conn.commit()
         conn.close()
