@@ -8,3 +8,5 @@ dist
 /build
 abarorm.egg-info
 /abarorm.egg-info
+.txt
+/.txt
