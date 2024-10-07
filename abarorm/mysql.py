@@ -1,5 +1,5 @@
 import mysql.connector
-from typing import List, Optional, Dict
+from typing import List, Optional
 import datetime
 from .fields import Field, DateTimeField, DecimalField, TimeField, DateField, CharField
 
@@ -8,7 +8,7 @@ class ModelMeta(type):
         new_cls = super().__new__(cls, name, bases, dct)
         if not hasattr(new_cls, 'table_name') or not new_cls.table_name:
             new_cls.table_name = name.lower()  # Automatically set table_name from model class name
-        
+
         if hasattr(new_cls.Meta, 'db_config') and new_cls.Meta.db_config:
             new_cls.create_table()  # Automatically create the table if db_config is present
         return new_cls
@@ -96,7 +96,7 @@ class BaseModel(metaclass=ModelMeta):
             else:
                 column_definition += " DEFAULT NULL"  # Allow NULL by default
             cursor.execute(column_definition)
-    
+
     @classmethod
     def _get_existing_columns(cls, cursor):
         cursor.execute(f"SHOW COLUMNS FROM {cls.table_name}")

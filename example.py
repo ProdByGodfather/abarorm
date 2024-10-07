@@ -23,7 +23,8 @@ DATABASE_CONFIG = {
 # Define the Category model for SQLite
 class Category(SQLiteModel):
     class Meta:
-        db_name = DATABASE_CONFIG['sqlite']
+        db_config = DATABASE_CONFIG['sqlite']
+        table_name = 'categories'  # Name of the table for storing the Category model data in SQLite
 
     # Define the fields of the Category model
     title = CharField(max_length=200, null=False)  # Title of the category, must be unique and not null
@@ -34,7 +35,7 @@ class Category(SQLiteModel):
 # Define the Post model for SQLite
 class Post(MySQLModel):
     class Meta:
-        db_name = DATABASE_CONFIG['mysql']
+        db_config = DATABASE_CONFIG['mysql']
 
     # Define the fields of the Post model
     title = CharField(max_length=100, null=False)  # Title of the post, must be unique and not null
@@ -66,7 +67,7 @@ if __name__ == "__main__":
             print("Post with ID 1:", post_data.title, post_data.category)  # Print the title and category of the post with ID 1
 
         # Filter posts based on category ID
-        filtered_posts = Post.filter(category=category.id)  # Retrieve all posts associated with the specified category ID
+        filtered_posts = Post.filter(category=category.id, order_by='-create_time')  # Retrieve all posts associated with the specified category ID
         print("Filtered Posts:", [(post.title, post.category) for post in filtered_posts])  # Print posts filtered by category
 
         # Update an existing post
@@ -80,7 +81,7 @@ if __name__ == "__main__":
         Post.delete(1)  # Delete the post with ID 1
 
         # Read all posts after deletion
-        final_posts = Post.all()  # Retrieve all posts from the database after deletion
+        final_posts = Post.all(order_by='create_time')  # Retrieve all posts from the database after deletion
         print("Final Posts:", [(post.title, post.category) for post in final_posts])  # Print all remaining posts
 
     else:

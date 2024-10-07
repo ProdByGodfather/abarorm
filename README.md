@@ -13,12 +13,12 @@
 - **New in v1.0.0**: Automatic table creation and updates without needing explicit `create_table()` calls
 - **New in v2.0.0**: Added support for PostgreSQL databases
 - **New in v2.0.0**: Ordering by fields on `all()` method
+- **New in v3.0.0**: Fixed table naming bugs to ensure consistent naming conventions
+- **New in v3.0.0**: Updated return values for methods to improve clarity and usability
+- **New in v3.0.0**: Enhanced `filter` method now supports `order_by` functionality for result ordering
 
 
 ## Installation
-
-> [!CAUTION]
-> **This version of the library is still full of problems**
 
 You can install [**abarorm**](https://pypi.org/project/abarorm/) from PyPI using pip:
 
@@ -42,11 +42,11 @@ Here’s a quick overview of how to use **abarorm** to define models and interac
 ## Documentation
 For detailed documentation, examples, and advanced usage, please visit the [official abarorm documentation website](https://prodbygodfather.github.io/abarorm/).
 
-## Version 2.0.0 Notes
-PostgreSQL Support: abarorm now supports PostgreSQL databases in addition to SQLite and MySQL.
-Automatic Table Management: Tables are created or updated automatically based on model definitions without manual intervention.
-Important for Developers: When adding new fields to models, they will default to `NULL`. It’s recommended to recreate the database schema after development is complete to ensure fields have appropriate constraints and default values.
-
+## Version 3.0.0 Notes
+- Fixed Table Naming: Resolved issues related to inconsistent table naming conventions.
+- Return Values Updated: Methods now return values that enhance clarity and usability.
+- Filter Enhancements: The `filter` method now includes support for `order_by`, allowing for more flexible queries.
+**Important for Developers:** When adding new fields to models, they will default to `NULL`. It’s recommended to recreate the database schema after development is complete to ensure fields have appropriate constraints and default values.
 
 ## Contributing
 Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request on GitHub.
