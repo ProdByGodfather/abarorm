@@ -35,6 +35,8 @@ For PostgreSQL support, you need to install `psycopg2-binary`:
 pip install psycopg2-binary
 ```
 
+## Documentation
+For detailed documentation, examples, and advanced usage, please visit the [official abarorm documentation website](https://prodbygodfather.github.io/abarorm/).
 
 ## Basic Usage
 Here’s a quick overview of how to use **abarorm** to define models and interact with an SQLite or MySQL database.
@@ -128,8 +130,6 @@ if __name__ == "__main__":
     else:
         print("Category with ID 1 does not exist.")  # Print a message if the category with ID 1 does not exist
 ```
-## Documentation
-For detailed documentation, examples, and advanced usage, please visit the [official abarorm documentation website](https://prodbygodfather.github.io/abarorm/).
 
 ## Version 3.0.0 Notes
 - Fixed Table Naming: Resolved issues related to inconsistent table naming conventions.
