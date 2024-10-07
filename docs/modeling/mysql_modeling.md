@@ -23,6 +23,7 @@ class Category(MySQLModel):
     title = CharField(max_length=200, unique=True)
     class Meta:
         db_config = DATABASE_CONFIG['mysql']
+        table_name = 'categories'  # Name of the table for storing the Category model data in MySQL
 
 
 class Post(MySQLModel):
@@ -34,7 +35,7 @@ class Post(MySQLModel):
 ```
 
 ## Automatic Table Management
-In the latest version of AbarORM, you no longer need to manually create tables. The library automatically handles the creation and management of your tables based on the model definitions. This means that as soon as you start interacting with your models, AbarORM will ensure that the corresponding tables are created if they do not already exist.
+In the latest version of AbarORM, you no longer need to manually create tables. The library automatically handles the creation and management of your tables based on the model definitions. This means that as soon as you start interacting with your models, AbarORM will ensure that the corresponding tables are created if they do not already exist. However, you can manage the names of the tables manually by defining the `table_name` variable in the Meta class
 
 ## Automatic Schema Updates
 AbarORM also supports automatic schema updates. If you add new fields to your models while the application is running, AbarORM will automatically update the database schema to reflect these changes. This eliminates the need for manual migration scripts or database rebuilds.

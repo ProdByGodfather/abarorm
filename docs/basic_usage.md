@@ -26,6 +26,8 @@ class Category(SQLiteModel):
     title = CharField(max_length=200, unique=True)
     class Meta:
         db_config = DATABASE_CONFIG['sqlite']
+        table_name = 'categories'  # Name of the table for storing the Category model data in SQLite
+
 
 # Define the Post model
 class Post(SQLiteModel):
@@ -67,7 +69,7 @@ if post_data:
     print("Post with ID 1:", post_data.title, post_data.category)
 
 # Filter posts by category
-filtered_posts = Post.filter(category=category.id)
+filtered_posts = Post.filter(category=category.id, order_by="-create_time")
 print("Filtered Posts:", [(post.title, post.category) for post in filtered_posts])
 ```
 ### Update Records

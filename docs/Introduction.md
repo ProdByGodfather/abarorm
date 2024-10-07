@@ -61,7 +61,6 @@ pip install psycopg2-binary
 
 **Define Models:** Create Python classes that represent your database tables. Use built-in field types to define the attributes of each model.
 
-**Create Tables:** Use the create_table method to initialize your database schema.
 
 **Perform Operations:** Use the methods provided by AbarORM to perform CRUD operations, manage relationships, and query your data.
 
