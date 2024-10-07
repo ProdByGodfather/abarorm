@@ -41,9 +41,9 @@ class TimeField(Field):
 class ForeignKey(Field):
     def __init__(self, to: Type['BaseModel'], on_delete: str = 'CASCADE', **kwargs):
         super().__init__(field_type='INTEGER', **kwargs)
-        self.to = to
-        self.on_delete = on_delete
-
+        self.to = to  # This is the related model class
+        self.on_delete = on_delete  # Specifies the behavior when the referenced row is deleted
+        
 class FloatField(Field):
     def __init__(self, **kwargs):
         super().__init__(field_type='FLOAT', **kwargs)
