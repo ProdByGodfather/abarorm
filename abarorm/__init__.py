@@ -4,6 +4,6 @@ __all__ = [
     'PostgreSQLModel'
 ]
 
-from .orm import SQLiteModel
+from .sqlite import SQLiteModel
 from .mysql import MySQLModel
 from .psql import PostgreSQLModel
