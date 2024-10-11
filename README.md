@@ -5,17 +5,17 @@
 
 ## Features
 
-- Define models using Python classes
-- Automatically handle database schema creation and management
-- Support for basic CRUD operations
-- Foreign key relationships
-- Custom field types with validation and constraints
-- **New in v1.0.0**: Automatic table creation and updates without needing explicit `create_table()` calls
-- **New in v2.0.0**: Added support for PostgreSQL databases
-- **New in v2.0.0**: Ordering by fields on `all()` method
-- **New in v3.0.0**: Fixed table naming bugs to ensure consistent naming conventions
-- **New in v3.0.0**: Updated return values for methods to improve clarity and usability
-- **New in v3.0.0**: Enhanced `filter` method now supports `order_by` functionality for result ordering
+- Define models using Python classes.
+- Automatically handle database schema creation and management.
+- Support for basic CRUD (Create, Read, Update, Delete) operations.
+- Manage foreign key relationships effortlessly.
+- Custom field types with validation and constraints.
+- **New in v1.0.0**: Automatic table creation and updates without needing explicit `create_table()` calls.
+- **New in v2.0.0**: Added support for PostgreSQL databases.
+- **New in v2.0.0**: Ordering by fields in the `all()` method.
+- **New in v3.0.0**: Fixed table naming bugs to ensure consistent naming conventions.
+- **New in v3.0.0**: Updated return values for methods to improve clarity and usability.
+- **New in v3.0.0**: Enhanced `filter` method now supports `order_by` functionality for result ordering.
 
 
 ## Installation
@@ -131,20 +131,25 @@ if __name__ == "__main__":
         print("Category with ID 1 does not exist.")  # Print a message if the category with ID 1 does not exist
 ```
 
-## Version 3.0.0 Notes
-- Fixed Table Naming: Resolved issues related to inconsistent table naming conventions.
-- Return Values Updated: Methods now return values that enhance clarity and usability.
-- Filter Enhancements: The `filter` method now includes support for `order_by`, allowing for more flexible queries.
+### Version 3.0.0
+
+- **Fixed Table Naming**: Resolved issues related to inconsistent table naming conventions.
+- **Return Values Updated**: Methods now return values that enhance clarity and usability.
+- **Filter Enhancements**: The `filter` method now includes support for `order_by`, allowing for more flexible queries.
+
 **Important for Developers:** When adding new fields to models, they will default to `NULL`. It’s recommended to recreate the database schema after development is complete to ensure fields have appropriate constraints and default values.
 
 ## Contributing
+
 Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request on GitHub.
 
 ## License
-This project is licensed under the Apache-2.0 [License](https://github.com/ProdByGodfather/abarorm/blob/main/LICENSE) - see the LICENSE file for details.
+
+This project is licensed under the [Apache-2.0 License](https://github.com/ProdByGodfather/abarorm/blob/main/LICENSE) - see the LICENSE file for details.
 
 ## Acknowledgements
-**Python:** The language used for this project
-**SQLite & MySQL:** The databases supported by this project
-**setuptools:** The tool used for packaging and distributing the library
-**psycopg2-binary:** The PostgreSQL adapter used for connecting to PostgreSQL databases
+
+- **Python**: The language used for this project.
+- **SQLite & MySQL**: The databases supported by this project.
+- **setuptools**: The tool used for packaging and distributing the library.
+- **psycopg2-binary**: The PostgreSQL adapter used for connecting to PostgreSQL databases.
