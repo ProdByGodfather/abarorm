@@ -185,11 +185,19 @@ class BaseModel(metaclass=ModelMeta):
                     values.append(kwargs[attr])
                 elif isinstance(field, DateField) and field.auto_now:
                     columns.append(attr)
-                    placeholders.append('?')
+                    placeholders.append('%s')
+                    values.append(datetime.datetime.now().strftime('%Y-%m-%d'))
+                elif isinstance(field, DateField) and field.auto_now_add:
+                    columns.append(attr)
+                    placeholders.append('%s')
                     values.append(datetime.datetime.now().strftime('%Y-%m-%d'))
                 elif isinstance(field, DateTimeField) and field.auto_now:
                     columns.append(attr)
-                    placeholders.append('?')
+                    placeholders.append('%s')
+                    values.append(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                elif isinstance(field, DateTimeField) and field.auto_now_add:
+                    columns.append(attr)
+                    placeholders.append('%s')
                     values.append(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
                     
                     
