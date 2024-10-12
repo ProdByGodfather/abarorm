@@ -214,6 +214,14 @@ class BaseModel(metaclass=ModelMeta):
         conn.close()
         return True  # Return True on successful creation
 
+    def save(self):
+        if hasattr(self, 'id') and self.id:
+            data = self.__dict__.copy()
+            data.pop('id', None)
+            self.__class__.update(self.id, **data)
+        else:
+            self.__class__.create(**self.__dict__)
+    
     @classmethod
     def update(cls, id: int, **kwargs) -> None:
         conn = cls.connect()
@@ -232,6 +240,8 @@ class BaseModel(metaclass=ModelMeta):
         cursor.execute(f"UPDATE {cls.table_name} SET {set_clause} WHERE id = %s", (*values, id))
         conn.commit()
         conn.close()
+        return True
+        
 
     @classmethod
     def delete(cls, id: int) -> None:
@@ -240,6 +250,8 @@ class BaseModel(metaclass=ModelMeta):
         cursor.execute(f"DELETE FROM {cls.table_name} WHERE id = %s", (id,))
         conn.commit()
         conn.close()
+        return True
+        
 
 class MySQLModel(BaseModel):
     class Meta:
