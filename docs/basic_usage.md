@@ -78,6 +78,12 @@ To update existing records, use the `update` method:
 # Update a post
 Post.update(id=1, title='The Godfather Part II')
 ```
+However, you can update a field at the same time when you receive it:
+```python
+category = Category.get(id=id)
+category.title = title
+category.save()
+```
 ### Delete Records
 To delete records, use the `delete` method:
 ```python
