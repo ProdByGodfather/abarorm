@@ -206,10 +206,19 @@ class BaseModel(metaclass=ModelMeta):
         conn.close()
         return True  # Return True on successful creation
 
+    def save(self):
+        if hasattr(self, 'id') and self.id:
+            data = self.__dict__.copy()
+            data.pop('id', None)
+            self.__class__.update(self.id, **data)
+        else:
+            self.__class__.create(**self.__dict__)
+
     @classmethod
-    def update(cls, id: int, **kwargs) -> None:
+    def update(cls, id: int, **kwargs) -> bool:
         conn = cls.connect()
         cursor = conn.cursor()
+
         set_clause = ', '.join([f"{k} = ?" for k in kwargs.keys()])
         values = []
         for key, value in kwargs.items():
@@ -223,6 +232,9 @@ class BaseModel(metaclass=ModelMeta):
         conn.commit()
         conn.close()
 
+        return True
+        
+
     @classmethod
     def delete(cls, id: int) -> None:
         conn = cls.connect()
@@ -230,6 +242,8 @@ class BaseModel(metaclass=ModelMeta):
         cursor.execute(f"DELETE FROM {cls.table_name} WHERE id = ?", (id,))
         conn.commit()
         conn.close()
+        return True
+        
 
 class SQLiteModel(BaseModel):
     class Meta:
