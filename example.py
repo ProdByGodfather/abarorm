@@ -65,6 +65,8 @@ if __name__ == "__main__":
         post_data = Post.get(id=1)  # Fetch the post with ID 1
         if post_data:
             print("Post with ID 1:", post_data.title, post_data.category)  # Print the title and category of the post with ID 1
+            post_data.title = "The Godfather"
+            post_data.save()  # Save the updated post data
 
         # Filter posts based on category ID
         filtered_posts = Post.filter(category=category.id, order_by='-create_time')  # Retrieve all posts associated with the specified category ID
