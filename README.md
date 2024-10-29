@@ -16,6 +16,7 @@
 - **New in v3.0.0**: Fixed table naming bugs to ensure consistent naming conventions.
 - **New in v3.0.0**: Updated return values for methods to improve clarity and usability.
 - **New in v3.0.0**: Enhanced `filter` method now supports `order_by` functionality for result ordering.
+- **New in v3.2.0**: Added `__gte` and `__lte` functionality in the filter section.
 
 
 ## Installation
