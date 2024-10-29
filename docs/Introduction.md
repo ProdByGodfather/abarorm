@@ -57,7 +57,7 @@ For PostgreSQL support, install `psycopg2-binary`: (Required)
 pip install psycopg2-binary
 ```
 
-**Setup:** Configure your database connection and define your models by inheriting from `SQLiteModel` or `MySQLModel` depending on your database type.
+**Setup:** Configure your database connection and define your models by inheriting from `SQLiteModel` , `MySQLModel` or `PostgreSQLModel` depending on your database type.
 
 **Define Models:** Create Python classes that represent your database tables. Use built-in field types to define the attributes of each model.
 
@@ -66,33 +66,7 @@ pip install psycopg2-binary
 
 For detailed instructions and examples, refer to the [Basic Usage](basic_usage.md) section of the documentation.
 
-# Example
-Here's a quick example of defining a simple model with AbarORM on SQLite:
-```python
-from abarorm import SQLiteModel
-from abarorm.fields import CharField, DateTimeField
-
-DATABASE_CONFIG = {
-    'sqlite': {
-        'db_name': 'example.db',
-    }
-}
-
-class Category(SQLiteModel):
-    title = CharField(max_length=200, unique=True)
-    create_time = DateTimeField(auto_now_add=True)
-    update_time = DateTimeField(auto_now=True)
-    
-    class Meta:
-        db_config = DATABASE_CONFIG['sqlite']
-
-# Add a new category
-Category.create(title='Movies')
-
-```
 The configuration of each database is different, but the simplest available configuration is for sqlite, which can be connected to it simply with a database name.
 
 Models are automatically managed by AbarORM, which means that any changes to your models, such as adding new fields, are automatically applied to the database without the need for manual migration steps. This feature streamlines development by reducing the overhead associated with schema changes.
 
-???+ warning 
-    While this automatic management is convenient during development, it's advisable to recreate your database after completing development. This ensures that all schema changes are properly applied and that the database structure is optimized for production.

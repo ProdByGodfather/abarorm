@@ -18,7 +18,15 @@ from abarorm.fields import CharField, DateTimeField, ForeignKey
 DATABASE_CONFIG = {
     'sqlite': {
         'db_name': 'example.db',  # Name of the SQLite database file
-    }
+    },
+    # This connection string model is used to connect to mysql and postgresql databases
+    # which we have not used in this example
+    'mysql': {
+        'host': 'localhost',
+        'user': 'your_mysql_user',
+        'password': 'your_mysql_password',
+        'database': 'example_db',
+    },
 }
 
 # Define the Category model
@@ -61,17 +69,25 @@ To retrieve records from the database, use the `all`, `get`, or `filter` methods
 ```python
 # Retrieve all posts
 all_posts = Post.all(order_by='-create_time')
-print("All Posts:", [(post.title, post.category) for post in all_posts])
-
+print("All posts:", all_posts)
 # Retrieve a specific post
 post_data = Post.get(id=1)
 if post_data:
-    print("Post with ID 1:", post_data.title, post_data.category)
-
-# Filter posts by category
-filtered_posts = Post.filter(category=category.id, order_by="-create_time")
-print("Filtered Posts:", [(post.title, post.category) for post in filtered_posts])
+    print("Post with ID 1:", post_data)
 ```
+### Filtering Records
+The `filter()` method allows you to retrieve records based on specified criteria. You can use keyword arguments to filter by field values and sort the results using `order_by`.
+```python
+# Filter posts by category ID and order by creation time
+filtered_posts = Post.filter(category=category.id, order_by='-create_time')
+```
+#### Advanced Filtering
+You can also use special lookup expressions like `__gte` (greater than or equal to) and `__lte` (less than or equal to) for more complex queries:
+```python
+# Retrieve posts created after a specific date
+filtered_posts = Post.filter(create_time__gte='2024-01-01 00:00:00')
+```
+
 ### Update Records
 To update existing records, use the `update` method:
 ```python
