@@ -136,12 +136,23 @@ class BaseModel(metaclass=ModelMeta):
     def filter(cls, order_by: Optional[str] = None, **kwargs) -> List['BaseModel']:
         conn = cls.connect()
         cursor = conn.cursor()
-        query = f"SELECT * FROM {cls.table_name} WHERE " + " AND ".join([f"{k} = %s" for k in kwargs.keys()])
+        conditions = []
+        values = []
+        
+        for key, value in kwargs.items():
+            if key.endswith("__gte"):
+                conditions.append(f"{key[:-5]} >= %s")
+            elif key.endswith("__lte"):
+                conditions.append(f"{key[:-5]} <= %s")
+            else:
+                conditions.append(f"{key} = %s")
+            values.append(value)
 
+        query = f"SELECT * FROM {cls.table_name} WHERE " + " AND ".join(conditions)
         if order_by:
             query += f" ORDER BY {order_by.lstrip('-')} {'DESC' if order_by.startswith('-') else 'ASC'}"
 
-        cursor.execute(query, tuple(kwargs.values()))
+        cursor.execute(query, tuple(values))
         results = cursor.fetchall()
         conn.close()
 
