@@ -1,11 +1,11 @@
 from typing import Type, Optional
+import re
 
 class Field:
-    def __init__(self, field_type: str, max_length: Optional[int] = None, min_length: Optional[int] = None,
-                 unique: bool = False, null: bool = False, default: Optional[str] = None):
+    def __init__(self, field_type: str, max_length: Optional[int] = None, unique: bool = False,
+                 null: bool = False, default: Optional[str] = None):
         self.field_type = field_type
         self.max_length = max_length
-        self.min_length = min_length
         self.unique = unique
         self.null = null
         self.default = default
@@ -20,7 +20,8 @@ class IntegerField(Field):
 
 class BooleanField(Field):
     def __init__(self, default: bool = False, **kwargs):
-        super().__init__(field_type='BOOLEAN', default=default, **kwargs)
+        super().__init__(field_type='BOOLEAN', default=str(int(default)), **kwargs)  # Convert bool to int
+
 
 class DateTimeField(Field):
     def __init__(self, auto_now: bool = False, auto_now_add: Optional[bool] = None, **kwargs):
@@ -59,9 +60,13 @@ class TextField(Field):
         super().__init__(field_type='TEXT', **kwargs)
 
 class EmailField(CharField):
-    def __init__(self, **kwargs):
-        super().__init__(max_length=254, **kwargs)
+    EMAIL_REGEX = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    
+    def __init__(self, max_length: int = 255, **kwargs):
+        super().__init__(max_length=max_length, **kwargs)
 
 class URLField(CharField):
-    def __init__(self, **kwargs):
-        super().__init__(max_length=1000, **kwargs)
+    URL_REGEX = r'^(https?|ftp)://[^\s/$.?#].[^\s]*$'
+    
+    def __init__(self, max_length: int = 2048, **kwargs):
+        super().__init__(max_length=max_length, **kwargs)
