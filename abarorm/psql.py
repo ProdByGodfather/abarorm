@@ -114,6 +114,7 @@ class BaseModel(metaclass=ModelMeta):
                     cursor.execute(f"ALTER TABLE {cls.table_name} ADD COLUMN {column} {col_type} NULL")
                 else:
                     raise e
+            
 
     @classmethod
     def _get_existing_columns(cls, cursor):
