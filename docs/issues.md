@@ -29,4 +29,4 @@ What actually happened? Please provide any error messages or unexpected behavior
 
 Add any other context about the problem in [this link](https://github.com/ProdByGodfather/abarorm/issues/5). This can include screenshots, reports, or any other relevant information that may help diagnose the problem.
 
-Thank you for helping us improve our ORM! We appreciate your feedback and will work to resolve any issues as quickly as possible. ♥️
+Thank you for helping us improve our ORM! We appreciate your feedback and will work to resolve any issues as quickly as possible. 💖

@@ -45,4 +45,4 @@ pip install mysql-connector-python
 pip install psycopg2-binary
 ```
 
-[با abarorm شروع کنید](Introduction.fa.md)
+[با abarorm شروع کنید](/Introduction.fa)
