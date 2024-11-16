@@ -36,8 +36,8 @@ theme:
   name: 'material'
   icon:
     repo: "fontawesome/brands/github"
-  logo: 'images/logo.png'
-  favicon: 'images/favicon.ico'
+  logo: 'images/logo.png' 
+  favicon: 'images/favicon.ico' 
   palette:
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
@@ -46,7 +46,7 @@ theme:
       toggle:
         icon: material/brightness-7
         name: Switch to light mode
-    - media: "(prefers-color-scheme: light)"
+    - media: "(prefers-color-scheme: light)"  
       scheme: default
       primary: 'yellow'
       accent: 'amber'
@@ -63,8 +63,9 @@ theme:
     - content.code.copy
     - content.code.select
     - content.code.annotate
-    - navigation.tabs
-    - navigation.toggle
+    - navigation.tabs 
+    - navigation.toggle 
+    - language_switcher: true  
 
 markdown_extensions:
   - admonition
@@ -72,27 +73,52 @@ markdown_extensions:
   - footnotes
   - toc:
       permalink: true
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
   - pymdownx.details
   - pymdownx.emoji:
       emoji_generator: !!python/name:pymdownx.emoji.to_svg
   - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
   - pymdownx.superfences
-  - pymdownx.highlight
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: 'https://github.com/prodbygodfather/abarorm'
+    - icon: fontawesome/brands/linkedin
+      link: 'https://www.linkedin.com/in/prodbygodfather'
+  navbar:
+    - text: 'GitHub'
+      link: 'https://github.com/prodbygodfather/abarorm'
+      icon: 'fab fa-github'
+  language_switcher: true
 
 plugins:
   - search
   - i18n:
       languages:
         en: "English"
-        fa: "پارسی"
+        fa: "فارسی"
       default_language: 'en'
-      direction:
-        en: "ltr"
-        fa: "rtl"
       no_translation:
         en: "This page isn't translated to English."
         fa: "این صفحه به فارسی ترجمه نشده است."
-      translate_urls: true
       translate_nav:
         en:
           Home: "Home"
@@ -110,13 +136,5 @@ plugins:
           Field Types: "نوع فیلد"
           API Reference: "مراجع API"
           Issues: "مسائل"
-
-extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: 'https://github.com/prodbygodfather/abarorm'
-    - icon: fontawesome/brands/linkedin
-      link: 'https://www.linkedin.com/in/prodbygodfather'
-
 
 copyright: Copyright &copy; 2024 AbarVision co - Mahdi Ghasemi (Dokey)
