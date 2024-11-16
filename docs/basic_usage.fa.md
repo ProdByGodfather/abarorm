@@ -1,0 +1,141 @@
+# استفاده پایه از AbarORM
+
+## مقدمه
+
+در این بخش، نحوه استفاده پایه از AbarORM را پوشش خواهیم داد، از جمله نحوه تعریف مدل‌ها، ایجاد جداول و انجام عملیات CRUD پایه. این راهنما فرض می‌کند که شما AbarORM را نصب کرده‌اید و با زبان برنامه‌نویسی پایتون آشنا هستید.
+
+## گام اول: تعریف مدل‌ها
+
+برای شروع استفاده از AbarORM، ابتدا باید مدل‌های پایگاه داده خود را تعریف کنید. هر مدل معادل یک جدول در پایگاه داده شماست. در اینجا نحوه تعریف یک مدل ساده آورده شده است:
+
+### مثال: تعریف مدل‌ها
+
+```python
+from abarorm import SQLiteModel
+from abarorm.fields import CharField, DateTimeField, ForeignKey
+
+# Database configuration
+DATABASE_CONFIG = {
+    'sqlite': {
+        'db_name': 'example.db',  # Name of the SQLite database file
+    },
+    # This connection string model is used to connect to mysql and postgresql databases
+    # which we have not used in this example
+    'mysql': {
+        'host': 'localhost',
+        'user': 'your_mysql_user',
+        'password': 'your_mysql_password',
+        'database': 'example_db',
+    },
+}
+
+# Define the Category model
+class Category(SQLiteModel):
+    title = CharField(max_length=200, unique=True)
+    class Meta:
+        db_config = DATABASE_CONFIG['sqlite']
+        table_name = 'categories'  # Name of the table for storing the Category model data in SQLite
+
+
+# Define the Post model
+class Post(SQLiteModel):
+    title = CharField(max_length=100, unique=True)
+    create_time = DateTimeField(auto_now=True)
+    category = ForeignKey(Category)
+    class Meta:
+        db_config = DATABASE_CONFIG['sqlite']
+```
+در مثال بالا:
+
+- `Category` و `Post` دو مدل هستند که معادل جداول پایگاه داده هستند.
+- هر کلاس از `SQLiteModel` ارث‌بری می‌کند و فیلدها با استفاده از انواع فیلدهای داخلی AbarORM تعریف می‌شوند.
+
+## گام دوم: انجام عملیات CRUD
+بعد از ایجاد جداول، می‌توانید عملیات CRUD (ایجاد، خواندن، به‌روزرسانی، حذف) را روی مدل‌ها انجام دهید.
+
+### ایجاد رکوردها
+
+برای اضافه کردن رکوردهای جدید به پایگاه داده، از متد `create` استفاده کنید:
+
+
+```python
+# Add a new category
+Category.create(title='Movies')
+
+# Add a new post
+category = Category.get(id=1)  # Fetch the category with ID 1
+if category:
+    Post.create(title='Godfather', category=category.id)
+```
+### خواندن رکوردها
+
+برای بازیابی رکوردها از پایگاه داده، از متدهای `all`، `get` یا `filter` استفاده کنید:
+
+```python
+# Retrieve all posts
+all_posts = Post.all(order_by='-create_time')
+print("All posts:", all_posts)
+# Retrieve a specific post
+post_data = Post.get(id=1)
+if post_data:
+    print("Post with ID 1:", post_data)
+```
+### فیلتر کردن رکوردها
+
+متد `filter()` به شما امکان می‌دهد رکوردها را بر اساس معیارهای خاص فیلتر کنید. می‌توانید از آرگومان‌های کلیدی برای فیلتر کردن بر اساس مقادیر فیلدها و همچنین مرتب‌سازی نتایج با استفاده از `order_by` استفاده کنید.
+```python
+# Filter posts by category ID and order by creation time
+filtered_posts = Post.filter(category=category.id, order_by='-create_time')
+```
+#### فیلتر پیشرفته
+
+همچنین می‌توانید از عبارات جستجو خاص مانند `__gte` (بزرگ‌تر یا مساوی) و `__lte` (کوچک‌تر یا مساوی) برای انجام جستجوهای پیچیده‌تر استفاده کنید:
+
+```python
+# Retrieve posts created after a specific date
+filtered_posts = Post.filter(create_time__gte='2024-01-01 00:00:00')
+```
+
+### به‌روزرسانی رکوردها
+
+برای به‌روزرسانی رکوردهای موجود، از متد `update` استفاده کنید:
+
+
+```python
+# Update a post
+Post.update(id=1, title='The Godfather Part II')
+```
+همچنین می‌توانید فیلدی را همزمان با دریافت آن به‌روزرسانی کنید:
+
+
+```python
+category = Category.get(id=id)
+category.title = title
+category.save()
+```
+### حذف رکوردها
+
+برای حذف رکوردها، از متد `delete`
+ استفاده کنید:
+```python
+# Delete a post
+Post.delete(1)
+```
+### مدیریت روابط
+
+AbarORM از روابط کلید خارجی بین مدل‌ها پشتیبانی می‌کند. در مثال ارائه شده، مدل `Post` یک رابطه کلید خارجی با مدل `Category` دارد. این امکان را به شما می‌دهد که ساختارهای داده پیچیده‌تری ایجاد کرده و داده‌های مرتبط را به طور کارآمد مدیریت کنید.
+
+### مثال: دسترسی به داده‌های مرتبط
+
+```python
+# Access the category of a post
+post = Post.get(id=1)
+if post:
+    category = Category.get(id=post.category)
+    print("Post Category:", category.title)
+```
+
+## خلاصه
+
+این راهنما استفاده پایه از AbarORM را پوشش داد، از جمله تعریف مدل‌ها، ایجاد جداول و عملیات CRUD. برای ویژگی‌ها و پیکربندی‌های پیشرفته‌تر، به بخش [Field Types](field_types.fa.md) مراجعه کنید.
+
