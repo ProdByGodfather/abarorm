@@ -64,9 +64,17 @@ class EmailField(CharField):
     
     def __init__(self, max_length: int = 255, **kwargs):
         super().__init__(max_length=max_length, **kwargs)
+    
+    def validate(self, value: str):
+        if not re.match(self.EMAIL_REGEX, value):
+            raise ValueError(f"Invalid email address: {value}")
 
 class URLField(CharField):
     URL_REGEX = r'^(https?|ftp)://[^\s/$.?#].[^\s]*$'
     
     def __init__(self, max_length: int = 2048, **kwargs):
         super().__init__(max_length=max_length, **kwargs)
+    
+    def validate(self, value: str):
+        if not re.match(self.URL_REGEX, value):
+            raise ValueError(f"Invalid URL: {value}")

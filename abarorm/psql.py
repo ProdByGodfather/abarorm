@@ -19,6 +19,23 @@ class ModelMeta(type):
 class BaseModel(metaclass=ModelMeta):
     table_name = ''
     
+    class QuerySet:
+        def __init__(self, results):
+            self.results = results
+
+        def count(self) -> int:
+            """Returns the number of results."""
+            return len(self.results)
+
+        def to_dict(self) -> List[Dict]:
+            """Returns the results as a list of dictionaries."""
+            return [obj.__dict__ for obj in self.results]
+        def __repr__(self):
+            """Returns a string representation of the QuerySet."""
+            # If there are results, show the first 3 as a sample
+            sample = self.to_dict()[:3]  # Show first 3 items for example
+            return f"<QuerySet(count={self.count()}, first_3_fitst_items={sample})>"  
+    
     def __repr__(self):
         field_values = {attr: getattr(self, attr) for attr in self.__class__.__dict__ if isinstance(self.__class__.__dict__[attr], Field)}
         return f"<{self.__class__.__name__} {field_values}>"
@@ -131,7 +148,7 @@ class BaseModel(metaclass=ModelMeta):
         cursor.execute(query)
         results = cursor.fetchall()
         conn.close()
-        return [cls(**dict(zip([c[0] for c in cursor.description], row))) for row in results]
+        return cls.QuerySet([cls(**dict(zip([c[0] for c in cursor.description], row))) for row in results])
 
     @classmethod
     def filter(cls, order_by: Optional[str] = None, **kwargs) -> List['BaseModel']:
@@ -157,7 +174,7 @@ class BaseModel(metaclass=ModelMeta):
         results = cursor.fetchall()
         conn.close()
 
-        return [cls(**dict(zip([c[0] for c in cursor.description], row))) for row in results]
+        return cls.QuerySet([cls(**dict(zip([c[0] for c in cursor.description], row))) for row in results])
 
     @classmethod
     def get(cls, **kwargs) -> Optional['BaseModel']:

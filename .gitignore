@@ -12,3 +12,5 @@ abarorm.egg-info
 /.txt
 __pycache__/
 **/__pycache__/
+m.py
+./m.py
