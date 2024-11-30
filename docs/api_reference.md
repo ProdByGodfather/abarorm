@@ -1,3 +1,7 @@
+---
+title: "API Reference for AbarORM"
+---
+
 # API Reference for AbarORM
 
 This page provides a detailed reference for the classes and methods available in the AbarORM library. The API reference is intended for developers who need a comprehensive understanding of how to use AbarORM's features.

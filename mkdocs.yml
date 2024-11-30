@@ -3,34 +3,35 @@ site_description: 'abarorm is a lightweight and easy-to-use Object-Relational Ma
 repo_url: 'https://github.com/prodbygodfather/abarorm'
 repo_name: 'abarorm'
 
+
 nav:
   - Home:
-      en: index.md
-      fa: index.fa.md
+      - en: 'index.md'
+      - fa: 'index.fa.md'
   - Introduction:
-      en: Introduction.md
-      fa: Introduction.fa.md
+      - en: 'Introduction.md'
+      - fa: 'Introduction.fa.md'
   - Basic Usage:
-      en: basic_usage.md
-      fa: basic_usage.fa.md
+      - en: 'basic_usage.md'
+      - fa: 'basic_usage.fa.md'
   - Modeling:
-      en:
-        - SQLite Modeling: modeling/sqlite_modeling.md
-        - MySQL Modeling: modeling/mysql_modeling.md
-        - PostgreSQL Modeling: modeling/postgresql_modeling.md
-      fa:
-        - مدل‌سازی SQLite: modeling/sqlite_modeling.fa.md
-        - مدل‌سازی MySQL: modeling/mysql_modeling.fa.md
-        - مدل‌سازی PostgreSQL: modeling/postgresql_modeling.fa.md
+      - en:
+          - 'SQLite Modeling': 'modeling/sqlite_modeling.md'
+          - 'MySQL Modeling': 'modeling/mysql_modeling.md'
+          - 'PostgreSQL Modeling': 'modeling/postgresql_modeling.md'
+      - fa:
+          - 'مدل‌سازی SQLite': 'modeling/sqlite_modeling.fa.md'
+          - 'مدل‌سازی MySQL': 'modeling/mysql_modeling.fa.md'
+          - 'مدل‌سازی PostgreSQL': 'modeling/postgresql_modeling.fa.md'
   - Field Types:
-      en: field_types.md
-      fa: field_types.fa.md
+      - en: 'field_types.md'
+      - fa: 'field_types.fa.md'
   - API Reference:
-      en: api_reference.md
-      fa: api_reference.fa.md
+      - en: 'api_reference.md'
+      - fa: 'api_reference.fa.md'
   - Issues:
-      en: issues.md
-      fa: issues.fa.md
+      - en: 'issues.md'
+      - fa: 'issues.fa.md'
 
 theme:
   name: 'material'
@@ -98,6 +99,16 @@ markdown_extensions:
   - pymdownx.superfences
 
 extra:
+  alternate:
+      # Switch to English
+      - name: English
+        link: /en/
+        lang: en
+
+      # Switch to French
+      - name: Persian
+        link: /fa/
+        lang: fa
   social:
     - icon: fontawesome/brands/github
       link: 'https://github.com/prodbygodfather/abarorm'

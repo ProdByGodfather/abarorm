@@ -1,3 +1,8 @@
+---
+title: "Welcome to AbarORM"
+---
+
+
 # Welcome to AbarORM
 
 
@@ -26,6 +31,7 @@
 - **New in v3.0.0**: Updated return values for methods to improve clarity and usability.
 - **New in v3.0.0**: Enhanced `filter` method now supports `order_by` for ordering.
 - **New in v3.2.0**: Added `__gte` and `__lte` functionality in the filter section.
+- **New in v4.0.0**: Added `__repr__`, count, and `to_dict` methods for easier data manipulation and debugging.
 
 ### Supported Databases
 ![psql](https://img.shields.io/badge/Postgresql-%2320232a.svg?style=for-the-badge&logo=postgresql)

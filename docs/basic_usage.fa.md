@@ -1,3 +1,7 @@
+---
+title: "استفاده پایه از AbarORM"
+---
+
 # استفاده پایه از AbarORM
 
 ## مقدمه
@@ -134,6 +138,36 @@ if post:
     category = Category.get(id=post.category)
     print("Post Category:", category.title)
 ```
+
+
+### تبدیل به دیکشنری و شمارش رکوردها 
+پس از انجام عملیات روی مدل، می توانید رکوردها را با استفاده از متد `to_dict()` به دیکشنری تبدیل کنید و با استفاده از متد `count()` تعداد رکوردها را بشمارید.
+
+#### `to_dict` متد
+متد `to_dict()` یک نمونه مدل را به دیکشنری تبدیل می‌کند و دستکاری و سریال‌سازی داده‌ها را آسان‌تر می‌کند.
+
+**مثال:**
+```python
+# Retrieve a post by ID
+post = Post.get(id=1)
+
+# Convert the post to a dictionary
+post_dict = post.all().to_dict()
+print(post_dict)
+# Output: [{'id': 1, 'title': 'Godfather', 'create_time': '2024-01-01 12:00:00', ...}]
+```
+
+#### `count` متد
+متد `count()` به شما امکان می دهد تعداد رکوردهای جدول یک مدل را بدست آورید.
+
+**مثال:**
+```python
+# Count the number of posts in the database
+num_posts = Post.count()
+print(num_posts)  # Output: 10 (if there are 10 posts in the database)
+```
+
+این روش ها به ویژه برای دستکاری داده ها و اشکال زدایی مفید هستند، زیرا روشی ساده برای مشاهده و تعامل با سوابق پایگاه داده شما ارائه می دهند.
 
 ## خلاصه
 

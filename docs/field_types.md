@@ -1,3 +1,8 @@
+---
+title: "Field Types in AbarORM"
+---
+
+
 # Field Types in AbarORM
 
 In AbarORM, fields define the types of data stored in your database models. Each field type represents a specific kind of data and provides options for validation and constraints. This guide covers the available field types and their usage.

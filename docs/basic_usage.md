@@ -1,3 +1,7 @@
+---
+title: "Basic Usage of AbarORM"
+---
+
 # Basic Usage of AbarORM
 
 ## Overview
@@ -118,6 +122,36 @@ if post:
     category = Category.get(id=post.category)
     print("Post Category:", category.title)
 ```
+
+### Converting to Dictionary and Counting Records
+After performing operations on the model, you can convert records to dictionaries using the `to_dict()` method and count the number of records using the `count()` method.
+
+#### `to_dict` Method
+The `to_dict()` method converts a model instance into a dictionary, making it easier to manipulate and serialize the data.
+
+**Example:**
+```python
+# Retrieve a post by ID
+post = Post.get(id=1)
+
+# Convert the post to a dictionary
+post_dict = post.all().to_dict()
+print(post_dict)
+# Output: [{'id': 1, 'title': 'Godfather', 'create_time': '2024-01-01 12:00:00', ...}]
+```
+
+#### `count` Method
+The `count()` method allows you to get the number of records in a model's table.
+
+**Example:**
+```python
+# Count the number of posts in the database
+num_posts = Post.count()
+print(num_posts)  # Output: 10 (if there are 10 posts in the database)
+```
+
+These methods are particularly useful for data manipulation and debugging, as they provide a simple way to view and interact with your database records.
+
 
 ## Summary
 
