@@ -17,6 +17,8 @@
 - **New in v3.0.0**: Updated return values for methods to improve clarity and usability.
 - **New in v3.0.0**: Enhanced `filter` method now supports `order_by` functionality for result ordering.
 - **New in v3.2.0**: Added `__gte` and `__lte` functionality in the filter section.
+- **New in v4.0.0**: Added `__repr__`, `count`, and `to_dict` methods for easier data manipulation and debugging.
+
 
 
 ## Installation
@@ -138,14 +140,41 @@ To delete a record from the database, use the `delete()` method:
 ```python
 Post.delete(1)  # Delete the post with ID 1
 ```
+### Converting to Dictionary and Counting Records
+After performing operations on the model, you can convert records to dictionaries using the `to_dict()` method and count the number of records using the `count()` method.
 
+#### `to_dict` Method
+The `to_dict()` method converts a model instance into a dictionary, making it easier to manipulate and serialize the data.
 
+**Example:**
+```python
+# Retrieve a post by ID
+post = Post.get(id=1)
 
-### Version 3.0.0
+# Convert the post to a dictionary
+post_dict = post.all().to_dict()
+print(post_dict)
+# Output: [{'id': 1, 'title': 'Godfather', 'create_time': '2024-01-01 12:00:00', ...}]
+```
 
-- **Fixed Table Naming**: Resolved issues related to inconsistent table naming conventions.
-- **Return Values Updated**: Methods now return values that enhance clarity and usability.
-- **Filter Enhancements**: The `filter` method now includes support for `order_by`, allowing for more flexible queries.
+#### `count` Method
+The `count()` method allows you to get the number of records in a model's table.
+
+**Example:**
+```python
+# Count the number of posts in the database
+num_posts = Post.count()
+print(num_posts)  # Output: 10 (if there are 10 posts in the database)
+```
+
+These methods are particularly useful for data manipulation and debugging, as they provide a simple way to view and interact with your database records.
+
+## Version 4.0.0
+
+- **`__repr__` Method**: Added to provide a string representation of model instances for better debugging.
+- **`count` Method**: Added to count the number of records in a model's table.
+- **`to_dict` Method**: Converts model instances into dictionaries for easier manipulation and serialization.
+
 
 **Important for Developers:** When adding new fields to models, they will default to `NULL`. It’s recommended to recreate the database schema after development is complete to ensure fields have appropriate constraints and default values.
 
