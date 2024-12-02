@@ -52,6 +52,18 @@ class BaseModel(metaclass=ModelMeta):
             except AttributeError:
                 raise ValueError(f"Field '{field_name}' does not exist in the model.")
             return self.__class__(sorted_results, self.total_count, self.page, self.page_size)
+        
+        def first(self):
+            """Returns the first result or None if no results."""
+            return self.results[0] if self.results else None
+
+        def last(self):
+            """Returns the last result or None if no results."""
+            return self.results[-1] if self.results else None
+        
+        def exists(self) -> bool:
+            """Checks if the QuerySet contains any results."""
+            return bool(self.results)
 
         
         def paginate(self, page: int, page_size: int):
