@@ -68,7 +68,7 @@ pip install psycopg2-binary
 
 **Perform Operations:** Use the methods provided by AbarORM to perform CRUD operations, manage relationships, and query your data.
 
-For detailed instructions and examples, refer to the [Basic Usage](/basic_usage) section of the documentation.
+For detailed instructions and examples, refer to the [Basic Usage](basic_usage) section of the documentation.
 
 The configuration of each database is different, but the simplest available configuration is for sqlite, which can be connected to it simply with a database name.
 

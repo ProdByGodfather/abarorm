@@ -60,4 +60,4 @@ For PostgreSQL support, install `psycopg2-binary`: (Required)
 pip install psycopg2-binary
 ```
 
-[Start with abarorm](Introduction.md)
+[Start with abarorm](Introduction)
