@@ -150,6 +150,31 @@ num_posts = Post.count()
 print(num_posts)  # Output: 10 (if there are 10 posts in the database)
 ```
 
+
+#### `first()`, `last()`, `exists()`, `order_by()`, and `paginate()`
+- `first():` Returns the first result or None if no results are present.
+- `last():` Returns the last result or None if no results are present.
+- `exists():` Checks if any records exist in the `QuerySet`.
+- `paginate():` Handles pagination of results, allowing you to retrieve subsets of data based on page and page size.
+
+**Example:**
+```python
+# Check if any posts exist
+exists = Post.all().exists()
+
+# Get the first post
+first_post = Post.all().first()
+
+# Get the last post
+last_post = Post.all().last()
+
+# Paginate the results
+paginated_posts = Post.all().paginate(1, 5)  # Page 1, 5 results per page
+
+# Using multiple querysets in one query
+posts = Post.filter(title='Godfather').order_by('create_time').paginate(1, 4).to_dict()
+```
+
 These methods are particularly useful for data manipulation and debugging, as they provide a simple way to view and interact with your database records.
 
 

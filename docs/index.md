@@ -32,6 +32,9 @@ title: "Welcome to AbarORM"
 - **New in v3.0.0**: Enhanced `filter` method now supports `order_by` for ordering.
 - **New in v3.2.0**: Added `__gte` and `__lte` functionality in the filter section.
 - **New in v4.0.0**: Added `__repr__`, count, and `to_dict` methods for easier data manipulation and debugging.
+- **New in v4.2.3**: Added `first()`, `last()`, `exists()`, and `paginate()` methods to the QuerySet class for more powerful querying capabilities.
+
+
 
 ### Supported Databases
 ![psql](https://img.shields.io/badge/Postgresql-%2320232a.svg?style=for-the-badge&logo=postgresql)
