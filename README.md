@@ -18,6 +18,8 @@
 - **New in v3.0.0**: Enhanced `filter` method now supports `order_by` functionality for result ordering.
 - **New in v3.2.0**: Added `__gte` and `__lte` functionality in the filter section.
 - **New in v4.0.0**: Added `__repr__`, `count`, and `to_dict` methods for easier data manipulation and debugging.
+- **New in v4.2.3**: Added `first()`, `last()`, `exists()`, and `paginate()` methods to the QuerySet class for more powerful querying capabilities.
+
 
 
 
@@ -167,13 +169,38 @@ num_posts = Post.count()
 print(num_posts)  # Output: 10 (if there are 10 posts in the database)
 ```
 
+#### `first()`, `last()`, `exists()`, `order_by()`, and `paginate()`
+- `first():` Returns the first result or None if no results are present.
+- `last():` Returns the last result or None if no results are present.
+- `exists():` Checks if any records exist in the `QuerySet`.
+- `paginate():` Handles pagination of results, allowing you to retrieve subsets of data based on page and page size.
+
+**Example:**
+```python
+# Check if any posts exist
+exists = Post.all().exists()
+
+# Get the first post
+first_post = Post.all().first()
+
+# Get the last post
+last_post = Post.all().last()
+
+# Paginate the results
+paginated_posts = Post.all().paginate(1, 5)  # Page 1, 5 results per page
+
+# Using multiple querysets in one query
+posts = Post.filter(title='Godfather').order_by('create_time').paginate(1, 4).to_dict()
+```
+
 These methods are particularly useful for data manipulation and debugging, as they provide a simple way to view and interact with your database records.
 
-## Version 4.0.0
+## Version 4.2.3
 
-- **`__repr__` Method**: Added to provide a string representation of model instances for better debugging.
-- **`count` Method**: Added to count the number of records in a model's table.
-- **`to_dict` Method**: Converts model instances into dictionaries for easier manipulation and serialization.
+- `first():` Added to return the first result in a `QuerySet`.
+- `last():` Added to return the last result in a `QuerySet`.
+- `exists():` Added to check if any records exist.
+- `paginate():` Added to handle pagination for large result sets.
 
 
 **Important for Developers:** When adding new fields to models, they will default to `NULL`. It’s recommended to recreate the database schema after development is complete to ensure fields have appropriate constraints and default values.

@@ -20,8 +20,11 @@ class BaseModel(metaclass=ModelMeta):
     table_name = ''
     
     class QuerySet:
-        def __init__(self, results):
+        def __init__(self, results, total_count, page, page_size):
             self.results = results
+            self.total_count = total_count  
+            self.page = page  
+            self.page_size = page_size
 
         def count(self) -> int:
             """Returns the number of results."""
@@ -34,7 +37,42 @@ class BaseModel(metaclass=ModelMeta):
             """Returns a string representation of the QuerySet."""
             # If there are results, show the first 3 as a sample
             sample = self.to_dict()[:3]  # Show first 3 items for example
-            return f"<QuerySet(count={self.count()}, first_3_fitst_items={sample})>"  
+            return f"<QuerySet(count={self.count()}, first_3_fitst_items={sample})>" 
+        
+        def order_by(self, field: str):
+            """Orders the results by the specified field."""
+            reverse = field.startswith('-')
+            field_name = field.lstrip('-')
+            try:
+                sorted_results = sorted(
+                    self.results,
+                    key=lambda obj: getattr(obj, field_name),
+                    reverse=reverse
+                )
+            except AttributeError:
+                raise ValueError(f"Field '{field_name}' does not exist in the model.")
+            return self.__class__(sorted_results, self.total_count, self.page, self.page_size)
+        
+        def first(self):
+            """Returns the first result or None if no results."""
+            return self.results[0] if self.results else None
+
+        def last(self):
+            """Returns the last result or None if no results."""
+            return self.results[-1] if self.results else None
+        
+        def exists(self) -> bool:
+            """Checks if the QuerySet contains any results."""
+            return bool(self.results)
+
+        
+        def paginate(self, page: int, page_size: int):
+            """Handles pagination of the results."""
+            offset = (page - 1) * page_size
+            paginated_results = self.results[offset:offset + page_size]
+            # Return a new QuerySet with paginated results
+            return self.__class__(paginated_results, self.total_count, page, page_size)
+
 
     
     def __repr__(self):
@@ -145,24 +183,28 @@ class BaseModel(metaclass=ModelMeta):
         return {row[0] for row in cursor.fetchall()}
 
     @classmethod
-    def all(cls, order_by: Optional[str] = None) -> List['BaseModel']:
+    def all(cls, order_by: Optional[str] = None) -> 'QuerySet':
         conn = cls.connect()
         cursor = conn.cursor()
         query = f"SELECT * FROM {cls.table_name}"
-        if order_by:
-            query += f" ORDER BY {order_by}"
         cursor.execute(query)
         results = cursor.fetchall()
+        total_count = len(results) 
         conn.close()
-        return cls.QuerySet([cls(**dict(zip([c[0] for c in cursor.description], row))) for row in results])
+        return cls.QuerySet(
+            [cls(**dict(zip([c[0] for c in cursor.description], row))) for row in results],
+            total_count,
+            page=1, 
+            page_size=total_count 
+        )
 
     @classmethod
-    def filter(cls, order_by: Optional[str] = None, **kwargs) -> List['BaseModel']:
+    def filter(cls, **kwargs) -> 'QuerySet':
         conn = cls.connect()
         cursor = conn.cursor()
         conditions = []
         values = []
-        
+
         for key, value in kwargs.items():
             if key.endswith("__gte"):
                 conditions.append(f"{key[:-5]} >= %s")
@@ -173,14 +215,17 @@ class BaseModel(metaclass=ModelMeta):
             values.append(value)
 
         query = f"SELECT * FROM {cls.table_name} WHERE " + " AND ".join(conditions)
-        if order_by:
-            query += f" ORDER BY {order_by.lstrip('-')} {'DESC' if order_by.startswith('-') else 'ASC'}"
-
         cursor.execute(query, tuple(values))
         results = cursor.fetchall()
+        total_count = len(results) 
         conn.close()
 
-        return cls.QuerySet([cls(**dict(zip([c[0] for c in cursor.description], row))) for row in results])
+        return cls.QuerySet(
+            [cls(**dict(zip([c[0] for c in cursor.description], row))) for row in results],
+            total_count,
+            page=1, 
+            page_size=total_count  
+        )
 
 
     @classmethod
