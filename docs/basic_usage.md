@@ -180,4 +180,4 @@ These methods are particularly useful for data manipulation and debugging, as th
 
 ## Summary
 
-This guide covered the basic usage of AbarORM, including model definition, table creation, and CRUD operations. For more advanced features and configurations, refer to the [Field Types](field_types.md) section.
+This guide covered the basic usage of AbarORM, including model definition, table creation, and CRUD operations. For more advanced features and configurations, refer to the [Field Types](/abarorm/field_types.md) section.

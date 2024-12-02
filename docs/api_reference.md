@@ -155,8 +155,8 @@ The methods for `MySQLModel` and `PostgreSQLModel` are identical to those for `S
 
 ## Summary
 
-This API reference provides an overview of the core classes, methods, and fields available in AbarORM. For more detailed examples and use cases, refer to the [Basic Usage](basic_usage.md) section.
+This API reference provides an overview of the core classes, methods, and fields available in AbarORM. For more detailed examples and use cases, refer to the [Basic Usage](/abarorm/basic_usage.md) section.
 
-If you have any questions or need further assistance, please check the [Documentation](index.md) or reach out to the community via our [GitHub repository](https://github.com/prodbygodfather/abarorm).
+If you have any questions or need further assistance, please check the [Documentation](/abarorm/index.md) or reach out to the community via our [GitHub repository](https://github.com/prodbygodfather/abarorm).
 
 Happy coding with AbarORM!
