@@ -87,14 +87,12 @@ class BaseModel(metaclass=ModelMeta):
 
     @classmethod
     def connect(cls):
-        # بررسی اینکه db_config در کلاس Meta تعریف شده است
         if not hasattr(cls, 'Meta') or not hasattr(cls.Meta, 'db_config'):
             raise AttributeError(f"Class {cls.__name__} must define 'Meta.db_config' with database connection details.")
 
         db_config = cls.Meta.db_config
 
         try:
-            # ابتدا تلاش برای اتصال به دیتابیس اصلی
             return psycopg2.connect(
                 host=db_config['host'],
                 user=db_config['user'],
@@ -103,10 +101,8 @@ class BaseModel(metaclass=ModelMeta):
                 port=db_config['port']
             )
         except psycopg2.OperationalError as e:
-            # اگر دیتابیس اصلی وجود نداشت، آن را ایجاد کنید
             if "does not exist" in str(e):
                 cls._create_database()
-                # دوباره تلاش برای اتصال به دیتابیس اصلی
                 return psycopg2.connect(
                     host=db_config['host'],
                     user=db_config['user'],
@@ -120,19 +116,17 @@ class BaseModel(metaclass=ModelMeta):
     @classmethod
     def _create_database(cls):
         try:
-            # اتصال به دیتابیس پیش‌فرض (postgres)
-            db_config = cls.Meta.db_config  # دریافت db_config از کلاس Meta
+            db_config = cls.Meta.db_config 
             conn = psycopg2.connect(
                 host=db_config['host'],
                 user=db_config['user'],
                 password=db_config['password'],
-                database="postgres",  # دیتابیس پیش‌فرض
+                database="postgres", 
                 port=db_config['port']
             )
-            conn.autocommit = True  # حالت خودکار برای اجرای دستورات
+            conn.autocommit = True
             cursor = conn.cursor()
             
-            # بررسی و ایجاد دیتابیس در صورت عدم وجود
             db_name = db_config['database']
             cursor.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{db_name}'")
             if not cursor.fetchone():
@@ -152,7 +146,7 @@ class BaseModel(metaclass=ModelMeta):
         conn = cls.connect()
         cursor = conn.cursor()
         try:
-            columns = cls._get_column_definitions(cursor)  # ارسال cursor به متد
+            columns = cls._get_column_definitions(cursor) 
             cursor.execute(f"CREATE TABLE IF NOT EXISTS {cls.table_name} (id SERIAL PRIMARY KEY, {', '.join(columns)})")
             cls._update_table_structure(cursor)
             conn.commit()
