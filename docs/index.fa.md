@@ -5,7 +5,7 @@ title: "خانه"
 # خوش آمدید به AbarORM
 
 
-<div style="display: flex; align-items: center;"> <div style="flex: 1;"> <img src="../images/logo.png" alt="لوگو" style="width: 150px; margin-right: 20px;"> </div> <div style="flex: 2;"> <p> <b>abarorm</b> یک کتابخانه سبک و آسان برای استفاده از نگاشت شیء-رابطه‌ای (ORM) برای پایگاه‌داده‌های SQLite، PostgreSQL و MySQL در پایتون است. هدف آن ارائه یک رابط ساده و شهودی برای مدیریت مدل‌های پایگاه‌داده و تعاملات است. </p> </div> </div>
+<div style="display: flex; align-items: center;"> <div style="flex: 1;"> <img src="../images/logo.png" alt="لوگو" style="width: 150px; margin-right: 20px;"> </div> <div style="flex: 2;"> <p> <b>abarorm</b> یک کتابخانه سبک و آسان برای استفاده از نگاشت شیء-رابطه‌ای (ORM) برای پایگاه‌داده‌های SQLite و PostgreSQL  در پایتون است. هدف آن ارائه یک رابط ساده و شهودی برای مدیریت مدل‌های پایگاه‌داده و تعاملات است. </p> </div> </div>
 
 
 
@@ -24,11 +24,11 @@ title: "خانه"
 - **جدید در v3.2.0**: افزودن قابلیت `__gte` و `__lte` در بخش فیلتر.
 - **جدید در v4.0.0**: روش های `__repr__` ، `count` و `to_dict`  برای دستکاری داده ها و اشکال زدایی آسان تر اضافه شد.
 - **جدید در v4.2.3**: متدهای `first()` ، `last()` ، `exists()` و `paginate()` به کلاس `QuerySet` برای قابلیت های جستجوی قدرتمندتر اضافه شده است.
+- **جدید در 5.0.0**: رفع اشکالات و ساختار `PostgreSQL`.
 
 ### پایگاه‌داده‌های پشتیبانی‌شده
 
 ![psql](https://img.shields.io/badge/Postgresql-%2320232a.svg?style=for-the-badge&logo=postgresql)
-![mysql](https://img.shields.io/badge/mysql-%2320232a.svg?style=for-the-badge&logo=mysql)
 ![sqlite](https://img.shields.io/badge/sqlite-%2320232a.svg?style=for-the-badge&logo=sqlite)
 
 
@@ -40,11 +40,6 @@ title: "خانه"
 pip install abarorm
 ```
 
-برای پشتیبانی از MySQL، شما همچنین نیاز به نصب `mysql-connector-python` دارید: (ضروری)
-
-```bash
-pip install mysql-connector-python
-```
 برای پشتیبانی از PostgreSQL، `psycopg2-binary` را نصب کنید: (ضروری)
 
 ```bash

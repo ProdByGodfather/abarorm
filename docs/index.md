@@ -12,7 +12,7 @@ title: "Welcome to AbarORM"
   </div>
   <div style="flex: 2;">
     <p>
-     <b>abarorm</b> is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite, PostgreSQL and MySQL databases in Python. It aims to provide a simple and intuitive interface for managing database models and interactions. 
+     <b>abarorm</b> is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite and PostgreSQL databases in Python. It aims to provide a simple and intuitive interface for managing database models and interactions. 
     </p>
   </div>
 </div>
@@ -33,12 +33,14 @@ title: "Welcome to AbarORM"
 - **New in v3.2.0**: Added `__gte` and `__lte` functionality in the filter section.
 - **New in v4.0.0**: Added `__repr__`, count, and `to_dict` methods for easier data manipulation and debugging.
 - **New in v4.2.3**: Added `first()`, `last()`, `exists()`, and `paginate()` methods to the QuerySet class for more powerful querying capabilities.
+- **New in v5.0.0**: Fix `PostgreSQL` Bugs and structure.
+
+
 
 
 
 ### Supported Databases
 ![psql](https://img.shields.io/badge/Postgresql-%2320232a.svg?style=for-the-badge&logo=postgresql)
-![mysql](https://img.shields.io/badge/mysql-%2320232a.svg?style=for-the-badge&logo=mysql)
 ![sqlite](https://img.shields.io/badge/sqlite-%2320232a.svg?style=for-the-badge&logo=sqlite)
 
 
@@ -50,11 +52,7 @@ You can install **abarorm** from PyPI using pip:
 pip install abarorm
 ```
 
-For MySQL support, you also need to install `mysql-connector-python`: (Required)
 
-```bash
-pip install mysql-connector-python
-```
 For PostgreSQL support, install `psycopg2-binary`: (Required)
 ```bash
 pip install psycopg2-binary

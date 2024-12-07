@@ -8,7 +8,7 @@ To use SQLite with AbarORM, you need to define your models by inheriting from `S
 
 ```python
 from abarorm import SQLiteModel
-from abarorm.fields import CharField, DateTimeField, ForeignKey
+from abarorm.fields.sqlite import CharField, DateTimeField, ForeignKey
 
 DATABASE_CONFIG = {
     'sqlite': {
@@ -28,7 +28,7 @@ class Post(SQLiteModel):
     create_time = DateTimeField(auto_now=True)
     category = ForeignKey(Category)
     class Meta:
-        db_config = DATABASE_CONFIG['sqlite'])
+        db_config = DATABASE_CONFIG['sqlite']
 ```
 ## Automatic Table Management
 In the latest version of AbarORM, you no longer need to manually create tables. The library automatically handles the creation and management of your tables based on the model definitions. This means that as soon as you start interacting with your models, AbarORM will ensure that the corresponding tables are created if they do not already exist. However, you can manage the names of the tables manually by defining the `table_name` variable in the Meta class
@@ -40,4 +40,4 @@ AbarORM also supports automatic schema updates. If you add new fields to your mo
     While schema updates are handled automatically, it is advisable to recreate your database schema after completing development to ensure that all fields and constraints are correctly applied. This helps to avoid potential issues and ensures that your database is in a consistent state before moving to production.
 
 ## CRUD
-There is no difference in the type and method of CRUD in modeling and using databases, and to create them, you can refer to a [Basic Usage - CRUD](/basic_usage/#step-3-perform-crud-operations) page.
+There is no difference in the type and method of CRUD in modeling and using databases, and to create them, you can refer to a [Basic Usage - CRUD](/abarorm/basic_usage/#step-3-perform-crud-operations) page.

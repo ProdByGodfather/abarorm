@@ -7,6 +7,13 @@ title: "Field Types in AbarORM"
 
 In AbarORM, fields define the types of data stored in your database models. Each field type represents a specific kind of data and provides options for validation and constraints. This guide covers the available field types and their usage.
 
+In AbarORM, fields define the type of data stored in your database models. Each field type represents a specific type of data and provides options for validation and constraints. In this guide, we will explore the available field types and how to use them.
+
+The fields in PostgreSQL and SQLite databases are structurally identical and are designed to be used in a similar way, but to use either database, you must use fields from the same database in your models. For example, the path to fields
+
+- **sqlite**: `abarorm.fields.sqlite`
+- **postgresql**: `abarorm.fields.psql`
+
 ## Basic Field Types
 
 ### 1. CharField

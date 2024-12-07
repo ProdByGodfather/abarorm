@@ -16,21 +16,23 @@ title: "استفاده پایه از AbarORM"
 
 ```python
 from abarorm import SQLiteModel
-from abarorm.fields import CharField, DateTimeField, ForeignKey
+from abarorm.fields.sqlite import CharField, DateTimeField, ForeignKey
+from abarorm.fields import psql
 
 # Database configuration
 DATABASE_CONFIG = {
     'sqlite': {
         'db_name': 'example.db',  # Name of the SQLite database file
     },
-    # This connection string model is used to connect to mysql and postgresql databases
+    # This connection string model is used to connect to postgresql database
     # which we have not used in this example
-    'mysql': {
+    'postgresql': {
         'host': 'localhost',
-        'user': 'your_mysql_user',
-        'password': 'your_mysql_password',
-        'database': 'example_db',
-    },
+        'user': 'hoopad',
+        'password': 'db_password',
+        'database': 'example_db',  
+        'port': 5432,
+    }
 }
 
 # Define the Category model
@@ -43,12 +45,16 @@ class Category(SQLiteModel):
 
 # Define the Post model
 class Post(SQLiteModel):
-    title = CharField(max_length=100, unique=True)
-    create_time = DateTimeField(auto_now=True)
-    category = ForeignKey(Category)
+    title = psql.CharField(max_length=100, unique=True)
+    create_time = psql.DateTimeField(auto_now=True)
+    category = psql.ForeignKey(Category)
     class Meta:
-        db_config = DATABASE_CONFIG['sqlite']
+        db_config = DATABASE_CONFIG['postgresql']
 ```
+!!! info inline end "توجه!"
+
+    فیلدهای موجود در پایگاه داده PostgreSQL و SQLite از نظر ساختاری یکسان هستند و برای استفاده به روش مشابه طراحی شده اند، اما برای استفاده از هر یک از پایگاه داده ها، باید از فیلدهایی از همان پایگاه داده در مدل های خود استفاده کنید. به عنوان مثال، مسیر فیلدهای `sqlite`: `abarorm.fields.sqlite` و مسیر فیلدهای `postgresql` به صورت: `abarorm.fields.psql` است.
+
 در مثال بالا:
 
 - `Category` و `Post` دو مدل هستند که معادل جداول پایگاه داده هستند.

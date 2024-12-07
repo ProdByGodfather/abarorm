@@ -16,21 +16,23 @@ To start using AbarORM, you first need to define your database models. Each mode
 
 ```python
 from abarorm import SQLiteModel
-from abarorm.fields import CharField, DateTimeField, ForeignKey
+from abarorm.fields.sqlite import CharField, DateTimeField, ForeignKey
+from abarorm.fields import psql
 
 # Database configuration
 DATABASE_CONFIG = {
     'sqlite': {
         'db_name': 'example.db',  # Name of the SQLite database file
     },
-    # This connection string model is used to connect to mysql and postgresql databases
+    # This connection string model is used to connect to postgresql database
     # which we have not used in this example
-    'mysql': {
+    'postgresql': {
         'host': 'localhost',
-        'user': 'your_mysql_user',
-        'password': 'your_mysql_password',
-        'database': 'example_db',
-    },
+        'user': 'hoopad',
+        'password': 'db_password',
+        'database': 'example_db',  
+        'port': 5432,
+    }
 }
 
 # Define the Category model
@@ -43,12 +45,17 @@ class Category(SQLiteModel):
 
 # Define the Post model
 class Post(SQLiteModel):
-    title = CharField(max_length=100, unique=True)
-    create_time = DateTimeField(auto_now=True)
-    category = ForeignKey(Category)
+    title = psql.CharField(max_length=100, unique=True)
+    create_time = psql.DateTimeField(auto_now=True)
+    category = psql.ForeignKey(Category)
     class Meta:
-        db_config = DATABASE_CONFIG['sqlite']
+        db_config = DATABASE_CONFIG['postgresql']
 ```
+
+!!! info inline end "Note"
+
+    The fields in PostgreSQL and SQLite databases are structurally the same and are designed to be used in the same way, but to use either database, you must use fields from the same database in your models. For example, the path to `sqlite` fields is: `abarorm.fields.sqlite` and the path to `postgresql` fields is: `abarorm.fields.psql`
+
 In the example above:
 
 **Category** and Post are two models representing database tables.

@@ -9,14 +9,15 @@ To use PostgreSQL with AbarORM, you need to define your models by inheriting fro
 
 ```python
 from abarorm import PostgreSQLModel
-from abarorm.fields import CharField, DateTimeField, ForeignKey
+from abarorm.fields.psql import CharField, DateTimeField, ForeignKey
 
 DATABASE_CONFIG = {
     'postgresql': {
         'host': 'localhost',
-        'user': 'your_user',
-        'password': 'your_password',
-        'db_name': 'example_db',  # PostgreSQL database name
+        'user': 'hoopad',
+        'password': 'db_password',
+        'database': 'example_db',  
+        'port': 5432,
     }
 }
 
@@ -46,4 +47,4 @@ AbarORM also supports automatic schema updates. If you add new fields to your mo
 
 
 ## CRUD
-There is no difference in the type and method of CRUD in modeling and using databases, and to create them, you can refer to a [Basic Usage - CRUD](/basic_usage/#step-3-perform-crud-operations) page.
+There is no difference in the type and method of CRUD in modeling and using databases, and to create them, you can refer to a [Basic Usage - CRUD](/abarorm/basic_usage/#step-3-perform-crud-operations) page.
