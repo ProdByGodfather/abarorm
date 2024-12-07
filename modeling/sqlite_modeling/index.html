@@ -14,7 +14,7 @@
         <link rel="prev" href="../../basic_usage/">
       
       
-        <link rel="next" href="../mysql_modeling/">
+        <link rel="next" href="../postgresql_modeling/">
       
       
       <link rel="icon" href="../../images/favicon.ico">
@@ -803,27 +803,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../mysql_modeling/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    MySQL Modeling
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../postgresql_modeling/" class="md-nav__link">
         
   
@@ -1160,7 +1139,7 @@
 <h2 id="basic-example">Basic Example<a class="headerlink" href="#basic-example" title="Permanent link">&para;</a></h2>
 <p>To use SQLite with AbarORM, you need to define your models by inheriting from <code>SQLiteModel</code>. Here is a basic example:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">abarorm</span> <span class="kn">import</span> <span class="n">SQLiteModel</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">abarorm.fields</span> <span class="kn">import</span> <span class="n">CharField</span><span class="p">,</span> <span class="n">DateTimeField</span><span class="p">,</span> <span class="n">ForeignKey</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">abarorm.fields.sqlite</span> <span class="kn">import</span> <span class="n">CharField</span><span class="p">,</span> <span class="n">DateTimeField</span><span class="p">,</span> <span class="n">ForeignKey</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">DATABASE_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="s1">&#39;sqlite&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -1180,7 +1159,7 @@
 </span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">create_time</span> <span class="o">=</span> <span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="n">category</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Category</span><span class="p">)</span>
 </span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>        <span class="n">db_config</span> <span class="o">=</span> <span class="n">DATABASE_CONFIG</span><span class="p">[</span><span class="s1">&#39;sqlite&#39;</span><span class="p">])</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>        <span class="n">db_config</span> <span class="o">=</span> <span class="n">DATABASE_CONFIG</span><span class="p">[</span><span class="s1">&#39;sqlite&#39;</span><span class="p">]</span>
 </span></code></pre></div>
 <h2 id="automatic-table-management">Automatic Table Management<a class="headerlink" href="#automatic-table-management" title="Permanent link">&para;</a></h2>
 <p>In the latest version of AbarORM, you no longer need to manually create tables. The library automatically handles the creation and management of your tables based on the model definitions. This means that as soon as you start interacting with your models, AbarORM will ensure that the corresponding tables are created if they do not already exist. However, you can manage the names of the tables manually by defining the <code>table_name</code> variable in the Meta class</p>
@@ -1191,7 +1170,7 @@
 <p>While schema updates are handled automatically, it is advisable to recreate your database schema after completing development to ensure that all fields and constraints are correctly applied. This helps to avoid potential issues and ensures that your database is in a consistent state before moving to production.</p>
 </details>
 <h2 id="crud">CRUD<a class="headerlink" href="#crud" title="Permanent link">&para;</a></h2>
-<p>There is no difference in the type and method of CRUD in modeling and using databases, and to create them, you can refer to a <a href="/basic_usage/#step-3-perform-crud-operations">Basic Usage - CRUD</a> page.</p>
+<p>There is no difference in the type and method of CRUD in modeling and using databases, and to create them, you can refer to a <a href="/abarorm/basic_usage/#step-3-perform-crud-operations">Basic Usage - CRUD</a> page.</p>
 
 
 
@@ -1252,7 +1231,7 @@
       
       
     
-    <a href="https://www.linkedin.com/in/prodbygodfather" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+    <a href="https://www.linkedin.com/in/prodbygodfathers" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5m282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
     </a>
   

@@ -718,27 +718,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../modeling/mysql_modeling/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    MySQL Modeling
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../modeling/postgresql_modeling/" class="md-nav__link">
         
   
@@ -1291,6 +1270,12 @@
 </ul>
 <h1 id="field-types-in-abarorm">Field Types in AbarORM<a class="headerlink" href="#field-types-in-abarorm" title="Permanent link">&para;</a></h1>
 <p>In AbarORM, fields define the types of data stored in your database models. Each field type represents a specific kind of data and provides options for validation and constraints. This guide covers the available field types and their usage.</p>
+<p>In AbarORM, fields define the type of data stored in your database models. Each field type represents a specific type of data and provides options for validation and constraints. In this guide, we will explore the available field types and how to use them.</p>
+<p>The fields in PostgreSQL and SQLite databases are structurally identical and are designed to be used in a similar way, but to use either database, you must use fields from the same database in your models. For example, the path to fields</p>
+<ul>
+<li><strong>sqlite</strong>: <code>abarorm.fields.sqlite</code></li>
+<li><strong>postgresql</strong>: <code>abarorm.fields.psql</code></li>
+</ul>
 <h2 id="basic-field-types">Basic Field Types<a class="headerlink" href="#basic-field-types" title="Permanent link">&para;</a></h2>
 <h3 id="1-charfield">1. CharField<a class="headerlink" href="#1-charfield" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1487,7 +1472,7 @@
       
       
     
-    <a href="https://www.linkedin.com/in/prodbygodfather" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+    <a href="https://www.linkedin.com/in/prodbygodfathers" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5m282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
     </a>
   
