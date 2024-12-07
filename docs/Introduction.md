@@ -52,16 +52,13 @@ Install the library via pip:
 ```bash
 pip install abarorm
 ```
-For MySQL support, you also need to install `mysql-connector-python`: (Required)
-```bash
-pip install mysql-connector-python
-```
+
 For PostgreSQL support, install `psycopg2-binary`: (Required)
 ```bash
 pip install psycopg2-binary
 ```
 
-**Setup:** Configure your database connection and define your models by inheriting from `SQLiteModel` , `MySQLModel` or `PostgreSQLModel` depending on your database type.
+**Setup:** Configure your database connection and define your models by inheriting from `SQLiteModel` and `PostgreSQLModel` depending on your database type.
 
 **Define Models:** Create Python classes that represent your database tables. Use built-in field types to define the attributes of each model.
 
