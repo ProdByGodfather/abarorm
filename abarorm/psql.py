@@ -2,7 +2,7 @@ import psycopg2
 from psycopg2 import sql, Error
 from typing import List, Optional, Dict
 import datetime
-from .fields import Field, DateTimeField, DecimalField, TimeField, DateField, CharField, ForeignKey
+from .fields.psql import Field, DateTimeField, DecimalField, TimeField, DateField, CharField, ForeignKey
 
 class ModelMeta(type):
     def __new__(cls, name, bases, dct):

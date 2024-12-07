@@ -14,3 +14,5 @@ __pycache__/
 **/__pycache__/
 m.py
 ./m.py
+abarorm/mysql.ex.py
+./abarorm/mysql.ex.py

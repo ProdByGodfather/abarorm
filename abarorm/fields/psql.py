@@ -12,7 +12,7 @@ class Field:
 
 class CharField(Field):
     def __init__(self, max_length: int = 255, **kwargs):
-        super().__init__(field_type='TEXT', max_length=max_length, **kwargs)
+        super().__init__(field_type='VARCHAR', max_length=max_length, **kwargs)  # PostgreSQL uses VARCHAR for strings
 
 class IntegerField(Field):
     def __init__(self, **kwargs):
@@ -20,49 +20,48 @@ class IntegerField(Field):
 
 class BooleanField(Field):
     def __init__(self, default: bool = False, **kwargs):
-        super().__init__(field_type='BOOLEAN', default=str(int(default)), **kwargs)  # Convert bool to int
-    
+        super().__init__(field_type='BOOLEAN', default=default, **kwargs)
+
     def set_default(self):
-        if self.default is None:
-            return 'FALSE'
         return 'TRUE' if self.default else 'FALSE'
 
 
 class DateTimeField(Field):
     def __init__(self, auto_now: bool = False, auto_now_add: Optional[bool] = None, **kwargs):
-        super().__init__(field_type='DATETIME', **kwargs)
+        super().__init__(field_type='TIMESTAMP', **kwargs)  # PostgreSQL uses TIMESTAMP for DateTime fields
         self.auto_now = auto_now
         self.auto_now_add = auto_now_add
 
 class DateField(Field):
     def __init__(self, auto_now: bool = False, auto_now_add: Optional[bool] = None, **kwargs):
-        super().__init__(field_type='DATE', **kwargs)
+        super().__init__(field_type='DATE', **kwargs)  # PostgreSQL uses DATE for date-only fields
         self.auto_now = auto_now
         self.auto_now_add = auto_now_add
 
 class TimeField(Field):
     def __init__(self, **kwargs):
-        super().__init__(field_type='TIME', **kwargs)
+        super().__init__(field_type='TIME', **kwargs)  # PostgreSQL uses TIME for time-only fields
 
 class ForeignKey(Field):
     def __init__(self, to: Type['BaseModel'], on_delete: str = 'CASCADE', **kwargs):
         super().__init__(field_type='INTEGER', **kwargs)
         self.to = to  # This is the related model class
         self.on_delete = on_delete  # Specifies the behavior when the referenced row is deleted
-        
+        # PostgreSQL usually uses INTEGER or BIGINT for foreign key references.
+
 class FloatField(Field):
     def __init__(self, **kwargs):
-        super().__init__(field_type='FLOAT', **kwargs)
+        super().__init__(field_type='REAL', **kwargs)  # PostgreSQL uses REAL for floating point numbers
 
 class DecimalField(Field):
     def __init__(self, max_digits: int, decimal_places: int, **kwargs):
-        super().__init__(field_type='DECIMAL', **kwargs)
+        super().__init__(field_type='DECIMAL', **kwargs)  # PostgreSQL uses DECIMAL/NUMERIC for fixed precision numbers
         self.max_digits = max_digits
         self.decimal_places = decimal_places
 
 class TextField(Field):
     def __init__(self, **kwargs):
-        super().__init__(field_type='TEXT', **kwargs)
+        super().__init__(field_type='TEXT', **kwargs)  # PostgreSQL uses TEXT for long strings
 
 class EmailField(CharField):
     EMAIL_REGEX = r'^[\w\.-]+@[\w\.-]+\.\w+$'
