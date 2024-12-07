@@ -1,5 +1,5 @@
 from abarorm import SQLiteModel, MySQLModel, PostgreSQLModel
-from abarorm.fields import CharField, DateTimeField, ForeignKey
+from abarorm.fields.sqlite import CharField, DateTimeField, ForeignKey
 
 # Database configuration
 DATABASE_CONFIG = {

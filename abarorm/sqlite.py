@@ -1,7 +1,7 @@
 import sqlite3
 from typing import List, Optional, Dict
 import datetime
-from .fields import Field, DateTimeField, DecimalField, TimeField, DateField, CharField, ForeignKey
+from .fields.sqlite import Field, DateTimeField, DecimalField, TimeField, DateField, CharField, ForeignKey
 
 class ModelMeta(type):
     def __new__(cls, name, bases, dct):

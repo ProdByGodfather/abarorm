@@ -1,6 +1,6 @@
 # abarorm
 
-| ![abarorm Logo](https://prodbygodfather.github.io/abarorm/images/logo.png) | **abarorm** is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite, MySQL, and PostgreSQL databases in Python. It provides a simple and intuitive interface for managing database models and interactions. |
+| ![abarorm Logo](https://prodbygodfather.github.io/abarorm/images/logo.png) | **abarorm** is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite and PostgreSQL databases in Python. It provides a simple and intuitive interface for managing database models and interactions. |
 |----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 ## Features
@@ -19,6 +19,14 @@
 - **New in v3.2.0**: Added `__gte` and `__lte` functionality in the filter section.
 - **New in v4.0.0**: Added `__repr__`, `count`, and `to_dict` methods for easier data manipulation and debugging.
 - **New in v4.2.3**: Added `first()`, `last()`, `exists()`, and `paginate()` methods to the QuerySet class for more powerful querying capabilities.
+- **New in v5.0.0**: Fix `PostgreSQL` Bugs and structure.
+  - **Transaction Support**: Added support for transactions, allowing multiple operations to be grouped and committed together.
+  - **Optimized Queries**: Significant performance improvements for complex queries, especially with large datasets.
+  - **Migration System**: Introduced a built-in migration system for database schema updates, so developers can track changes and apply them incrementally.
+  - **Field Customization**: Enhanced field types with custom validation rules and hooks for dynamic field properties.
+  - **Composite Keys**: Added support for composite primary keys, allowing multiple fields to be used as a primary key in a model.
+  - **Improved QuerySet Methods**: Refined `filter()` and `exclude()` methods for more flexibility and ease of use.
+  - **Bulk Operations**: Added bulk insert and update methods for more efficient database operations.
 
 
 
@@ -30,11 +38,7 @@ You can install [**abarorm**](https://pypi.org/project/abarorm/) from PyPI using
 ```bash
 pip install abarorm
 ```
-For MySQL support, you also need to install `mysql-connector-python`:
 
-```bash
-pip install mysql-connector-python
-```
 For PostgreSQL support, you need to install `psycopg2-binary`:
 ```bash
 pip install psycopg2-binary
@@ -44,32 +48,28 @@ pip install psycopg2-binary
 For detailed documentation, examples, and advanced usage, please visit the [official abarorm documentation website](https://prodbygodfather.github.io/abarorm/).
 
 ## Database Configuration
-Before defining models, you need to set up your database configuration. This involves specifying connection parameters for the database you are using (SQLite, MySQL, or PostgreSQL). Here’s an example of how to configure the database:
+Before defining models, you need to set up your database configuration. This involves specifying connection parameters for the database you are using (SQLite and PostgreSQL). Here’s an example of how to configure the database:
 ```python
 # Database configuration
 DATABASE_CONFIG = {
     'sqlite': {
         'db_name': 'example.db',  # Name of the SQLite database file
     },
-    'mysql': {
-        'host': 'localhost',
-        'user': 'your_mysql_user',
-        'password': 'your_mysql_password',
-        'database': 'example_db',
-    },
     'postgresql': {
         'host': 'localhost',
-        'user': 'your_pg_user',
-        'password': 'your_pg_password',
-        'database': 'example_db',
+        'user': 'hoopad',
+        'password': 'db_password',
+        'database': 'example_db',  # Ensure this matches everywhere
+        'port': 5432,
     }
 }
 ```
 ## Model Definition
 After setting up the database configuration, you can define your models. A model is a representation of a database table. Here’s how to create a model using abarorm:
 ```python
-from abarorm import SQLiteModel, MySQLModel, PostgreSQLModel
-from abarorm.fields import CharField, DateTimeField, ForeignKey
+from abarorm import SQLiteModel, PostgreSQLModel
+from abarorm.fields.sqlite import CharField, DateTimeField, ForeignKey
+from abarorm.fields import psql
 
 # Define the Category model for SQLite
 class Category(SQLiteModel):
@@ -82,14 +82,14 @@ class Category(SQLiteModel):
     update_time = DateTimeField(auto_now=True)  # Automatically set to current datetime
 
 
-# Define the Post model for MySQL
-class Post(MySQLModel):
+# Define the Post model for Postgresql
+class Post(PostgreSQLModel):
     class Meta:
-        db_config = DATABASE_CONFIG['mysql']
+        db_config = DATABASE_CONFIG['postgresql']
 
-    title = CharField(max_length=100, null=False)  # Title of the post, must be unique and not null
-    create_time = DateTimeField(auto_now=True)  # Automatically set to current datetime
-    category = ForeignKey(to=Category)  # Foreign key referring to the Category model
+    title = psql.CharField(max_length=100, null=False)  # Title of the post, must be unique and not null
+    create_time = psql.DateTimeField(auto_now=True)  # Automatically set to current datetime
+    category = psql.ForeignKey(to=Category)  # Foreign key referring to the Category model
 ```
 ## CRUD Operations
 Now that you have defined your models, you can perform CRUD operations. Here’s a breakdown of each operation:
@@ -216,6 +216,6 @@ This project is licensed under the [Apache-2.0 License](https://github.com/ProdB
 ## Acknowledgements
 
 - **Python**: The language used for this project.
-- **SQLite & MySQL**: The databases supported by this project.
+- **SQLite and Postgresql**: The databases supported by this project.
 - **setuptools**: The tool used for packaging and distributing the library.
 - **psycopg2-binary**: The PostgreSQL adapter used for connecting to PostgreSQL databases.

@@ -2,7 +2,7 @@ import psycopg2
 from psycopg2 import sql, Error
 from typing import List, Optional, Dict
 import datetime
-from .fields import Field, DateTimeField, DecimalField, TimeField, DateField, CharField, ForeignKey
+from .fields.psql import Field, DateTimeField, DecimalField, TimeField, DateField, CharField, ForeignKey
 
 class ModelMeta(type):
     def __new__(cls, name, bases, dct):
@@ -87,30 +87,72 @@ class BaseModel(metaclass=ModelMeta):
 
     @classmethod
     def connect(cls):
-        config = getattr(cls.Meta, 'db_config', None)
-        if not config or 'db_name' not in config or 'user' not in config:
-            raise ValueError("Database configuration 'db_name' and 'user' are missing in Meta class")
-        
+        if not hasattr(cls, 'Meta') or not hasattr(cls.Meta, 'db_config'):
+            raise AttributeError(f"Class {cls.__name__} must define 'Meta.db_config' with database connection details.")
+
+        db_config = cls.Meta.db_config
+
         try:
             return psycopg2.connect(
-                host=config.get('host', 'localhost'),
-                user=config['user'],
-                password=config.get('password', ''),
-                dbname=config['db_name']
+                host=db_config['host'],
+                user=db_config['user'],
+                password=db_config['password'],
+                database=db_config['database'],
+                port=db_config['port']
             )
-        except Error as e:
-            raise ConnectionError(f"Error connecting to PostgreSQL database: {e}")
+        except psycopg2.OperationalError as e:
+            if "does not exist" in str(e):
+                cls._create_database()
+                return psycopg2.connect(
+                    host=db_config['host'],
+                    user=db_config['user'],
+                    password=db_config['password'],
+                    database=db_config['database'],
+                    port=db_config['port']
+                )
+            else:
+                raise ConnectionError(f"Error connecting to PostgreSQL database: {e}")
+
+    @classmethod
+    def _create_database(cls):
+        try:
+            db_config = cls.Meta.db_config 
+            conn = psycopg2.connect(
+                host=db_config['host'],
+                user=db_config['user'],
+                password=db_config['password'],
+                database="postgres", 
+                port=db_config['port']
+            )
+            conn.autocommit = True
+            cursor = conn.cursor()
+            
+            db_name = db_config['database']
+            cursor.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{db_name}'")
+            if not cursor.fetchone():
+                cursor.execute(f"CREATE DATABASE {db_name}")
+                print(f"Database '{db_name}' created successfully.")
+            else:
+                print(f"Database '{db_name}' already exists.")
+
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            raise ConnectionError(f"Error creating PostgreSQL database: {e}")
+
 
     @classmethod
     def create_table(cls):
         conn = cls.connect()
         cursor = conn.cursor()
-        columns = cls._get_column_definitions(cursor)
-        
-        cursor.execute(f"CREATE TABLE IF NOT EXISTS {cls.table_name} (id SERIAL PRIMARY KEY, {', '.join(columns)})")
-        cls._update_table_structure(cursor)
-        conn.commit()
-        conn.close()
+        try:
+            columns = cls._get_column_definitions(cursor) 
+            cursor.execute(f"CREATE TABLE IF NOT EXISTS {cls.table_name} (id SERIAL PRIMARY KEY, {', '.join(columns)})")
+            cls._update_table_structure(cursor)
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()
 
     @classmethod
     def _get_column_definitions(cls, cursor):
