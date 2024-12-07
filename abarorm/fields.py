@@ -21,6 +21,11 @@ class IntegerField(Field):
 class BooleanField(Field):
     def __init__(self, default: bool = False, **kwargs):
         super().__init__(field_type='BOOLEAN', default=str(int(default)), **kwargs)  # Convert bool to int
+    
+    def set_default(self):
+        if self.default is None:
+            return 'FALSE'
+        return 'TRUE' if self.default else 'FALSE'
 
 
 class DateTimeField(Field):
