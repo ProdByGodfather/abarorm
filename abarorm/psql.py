@@ -73,6 +73,42 @@ class BaseModel(metaclass=ModelMeta):
             # Return a new QuerySet with paginated results
             return self.__class__(paginated_results, self.total_count, page, page_size)
         
+        def contains(self, field: str, value) -> 'QuerySet':
+            """
+            Performs a case-insensitive 'contains' search for the given field and value.
+            Can handle various data types such as strings, numbers, and datetime.
+            
+            :param field: The field name (e.g. 'title').
+            :param value: The value to search for (e.g. substring for strings or a number).
+            :return: A new QuerySet with the filtered results.
+            """
+            filtered_results = []
+            
+            for obj in self.results:
+                field_value = getattr(obj, field, None)
+                
+                # If the field's value is a string
+                if isinstance(field_value, str):
+                    # Perform a case-insensitive substring search
+                    if value.lower() in field_value.lower():
+                        filtered_results.append(obj)
+                # If the field's value is a number (int, float)
+                elif isinstance(field_value, (int, float)):
+                    # Check if the number contains the value as a substring (as string)
+                    if str(value) in str(field_value):
+                        filtered_results.append(obj)
+                # If the field's value is a datetime or date
+                elif isinstance(field_value, (datetime, date)):
+                    # Check if the value is a substring of the date (formatted as string)
+                    if str(value) in field_value.strftime('%Y-%m-%d'):
+                        filtered_results.append(obj)
+                # For other field types, apply an appropriate check (e.g., exact match)
+                elif field_value == value:
+                    filtered_results.append(obj)
+
+            return self.__class__(filtered_results, len(filtered_results), self.page, self.page_size)
+
+        
     
     def __repr__(self):
         field_values = {attr: getattr(self, attr) for attr in self.__class__.__dict__ if isinstance(self.__class__.__dict__[attr], Field)}

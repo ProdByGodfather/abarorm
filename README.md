@@ -142,25 +142,26 @@ To delete a record from the database, use the `delete()` method:
 ```python
 Post.delete(1)  # Delete the post with ID 1
 ```
-### Converting to Dictionary and Counting Records
-After performing operations on the model, you can convert records to dictionaries using the `to_dict()` method and count the number of records using the `count()` method.
+## Converting to Dictionary, Counting Records, and Other Query Methods
 
-#### `to_dict` Method
-The `to_dict()` method converts a model instance into a dictionary, making it easier to manipulate and serialize the data.
+This section covers how to convert records to dictionaries, count records, and use various query methods like `first()`, `last()`, `exists()`, `order_by()`, `paginate()`, and `contains()`. These methods are essential for data manipulation, debugging, and optimizing query performance.
 
-**Example:**
+### `to_dict()` Method
+The `to_dict()` method converts a model instance (or a collection of instances) into a dictionary, which is particularly useful for data manipulation and serialization. It makes it easier to work with the data in Python or send it over an API.
+
+#### Example:
 ```python
-# Retrieve a post by ID
-post = Post.get(id=1)
+# Retrieve all posts
+posts = Post.all()
 
-# Convert the post to a dictionary
-post_dict = post.all().to_dict()
-print(post_dict)
-# Output: [{'id': 1, 'title': 'Godfather', 'create_time': '2024-01-01 12:00:00', ...}]
+# Convert the collection of posts to a list of dictionaries
+posts_dict = posts.to_dict()
+print(posts_dict)
+# Output: [{'id': 1, 'title': 'Godfather', 'create_time': '2024-01-01 12:00:00', ...}, {...}]
 ```
 
 #### `count` Method
-The `count()` method allows you to get the number of records in a model's table.
+The `count()` method returns the number of records that match the query. It’s an efficient way to find the size of a dataset without retrieving the actual data.
 
 **Example:**
 ```python
@@ -169,11 +170,21 @@ num_posts = Post.count()
 print(num_posts)  # Output: 10 (if there are 10 posts in the database)
 ```
 
-#### `first()`, `last()`, `exists()`, `order_by()`, and `paginate()`
-- `first():` Returns the first result or None if no results are present.
-- `last():` Returns the last result or None if no results are present.
-- `exists():` Checks if any records exist in the `QuerySet`.
-- `paginate():` Handles pagination of results, allowing you to retrieve subsets of data based on page and page size.
+The `count()` method can also be used after applying filters to count specific records:
+```python
+# Count the number of posts with a specific title
+num_posts_with_title = Post.filter(title='Godfather').count()
+print(num_posts_with_title)  # Output: 3 (if there are 3 posts with the title 'Godfather')
+```
+
+
+
+#### `first()`, `last()`, `exists()`, `order_by()`, `paginate()` and `contains()`
+- **`first()`**: Returns the first result or `None` if no results are present.
+- **`last()`**: Returns the last result or `None` if no results are present.
+- **`exists()`**: Checks if any records exist in the `QuerySet`.
+- **`paginate()`**: Handles pagination of results, allowing you to retrieve subsets of data based on page and page size.
+- **`contains()`**: Performs a case-insensitive search to check if a field contains a specific substring.
 
 **Example:**
 ```python
@@ -190,20 +201,11 @@ last_post = Post.all().last()
 paginated_posts = Post.all().paginate(1, 5)  # Page 1, 5 results per page
 
 # Using multiple querysets in one query
-posts = Post.filter(title='Godfather').order_by('create_time').paginate(1, 4).to_dict()
+posts = Post.all().contains(title='god').order_by('create_time').paginate(1, 4).to_dict()
 ```
 
 These methods are particularly useful for data manipulation and debugging, as they provide a simple way to view and interact with your database records.
 
-## Version 4.2.3
-
-- `first():` Added to return the first result in a `QuerySet`.
-- `last():` Added to return the last result in a `QuerySet`.
-- `exists():` Added to check if any records exist.
-- `paginate():` Added to handle pagination for large result sets.
-
-
-**Important for Developers:** When adding new fields to models, they will default to `NULL`. It’s recommended to recreate the database schema after development is complete to ensure fields have appropriate constraints and default values.
 
 ## Contributing
 
