@@ -173,13 +173,15 @@ num_posts = Post.count()
 print(num_posts)  # Output: 10 (if there are 10 posts in the database)
 ```
 
-#### `first()`, `last()`, `exists()`, `order_by()` و `paginate()`
+#### `first()`, `last()`, `exists()`, `order_by()`, `paginate()` و `contains()`
 - `first():` اولین نتیجه یا None را در صورت عدم وجود نتیجه برمی گرداند.
 - `last():` آخرین نتیجه یا None را در صورت عدم وجود نتیجه برمی گرداند.
 - `exists():` بررسی می کند که آیا رکوردی در `QuerySet` وجود دارد یا خیر.
 - `paginate():` صفحه بندی نتایج را کنترل می کند و به شما امکان می دهد زیرمجموعه هایی از داده ها را بر اساس اندازه صفحه و صفحه بازیابی کنید.
+- `contains():` یک جستجوی غیر حساس به حروف بزرگ و کوچک برای بررسی اینکه آیا یک فیلد حاوی یک زیررشته خاص است انجام می دهد.
 
-**Example:**
+
+**نمونه:**
 ```python
 # Check if any posts exist
 exists = Post.all().exists()
@@ -193,8 +195,11 @@ last_post = Post.all().last()
 # Paginate the results
 paginated_posts = Post.all().paginate(1, 5)  # Page 1, 5 results per page
 
+# Searching with one field
+searched_posts = Post.all().contains(title='god')
+
 # Using multiple querysets in one query
-posts = Post.filter(title='Godfather').order_by('create_time').paginate(1, 4).to_dict()
+posts = Post.all().contains(title='God').order_by('create_time').paginate(1, 4).to_dict()
 ```
 
 این روش ها به ویژه برای دستکاری داده ها و اشکال زدایی مفید هستند، زیرا روشی ساده برای مشاهده و تعامل با سوابق پایگاه داده شما ارائه می دهند.
