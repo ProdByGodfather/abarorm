@@ -20,13 +20,10 @@
 - **New in v4.0.0**: Added `__repr__`, `count`, and `to_dict` methods for easier data manipulation and debugging.
 - **New in v4.2.3**: Added `first()`, `last()`, `exists()`, and `paginate()` methods to the QuerySet class for more powerful querying capabilities.
 - **New in v5.0.0**: Fix `PostgreSQL` Bugs and structure.
-  - **Transaction Support**: Added support for transactions, allowing multiple operations to be grouped and committed together.
-  - **Optimized Queries**: Significant performance improvements for complex queries, especially with large datasets.
-  - **Migration System**: Introduced a built-in migration system for database schema updates, so developers can track changes and apply them incrementally.
-  - **Field Customization**: Enhanced field types with custom validation rules and hooks for dynamic field properties.
-  - **Composite Keys**: Added support for composite primary keys, allowing multiple fields to be used as a primary key in a model.
-  - **Improved QuerySet Methods**: Refined `filter()` and `exclude()` methods for more flexibility and ease of use.
-  - **Bulk Operations**: Added bulk insert and update methods for more efficient database operations.
+- **New in v5.1.0**: Enhanced functionality for better usability and robustness:
+   - **mproved `delete` Method:** Now supports filtering by additional fields beyond id, allowing more flexible deletion queries.
+   - **Enhanced `contains` Method:** Allows dynamic keyword arguments (`**kwargs`) for filtering, enabling intuitive queries.
+
 
 
 
@@ -140,7 +137,9 @@ Post.update(1, title='Updated Godfather')  # Update the title of the post with I
 ### Delete
 To delete a record from the database, use the `delete()` method:
 ```python
-Post.delete(1)  # Delete the post with ID 1
+Post.delete(id=1)  # Delete the post with ID 1
+# or Removal based on a sometimes repeated argument
+Post.delete(title='Godfather')
 ```
 ## Converting to Dictionary, Counting Records, and Other Query Methods
 
