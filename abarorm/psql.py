@@ -73,42 +73,52 @@ class BaseModel(metaclass=ModelMeta):
             # Return a new QuerySet with paginated results
             return self.__class__(paginated_results, self.total_count, page, page_size)
         
-        def contains(self, field: str, value) -> 'QuerySet':
+        def contains(self, **kwargs) -> 'QuerySet':
             """
-            Performs a case-insensitive 'contains' search for the given field and value.
+            Performs case-insensitive 'contains' searches for the given fields and their values.
             Can handle various data types such as strings, numbers, and datetime.
-            
-            :param field: The field name (e.g. 'title').
-            :param value: The value to search for (e.g. substring for strings or a number).
+
+            :param kwargs: Key-value pairs where key is the field name and value is the search value.
             :return: A new QuerySet with the filtered results.
             """
+            if not kwargs:
+                raise ValueError("At least one field and value must be provided for the 'contains' filter.")
+
             filtered_results = []
-            
+
             for obj in self.results:
-                field_value = getattr(obj, field, None)
-                
-                # If the field's value is a string
-                if isinstance(field_value, str):
-                    # Perform a case-insensitive substring search
-                    if value.lower() in field_value.lower():
-                        filtered_results.append(obj)
-                # If the field's value is a number (int, float)
-                elif isinstance(field_value, (int, float)):
-                    # Check if the number contains the value as a substring (as string)
-                    if str(value) in str(field_value):
-                        filtered_results.append(obj)
-                # If the field's value is a datetime or date
-                elif isinstance(field_value, (datetime, date)):
-                    # Check if the value is a substring of the date (formatted as string)
-                    if str(value) in field_value.strftime('%Y-%m-%d'):
-                        filtered_results.append(obj)
-                # For other field types, apply an appropriate check (e.g., exact match)
-                elif field_value == value:
+                match = True
+                for field, value in kwargs.items():
+                    field_value = getattr(obj, field, None)
+                    
+                    # If the field's value is a string
+                    if isinstance(field_value, str):
+                        # Perform a case-insensitive substring search
+                        if not value.lower() in field_value.lower():
+                            match = False
+                            break
+                    # If the field's value is a number (int, float)
+                    elif isinstance(field_value, (int, float)):
+                        # Check if the number contains the value as a substring (as string)
+                        if not str(value) in str(field_value):
+                            match = False
+                            break
+                    # If the field's value is a datetime or date
+                    elif isinstance(field_value, (datetime, date)):
+                        # Check if the value is a substring of the date (formatted as string)
+                        if not str(value) in field_value.strftime('%Y-%m-%d'):
+                            match = False
+                            break
+                    # For other field types, apply an appropriate check (e.g., exact match)
+                    elif field_value != value:
+                        match = False
+                        break
+
+                if match:
                     filtered_results.append(obj)
 
             return self.__class__(filtered_results, len(filtered_results), self.page, self.page_size)
 
-        
     
     def __repr__(self):
         field_values = {attr: getattr(self, attr) for attr in self.__class__.__dict__ if isinstance(self.__class__.__dict__[attr], Field)}
@@ -387,15 +397,26 @@ class BaseModel(metaclass=ModelMeta):
         conn.close()
         return True
         
-
     @classmethod
-    def delete(cls, id: int) -> None:
+    def delete(cls, **filters) -> int:
+        if not filters:
+            raise ValueError("At least one filter to remove must be specified.")
+
+        # make if
+        where_clause = " AND ".join(f"{key} = %s" for key in filters.keys())
+        values = tuple(filters.values())
+
+        query = f"DELETE FROM {cls.table_name} WHERE {where_clause}"
+
+        # run query for delete
         conn = cls.connect()
         cursor = conn.cursor()
-        cursor.execute(f"DELETE FROM {cls.table_name} WHERE id = %s", (id,))
+        cursor.execute(query, values)
+        deleted_rows = cursor.rowcount 
         conn.commit()
         conn.close()
-        return True
+
+        return deleted_rows
         
 
 
