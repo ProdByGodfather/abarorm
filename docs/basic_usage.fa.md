@@ -129,7 +129,9 @@ category.save()
  استفاده کنید:
 ```python
 # Delete a post
-Post.delete(1)
+Post.delete(id=1)
+# Likewise, deletion based on duplicate fields
+Post.delete(title='godfather')
 ```
 ### مدیریت روابط
 

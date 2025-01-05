@@ -147,11 +147,11 @@ The methods for `MySQLModel` and `PostgreSQLModel` are identical to those for `S
   - `id`: ID of the record to update.
   - `**kwargs`: New data for the record.
 
-### 3. `delete(cls, id)`
+### 3. `delete(cls, **kwargs)`
 
 - **Description**: Deletes a record by its ID.
 - **Parameters**:
-  - `id`: ID of the record to delete.
+  - `**kwargs`: data of the record to delete.
 
 ## Summary
 
