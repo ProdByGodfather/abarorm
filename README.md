@@ -17,8 +17,8 @@
 - **New in v3.0.0**: Updated return values for methods to improve clarity and usability.
 - **New in v3.0.0**: Enhanced `filter` method now supports `order_by` functionality for result ordering.
 - **New in v3.2.0**: Added `__gte` and `__lte` functionality in the filter section.
-- **New in v4.0.0**: Added `__repr__`, `count`, and `to_dict` methods for easier data manipulation and debugging.
-- **New in v4.2.3**: Added `first()`, `last()`, `exists()`, and `paginate()` methods to the QuerySet class for more powerful querying capabilities.
+- **New in v4.0.0**: Added `__repr__`, `count`, and `to_dict` methods.
+- **New in v4.2.3**: Added `first()`, `last()`, `exists()`, and `paginate()` methods to the QuerySet class.
 - **New in v5.0.0**: Fix `PostgreSQL` Bugs and structure.
 - **New in v5.1.0**: Enhanced functionality for better usability and robustness:
    - **mproved `delete` Method:** Now supports filtering by additional fields beyond id, allowing more flexible deletion queries.
