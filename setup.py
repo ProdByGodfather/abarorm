@@ -1,8 +1,10 @@
 from setuptools import setup, find_packages
 
+__version__ = '5.0.3'
+
 setup(
     name='abarorm',
-    version='5.0.2',
+    version=__version__,
     description='abarorm is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite and PostgreSQL databases in Python. It aims to provide a simple and intuitive interface for managing database models and interactions.',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
