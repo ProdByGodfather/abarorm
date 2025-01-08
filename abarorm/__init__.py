@@ -1,6 +1,5 @@
 __all__ = [
     'SQLiteModel',
-    'MySQLModel',
     'PostgreSQLModel'
 ]
 
