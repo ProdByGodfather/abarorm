@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys
 
-__version__ = '5.0.3'
+__version__ = '5.1.2'
 
 
 if '--version' in sys.argv:
