@@ -31,6 +31,7 @@ jobs:
         run: |
           if git show-ref --verify --quiet refs/heads/site; then
               echo "برنچ site وجود دارد."
+              git checkout site
           else
               echo "برنچ site وجود ندارد. در حال ایجاد..."
               git checkout -b site  # Create and switch to the new branch
@@ -55,15 +56,14 @@ jobs:
           git add .
           git diff-index --quiet HEAD || git commit -m "Update documentation"  # Only commit if there are changes
 
-          - name: Setup SSH
-          run: |
-            mkdir -p ~/.ssh
-            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-            chmod 600 ~/.ssh/id_rsa
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
      
       - name: Push changes
         run: |
           git remote set-url origin git@github.com:ProdByGodfather/abarorm.git
           git push origin site
-     
