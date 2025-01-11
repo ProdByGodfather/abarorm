@@ -1,0 +1,49 @@
+name: Build and Deploy MkDocs
+
+on:
+  push:
+    branches:
+      - docs  # Trigger on pushes to the docs branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch all history for all branches
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'  # Use the desired Python version
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt  # Install dependencies from requirements.txt
+
+      - name: Build documentation
+        run: mkdocs build  # Build the documentation
+
+      - name: Checkout site branch
+        run: |
+          git checkout site  # Switch to the site branch
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+
+      - name: Replace site contents
+        run: |
+          rm -rf *  # Remove existing files in the site branch
+          echo "google-site-verification: googlee5febdfb3cd460f8.html" > googlee5febdfb3cd460f8.html 
+          mv ../site/* ./  # Move new files from the build directory to the site branch
+
+
+      - name: Commit changes
+        run: |
+          git add .
+          git commit -m "Update documentation" || echo "No changes to commit"
+
+      - name: Push changes
+        run: git push origin site  # Push changes to the site branch
