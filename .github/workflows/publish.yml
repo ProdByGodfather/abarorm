@@ -47,7 +47,7 @@ jobs:
       # 6. Clean up old files
       - name: Clean up old site contents
         run: |
-          rm -rf *  # Remove all existing files in the site branch
+          rm -rf ./* .[^.]*  
 
       # 7. Copy new site contents
       - name: Copy new site contents
