@@ -37,6 +37,7 @@ jobs:
           if [ ! -d ".git" ]; then
             git init  # Initialize Git repository if it's not already initialized
             git remote add origin git@github.com:ProdByGodfather/abarorm.git  # Add remote repository
+            git fetch origin  # Fetch from the remote repository to get history
           fi
 
       # Step 6: Checkout or create the 'site' branch
