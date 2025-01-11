@@ -66,5 +66,5 @@ jobs:
       - name: Push changes
         run: |
           git remote set-url origin git@github.com:ProdByGodfather/abarorm.git
-          git push origin site
+          git push origin site --force
  
