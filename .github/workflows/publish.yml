@@ -3,66 +3,59 @@ name: Build and Deploy MkDocs
 on:
   push:
     branches:
-      - docs  # Trigger on pushes to the docs branch
+      - docs
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Clone repository
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Fetch all history for all branches
+          fetch-depth: 0
 
-      # 2. Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'  # Use the desired Python version
+          python-version: '3.8'
 
-      # 3. Install dependencies
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt  # Install dependencies from requirements.txt
+          pip install -r requirements.txt
 
-      # 4. Build documentation
       - name: Build documentation
-        run: mkdocs build  # Build the documentation in the site directory
+        run: mkdocs build
 
-      # 5. Checkout site branch
+      - name: Debug MkDocs Build
+        run: |
+          echo "Listing contents of '../site':"
+          ls -la ../site
+
+      - name: Ensure Site Directory
+        run: mkdir -p ../site
+
       - name: Checkout site branch
         run: |
           if git show-ref --verify --quiet refs/heads/site; then
-              echo "Branch 'site' exists. Checking out..."
               git checkout site
           else
-              echo "Branch 'site' does not exist. Creating..."
-              git checkout -b site  # Create and switch to the new branch
+              git checkout -b site
           fi
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-      # 6. Clean up old files
-      - name: Clean up old site contents
+      - name: Replace site contents
         run: |
-          rm -rf ./* .[^.]*  
-
-      # 7. Copy new site contents
-      - name: Copy new site contents
-        run: |
-          cp -r ../site/* ./  # Copy all built files from '../site' to current directory
+          rm -rf *
+          cp -r ../site/* ./ || echo "No files to copy from '../site'."
           echo "google-site-verification: googlee5febdfb3cd460f8.html" > googlee5febdfb3cd460f8.html
-          echo "New site contents copied successfully."
 
-      # 8. Commit new changes
       - name: Commit changes
         run: |
           git add .
           git diff-index --quiet HEAD || git commit -m "Update documentation"
 
-      # 9. Setup SSH
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -70,8 +63,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-      # 10. Push to site branch
-      - name: Push changes to site branch
+      - name: Push changes
         run: |
           git remote set-url origin git@github.com:ProdByGodfather/abarorm.git
           git push origin site --force
