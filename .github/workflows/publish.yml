@@ -3,46 +3,42 @@ name: Build and Deploy MkDocs
 on:
   push:
     branches:
-      - docs  # This triggers the workflow when changes are pushed to the 'docs' branch
+      - docs
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Fetch all history for all branches
+          fetch-depth: 0
 
-      # Step 2: Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.8'
 
-      # Step 3: Install required dependencies
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
 
-      # Step 4: Build the documentation
       - name: Build documentation
         run: mkdocs build
 
-      # Step 5: Create a .git directory if not exists (initialize git if needed)
-      - name: Initialize Git repository
+      - name: Debug MkDocs Build
         run: |
-          if [ ! -d ".git" ]; then
-            git init  # Initialize Git repository if it's not already initialized
-            git remote add origin git@github.com:ProdByGodfather/abarorm.git  # Add remote repository
-          fi
+          echo "Listing contents of the current directory before 'mkdocs build':"
+          ls -la
+          echo "Listing contents of 'site' directory after 'mkdocs build':"
+          ls -la site  # This should show the contents of the 'site' directory
 
-      # Step 6: Checkout or create the 'site' branch
+      - name: Ensure Site Directory
+        run: mkdir -p site  # Ensure that the site directory exists at the correct location
+
       - name: Checkout site branch
         run: |
-          git fetch origin
           if git show-ref --verify --quiet refs/heads/site; then
               git checkout site
           else
@@ -51,25 +47,25 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-      # Step 7: Clean up existing files and replace with new ones
-      - name: Clean and Replace site contents
+      - name: Replace site contents
         run: |
-          # Remove everything except the .git directory
-          find . -mindepth 1 ! -name '.git' ! -name '.gitignore' -exec rm -rf {} + 
-
-          # Copy the contents from the 'site' directory to the root directory
-          cp -r site/* ./ || echo "No files to copy from the 'site' directory."
-
-          # Create the Google verification file
+          # Ensure Git repository is initialized
+          git status
+          # Safely remove files except .git and other essential files
+          find . -mindepth 1 ! -name '.git' ! -name '.gitignore' -exec rm -rf {} +
           echo "google-site-verification: googlee5febdfb3cd460f8.html" > googlee5febdfb3cd460f8.html
+          # Ensure site directory exists and copy its contents
+          if [ -d site ]; then
+              cp -r site/* ./
+          else
+              echo "Build directory 'site' does not exist or is empty."
+          fi
 
-      # Step 8: Commit changes if there are any
       - name: Commit changes
         run: |
           git add .
           git diff-index --quiet HEAD || git commit -m "Update documentation"
 
-      # Step 9: Set up SSH for secure push
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -77,8 +73,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-      # Step 10: Push changes to the 'site' branch
       - name: Push changes
         run: |
           git remote set-url origin git@github.com:ProdByGodfather/abarorm.git
-          git push origin site --force  # Push changes to the 'site' branch
+          git push origin site --force
