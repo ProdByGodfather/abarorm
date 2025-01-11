@@ -31,8 +31,8 @@ jobs:
       - name: Build documentation
         run: mkdocs build
 
-      # Step 5: Check if the .git directory exists
-      - name: Check if .git directory exists
+      # Step 5: Initialize or fetch git repository if needed
+      - name: Initialize Git repository
         run: |
           if [ ! -d ".git" ]; then
             echo "Initializing git repository..."
