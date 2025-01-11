@@ -31,7 +31,7 @@ jobs:
       - name: Build documentation
         run: mkdocs build
 
-      # Step 5: Create a .git directory if not exists (initialize git if needed)
+      # Step 5: Initialize Git repository if not already done
       - name: Initialize Git repository
         run: |
           if [ ! -d ".git" ]; then
