@@ -35,7 +35,7 @@ jobs:
           ls -la site  # This should show the contents of the 'site' directory
 
       - name: Ensure Site Directory
-        run: mkdir -p ../site
+        run: mkdir -p site  # Ensure that the site directory exists at the correct location
 
       - name: Checkout site branch
         run: |
@@ -49,6 +49,8 @@ jobs:
 
       - name: Replace site contents
         run: |
+          # Ensure Git repository is initialized
+          git status
           # Safely remove files except .git and other essential files
           find . -mindepth 1 ! -name '.git' ! -name '.gitignore' -exec rm -rf {} +
           echo "google-site-verification: googlee5febdfb3cd460f8.html" > googlee5febdfb3cd460f8.html
