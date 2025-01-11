@@ -10,61 +10,68 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Clone repository
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Fetch all history for all branches
 
+      # 2. Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.8'  # Use the desired Python version
 
+      # 3. Install dependencies
       - name: Install dependencies
         run: |
           pip install -r requirements.txt  # Install dependencies from requirements.txt
 
+      # 4. Build documentation
       - name: Build documentation
-        run: mkdocs build  # Build the documentation
+        run: mkdocs build  # Build the documentation in the site directory
 
+      # 5. Checkout site branch
       - name: Checkout site branch
         run: |
           if git show-ref --verify --quiet refs/heads/site; then
-              echo "برنچ site وجود دارد."
+              echo "Branch 'site' exists. Checking out..."
               git checkout site
           else
-              echo "برنچ site وجود ندارد. در حال ایجاد..."
+              echo "Branch 'site' does not exist. Creating..."
               git checkout -b site  # Create and switch to the new branch
           fi
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-      - name: Replace site contents
+      # 6. Clean up old files
+      - name: Clean up old site contents
         run: |
-          rm -rf *  # Remove existing files in the site branch
-          echo "google-site-verification: googlee5febdfb3cd460f8.html" > googlee5febdfb3cd460f8.html 
-          
-          # Move new files from the build directory to the site branch only if they exist
-          if [ -d ../site ]; then
-              mv ../site/* ./  # Move new files from the build directory to the site branch
-          else
-              echo "Directory '../site' does not exist. No files to move."
-          fi
+          rm -rf *  # Remove all existing files in the site branch
 
+      # 7. Copy new site contents
+      - name: Copy new site contents
+        run: |
+          cp -r ../site/* ./  # Copy all built files from '../site' to current directory
+          echo "google-site-verification: googlee5febdfb3cd460f8.html" > googlee5febdfb3cd460f8.html
+          echo "New site contents copied successfully."
+
+      # 8. Commit new changes
       - name: Commit changes
         run: |
           git add .
-          git diff-index --quiet HEAD || git commit -m "Update documentation"  # Only commit if there are changes
+          git diff-index --quiet HEAD || git commit -m "Update documentation"
 
+      # 9. Setup SSH
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan github.com >> ~/.ssh/known_hosts
-     
-      - name: Push changes
+
+      # 10. Push to site branch
+      - name: Push changes to site branch
         run: |
           git remote set-url origin git@github.com:ProdByGodfather/abarorm.git
           git push origin site --force
- 
