@@ -55,12 +55,12 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-      # Step 7: Clean up existing files and replace with new ones
+      # Step 7: Clean and Replace site contents
       - name: Clean and Replace site contents
         run: |
-          # Remove everything except the .git directory
-          find . -mindepth 1 ! -name '.git' ! -name '.gitignore' -exec rm -rf {} + 
-
+          # Remove all files except for the .git directory
+          find . -mindepth 1 ! -name '.git' ! -name '.gitignore' -exec rm -rf {} +
+          
           # Check if the 'site' directory has files and copy them
           if [ -d "site" ] && [ "$(ls -A site)" ]; then
             cp -r site/* ./  # Copy the contents from the 'site' directory to the root directory
