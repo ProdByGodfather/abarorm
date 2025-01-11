@@ -57,7 +57,7 @@ jobs:
 
       - name: Push changes
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Use your PAT token here
         run: |
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/ProdByGodfather/abarorm.git
           git push origin site  # Push changes to the site branch
