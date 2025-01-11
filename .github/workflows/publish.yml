@@ -31,13 +31,16 @@ jobs:
       - name: Build documentation
         run: mkdocs build
 
-      # Step 5: Initialize Git repository if not already done
-      - name: Initialize Git repository
+      # Step 5: Check if the .git directory exists
+      - name: Check if .git directory exists
         run: |
           if [ ! -d ".git" ]; then
+            echo "Initializing git repository..."
             git init  # Initialize Git repository if it's not already initialized
             git remote add origin git@github.com:ProdByGodfather/abarorm.git  # Add remote repository
             git fetch origin  # Fetch from the remote repository to get history
+          else
+            echo ".git directory exists."
           fi
 
       # Step 6: Checkout or create the 'site' branch
@@ -67,6 +70,7 @@ jobs:
       # Step 8: Commit changes if there are any
       - name: Commit changes
         run: |
+          git status  # Check current status
           git add .
           git diff-index --quiet HEAD || git commit -m "Update documentation"
 
