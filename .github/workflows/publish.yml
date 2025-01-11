@@ -29,7 +29,7 @@ jobs:
 
       - name: Checkout site branch
         run: |
-          git checkout site  # Switch to the site branch
+          git checkout -- site  # Switch to the site branch (use -- to disambiguate)
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
@@ -39,11 +39,10 @@ jobs:
           echo "google-site-verification: googlee5febdfb3cd460f8.html" > googlee5febdfb3cd460f8.html 
           mv ../site/* ./  # Move new files from the build directory to the site branch
 
-
       - name: Commit changes
         run: |
           git add .
-          git commit -m "Update documentation" || echo "No changes to commit"
+          git diff-index --quiet HEAD || git commit -m "Update documentation"  # Only commit if there are changes
 
       - name: Push changes
         run: git push origin site  # Push changes to the site branch
