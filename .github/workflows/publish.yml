@@ -56,4 +56,8 @@ jobs:
           git diff-index --quiet HEAD || git commit -m "Update documentation"  # Only commit if there are changes
 
       - name: Push changes
-        run: git push origin site  # Push changes to the site branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  
+        run: |
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/ProdByGodfather/abarorm.git
+          git push origin site  # Push changes to the site branch
