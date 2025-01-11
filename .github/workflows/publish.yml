@@ -54,13 +54,13 @@ jobs:
             git init  # Initialize Git repository if not already initialized
           fi
 
-      - name: Replace site contents
+      - name: Preserve .git and Replace site contents
         run: |
-          # Safely remove all files except .git and other essential files
-          find . -mindepth 1 ! -name '.git' ! -name '.gitignore' -exec rm -rf {} +
+          # Preserve the .git directory and ensure files are only copied from site
+          find . -mindepth 1 ! -name '.git' ! -name '.gitignore' -exec rm -rf {} +  # Remove files except .git
           echo "google-site-verification: googlee5febdfb3cd460f8.html" > googlee5febdfb3cd460f8.html
           
-          # Ensure the site directory exists and copy its contents
+          # Ensure the site directory exists and copy its contents to the working directory
           if [ -d site ]; then
               cp -r site/* ./  # Only copy files from the build output
           else
