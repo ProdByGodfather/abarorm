@@ -47,9 +47,15 @@ jobs:
 
       - name: Replace site contents
         run: |
-          rm -rf *
-          cp -r ../site/* ./ || echo "No files to copy from '../site'."
+          # Safely remove files except .git and other essential files
+          find . -mindepth 1 ! -name '.git' ! -name '.gitignore' -exec rm -rf {} +
           echo "google-site-verification: googlee5febdfb3cd460f8.html" > googlee5febdfb3cd460f8.html
+          # Ensure site directory exists and copy its contents
+          if [ -d ../site ]; then
+              cp -r ../site/* ./
+          else
+              echo "Build directory '../site' does not exist or is empty."
+          fi
 
       - name: Commit changes
         run: |
