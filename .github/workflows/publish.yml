@@ -64,9 +64,6 @@ jobs:
             exit 1
           fi
 
-          # Remove all files except for the .git directory and .gitignore
-          find . -mindepth 1 ! -name '.git' ! -name '.gitignore' -exec rm -rf {} +
-
           # Check if the 'site' directory has files and copy them
           if [ -d "site" ] && [ "$(ls -A site)" ]; then
             cp -r site/* ./  # Copy the contents from the 'site' directory to the root directory
