@@ -55,9 +55,15 @@ jobs:
           git add .
           git diff-index --quiet HEAD || git commit -m "Update documentation"  # Only commit if there are changes
 
+          - name: Setup SSH
+          run: |
+            mkdir -p ~/.ssh
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+     
       - name: Push changes
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/ProdByGodfather/abarorm.git
-          git push origin site  # Push changes to the site branch
+          git remote set-url origin git@github.com:ProdByGodfather/abarorm.git
+          git push origin site
+     
