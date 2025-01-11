@@ -35,13 +35,20 @@ jobs:
               echo "برنچ site وجود ندارد. در حال ایجاد..."
               git checkout -b site  # Create and switch to the new branch
           fi
-      
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
 
       - name: Replace site contents
         run: |
           rm -rf *  # Remove existing files in the site branch
           echo "google-site-verification: googlee5febdfb3cd460f8.html" > googlee5febdfb3cd460f8.html 
-          mv ../site/* ./  # Move new files from the build directory to the site branch
+          
+          # Move new files from the build directory to the site branch only if they exist
+          if [ -d ../site ]; then
+              mv ../site/* ./  # Move new files from the build directory to the site branch
+          else
+              echo "Directory '../site' does not exist. No files to move."
+          fi
 
       - name: Commit changes
         run: |
