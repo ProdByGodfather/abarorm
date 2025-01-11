@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Fetch all history for all branches
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -47,16 +47,22 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
+      - name: Ensure Git repository is initialized
+        run: |
+          if [ ! -d .git ]; then
+            echo "Initializing Git repository..."
+            git init  # Initialize Git repository if not already initialized
+          fi
+
       - name: Replace site contents
         run: |
-          # Ensure Git repository is initialized
-          git status
-          # Safely remove files except .git and other essential files
+          # Safely remove all files except .git and other essential files
           find . -mindepth 1 ! -name '.git' ! -name '.gitignore' -exec rm -rf {} +
           echo "google-site-verification: googlee5febdfb3cd460f8.html" > googlee5febdfb3cd460f8.html
-          # Ensure site directory exists and copy its contents
+          
+          # Ensure the site directory exists and copy its contents
           if [ -d site ]; then
-              cp -r site/* ./
+              cp -r site/* ./  # Only copy files from the build output
           else
               echo "Build directory 'site' does not exist or is empty."
           fi
