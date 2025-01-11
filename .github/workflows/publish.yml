@@ -29,9 +29,13 @@ jobs:
 
       - name: Checkout site branch
         run: |
-          git checkout -- site  # Switch to the site branch (use -- to disambiguate)
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
+          if git show-ref --verify --quiet refs/heads/site; then
+              echo "برنچ site وجود دارد."
+          else
+              echo "برنچ site وجود ندارد. در حال ایجاد..."
+              git checkout -b site  # Create and switch to the new branch
+          fi
+      
 
       - name: Replace site contents
         run: |
