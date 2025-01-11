@@ -79,7 +79,7 @@ if category:
 To retrieve records from the database, use the `all`, `get`, or `filter` methods:
 ```python
 # Retrieve all posts
-all_posts = Post.all(order_by='-create_time')
+all_posts = Post.all()
 print("All posts:", all_posts)
 # Retrieve a specific post
 post_data = Post.get(id=1)
@@ -90,7 +90,7 @@ if post_data:
 The `filter()` method allows you to retrieve records based on specified criteria. You can use keyword arguments to filter by field values and sort the results using `order_by`.
 ```python
 # Filter posts by category ID and order by creation time
-filtered_posts = Post.filter(category=category.id, order_by='-create_time')
+filtered_posts = Post.filter(category=category.id)
 ```
 #### Advanced Filtering
 You can also use special lookup expressions like `__gte` (greater than or equal to) and `__lte` (less than or equal to) for more complex queries:

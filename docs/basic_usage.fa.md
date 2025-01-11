@@ -83,7 +83,7 @@ if category:
 
 ```python
 # Retrieve all posts
-all_posts = Post.all(order_by='-create_time')
+all_posts = Post.all()
 print("All posts:", all_posts)
 # Retrieve a specific post
 post_data = Post.get(id=1)
@@ -95,7 +95,7 @@ if post_data:
 متد `filter()` به شما امکان می‌دهد رکوردها را بر اساس معیارهای خاص فیلتر کنید. می‌توانید از آرگومان‌های کلیدی برای فیلتر کردن بر اساس مقادیر فیلدها و همچنین مرتب‌سازی نتایج با استفاده از `order_by` استفاده کنید.
 ```python
 # Filter posts by category ID and order by creation time
-filtered_posts = Post.filter(category=category.id, order_by='-create_time')
+filtered_posts = Post.filter(category=category.id)
 ```
 #### فیلتر پیشرفته
 
