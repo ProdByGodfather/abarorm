@@ -6,8 +6,8 @@ We provide security updates and support for the following versions of AbarORM:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| < 4.2.x | :white_check_mark: |
-| 4.2.x   | :white_check_mark: |
+| < 4.2.3 | :white_check_mark: |
+| 4.2.3   | :white_check_mark: |
 | 4.0.0   | :x:                |
 |  4.0 >  | :x:                |
 
