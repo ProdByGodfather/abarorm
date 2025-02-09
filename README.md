@@ -20,10 +20,8 @@
 - **New in v4.0.0**: Added `__repr__`, `count`, and `to_dict` methods.
 - **New in v4.2.3**: Added `first()`, `last()`, `exists()`, and `paginate()` methods to the QuerySet class.
 - **New in v5.0.0**: Fix `PostgreSQL` Bugs and structure.
-- **New in v5.1.0**: Enhanced functionality for better usability and robustness:
-   - **mproved `delete` Method:** Now supports filtering by additional fields beyond id, allowing more flexible deletion queries.
-   - **Enhanced `contains` Method:** Allows dynamic keyword arguments (`**kwargs`) for filtering, enabling intuitive queries.
-
+- **New in v5.1.0**: Enhanced functionality for better usability for `delete` and `contains` methods.
+- **New in v5.2.0**: Introduced `bulk_create` for efficient batch insertions.
 
 
 
@@ -91,7 +89,7 @@ class Post(PostgreSQLModel):
 ## CRUD Operations
 Now that you have defined your models, you can perform CRUD operations. Here’s a breakdown of each operation:
 ### Create
-To create new records in the database, use the `create()` method. For example:
+To create new records in the database, use the `create()` method or **Bulk Create**: `bulk_create`. For example:
 ```python
 # Create a new category
 Category.create(title='Movies')
@@ -100,6 +98,13 @@ Category.create(title='Movies')
 category = Category.get(id=1)  # Fetch the category with ID 1
 if category:
     Post.create(title='Godfather', category=category.id)  # Create a new post associated with the fetched category
+
+# Bulk Create Post
+records = [
+    {"title": "Godfather Part II", "category": 1},
+    {"title": "Godfather Part III", "category": 1},
+]
+Post.bulk_create(records)
 ```
 ### Read
 To read records from the database, use the `all()` or `get()` methods:
