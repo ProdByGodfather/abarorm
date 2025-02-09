@@ -326,6 +326,54 @@ class BaseModel(metaclass=ModelMeta):
         conn.commit()
         conn.close()
         return True  # Return True on successful creation
+    
+    @classmethod
+    def bulk_create(cls, records: list) -> None:
+        conn = cls.connect()
+        cursor = conn.cursor()
+        
+        if not records:
+            raise ValueError("The records list is empty.")
+
+        columns = []
+        placeholders = []
+        all_values = []
+
+        for record in records:
+            values = []
+            for attr, field in cls.__dict__.items():
+                if isinstance(field, Field):
+                    if isinstance(field, ForeignKey):
+                        if isinstance(record[attr], int):
+                            related_instance = field.to.get(id=record[attr])
+                            if not related_instance:
+                                raise ValueError(f"Related {field.to.__name__} with ID {record[attr]} does not exist.")
+                        elif isinstance(record[attr], field.to):
+                            values.append(record[attr].id) 
+                        else:
+                            raise ValueError(f"Invalid value for foreign key {attr}. Must be an integer ID or instance of {field.to.__name__}.")
+                    
+                    if attr in record:
+                        values.append(record[attr])
+                    elif isinstance(field, DateField) and field.auto_now:
+                        values.append(datetime.datetime.now().strftime('%Y-%m-%d'))
+                    elif isinstance(field, DateField) and field.auto_now_add:
+                        values.append(datetime.datetime.now().strftime('%Y-%m-%d'))
+                    elif isinstance(field, DateTimeField) and field.auto_now:
+                        values.append(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                    elif isinstance(field, DateTimeField) and field.auto_now_add:
+                        values.append(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+            all_values.append(tuple(values))  
+
+        columns = [attr for attr, field in cls.__dict__.items() if isinstance(field, Field)]
+        placeholders = ", ".join(["?" for _ in columns])
+        query = f"INSERT INTO {cls.table_name} ({', '.join(columns)}) VALUES ({placeholders})"
+        
+        cursor.executemany(query, all_values)  
+        conn.commit()
+        conn.close()
+        return True  
 
     def save(self):
         if hasattr(self, 'id') and self.id:
