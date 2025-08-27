@@ -25,7 +25,7 @@ class BaseModel(metaclass=ModelMeta):
             self.total_count = total_count  
             self.page = page  
             self.page_size = page_size
-
+        
         def count(self) -> int:
             """Returns the number of results."""
             return len(self.results)
@@ -404,21 +404,22 @@ class BaseModel(metaclass=ModelMeta):
         return True
         
     @classmethod
-    def delete(self, **filters):
+    def delete(cls, **filters):
         if not filters:
             raise ValueError("At least one filter to remove must be specified.")
 
-        # make if
+        conn = cls.connect()
+        cursor = conn.cursor()
+
         where_clause = " AND ".join(f"{key} = ?" for key in filters.keys())
         values = list(filters.values())
 
-        # run query for delete
-        query = f"DELETE FROM table_name WHERE {where_clause}"
-        cursor = self.database.cursor()
+        query = f"DELETE FROM {cls.table_name} WHERE {where_clause}"
         cursor.execute(query, values)
-        self.database.commit()
-
-        return cursor.rowcount
+        conn.commit()
+        deleted_count = cursor.rowcount
+        conn.close()
+        return deleted_count
         
 
 class SQLiteModel(BaseModel):
