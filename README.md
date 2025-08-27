@@ -22,7 +22,7 @@
 - **New in v5.0.0**: Fix `PostgreSQL` Bugs and structure.
 - **New in v5.1.0**: Enhanced functionality for better usability for `delete` and `contains` methods.
 - **New in v5.2.0**: Introduced `bulk_create` for efficient batch insertions.
-
+- **New in v5.3.0**: Added `filter` support to the QuerySet class for in-memory filtering.
 
 
 
