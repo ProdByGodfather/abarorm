@@ -25,7 +25,49 @@ class BaseModel(metaclass=ModelMeta):
             self.total_count = total_count  
             self.page = page  
             self.page_size = page_size
+        def filter(self, **kwargs) -> 'QuerySet':
+            """
+            Filters the QuerySet based on exact matches of field values.
+            Can handle comparisons like __gte, __lte, __lt, __gt.
+            """
+            if not kwargs:
+                raise ValueError("At least one field and value must be provided for filtering.")
 
+            filtered_results = []
+
+            for obj in self.results:
+                match = True
+                for key, value in kwargs.items():
+                    if '__' in key:
+                        field_name, op = key.split('__', 1)
+                        field_value = getattr(obj, field_name, None)
+                        if op == 'gte' and not (field_value >= value):
+                            match = False
+                            break
+                        elif op == 'lte' and not (field_value <= value):
+                            match = False
+                            break
+                        elif op == 'gt' and not (field_value > value):
+                            match = False
+                            break
+                        elif op == 'lt' and not (field_value < value):
+                            match = False
+                            break
+                        elif op == 'exact' and not (field_value == value):
+                            match = False
+                            break
+                        else:
+                            # Unknown operator
+                            raise ValueError(f"Unsupported filter operator: {op}")
+                    else:
+                        if getattr(obj, key, None) != value:
+                            match = False
+                            break
+
+                if match:
+                    filtered_results.append(obj)
+
+            return self.__class__(filtered_results, len(filtered_results), self.page, self.page_size)
         def count(self) -> int:
             """Returns the number of results."""
             return len(self.results)
@@ -404,21 +446,22 @@ class BaseModel(metaclass=ModelMeta):
         return True
         
     @classmethod
-    def delete(self, **filters):
+    def delete(cls, **filters):
         if not filters:
             raise ValueError("At least one filter to remove must be specified.")
 
-        # make if
+        conn = cls.connect()
+        cursor = conn.cursor()
+
         where_clause = " AND ".join(f"{key} = ?" for key in filters.keys())
         values = list(filters.values())
 
-        # run query for delete
-        query = f"DELETE FROM table_name WHERE {where_clause}"
-        cursor = self.database.cursor()
+        query = f"DELETE FROM {cls.table_name} WHERE {where_clause}"
         cursor.execute(query, values)
-        self.database.commit()
-
-        return cursor.rowcount
+        conn.commit()
+        deleted_count = cursor.rowcount
+        conn.close()
+        return deleted_count
         
 
 class SQLiteModel(BaseModel):
