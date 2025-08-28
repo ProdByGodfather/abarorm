@@ -4,17 +4,57 @@ from typing import List, Optional, Dict
 import datetime
 from .fields.psql import Field, DateTimeField, DecimalField, TimeField, DateField, CharField, ForeignKey
 
+
+
+class RelatedManager:
+    """Manager for handling related objects from ForeignKey."""
+    def __init__(self, model, field_name, instance_id):
+        self.model = model
+        self.field_name = field_name
+        self.instance_id = instance_id
+
+    def all(self):
+        return self.model.filter(**{self.field_name: self.instance_id})
+
+    def filter(self, **kwargs):
+        return self.model.filter(**{self.field_name: self.instance_id, **kwargs})
+
+    def first(self):
+        qs = self.all()
+        return qs.first() if qs.exists() else None
+
+    def last(self):
+        qs = self.all()
+        return qs.last() if qs.exists() else None
+
+    def count(self):
+        return self.all().count()
+    
+    def to_dict(self) -> List[Dict]:
+            """Returns the results as a list of dictionaries."""
+            return [obj.__dict__ for obj in self.results]
+        
+        
 class ModelMeta(type):
     def __new__(cls, name, bases, dct):
         new_cls = super().__new__(cls, name, bases, dct)
+
         if not hasattr(new_cls.Meta, 'table_name') or not new_cls.Meta.table_name:
-            new_cls.table_name = name.lower()  # Automatically set table_name from model class name
+            new_cls.table_name = name.lower()
         else:
-            new_cls.table_name = new_cls.Meta.table_name  # Override with Meta.table_name if provided
+            new_cls.table_name = new_cls.Meta.table_name
 
         if hasattr(new_cls.Meta, 'db_config') and new_cls.Meta.db_config:
-            new_cls.create_table()  # Automatically create the table if db_config is present
+            new_cls.create_table()
+
+        for attr, field in dct.items():
+            if isinstance(field, ForeignKey) and field.related_name:
+                def related_manager(self, _model=new_cls, _field=attr):
+                    return RelatedManager(_model, _field, self.id)
+                setattr(field.to, field.related_name, property(related_manager))
+
         return new_cls
+
 
 class BaseModel(metaclass=ModelMeta):
     table_name = ''
@@ -217,9 +257,13 @@ class BaseModel(metaclass=ModelMeta):
             cursor = conn.cursor()
             
             db_name = db_config['database']
-            cursor.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{db_name}'")
+
+            cursor.execute(
+                "SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s", 
+                (db_name,)
+            )
             if not cursor.fetchone():
-                cursor.execute(f"CREATE DATABASE {db_name}")
+                cursor.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(db_name)))
                 print(f"Database '{db_name}' created successfully.")
             else:
                 print(f"Database '{db_name}' already exists.")
