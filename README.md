@@ -23,6 +23,8 @@
 - **New in v5.1.0**: Enhanced functionality for better usability for `delete` and `contains` methods.
 - **New in v5.2.0**: Introduced `bulk_create` for efficient batch insertions.
 - **New in v5.3.0**: Added `filter` support to the QuerySet class for in-memory filtering.
+- **New in v5.4.0**: PostgreSQL database creation improved, added `related_name` support for ForeignKeys.
+
 
 
 
@@ -84,7 +86,7 @@ class Post(PostgreSQLModel):
 
     title = psql.CharField(max_length=100, null=False)  # Title of the post, must be unique and not null
     create_time = psql.DateTimeField(auto_now=True)  # Automatically set to current datetime
-    category = psql.ForeignKey(to=Category)  # Foreign key referring to the Category model
+    category = psql.ForeignKey(to=Category, related_name='posts')  # Foreign key referring to the Category model
 ```
 ## CRUD Operations
 Now that you have defined your models, you can perform CRUD operations. Here’s a breakdown of each operation:
@@ -114,6 +116,10 @@ all_posts = Post.all()
 
 # Retrieve a specific post by ID
 post_data = Post.get(id=1)
+
+# Related records via related_name
+cat = Category.get(id=1)
+cat_posts = cat.posts.all()  # Returns a fully functional QuerySet
 ```
 ### Filtering Records
 The `filter()` method allows you to retrieve records based on specified criteria. You can use keyword arguments to filter by field values and sort the results using `order_by`.
