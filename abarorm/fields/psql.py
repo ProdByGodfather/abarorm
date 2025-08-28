@@ -43,12 +43,13 @@ class TimeField(Field):
         super().__init__(field_type='TIME', **kwargs)  # PostgreSQL uses TIME for time-only fields
 
 class ForeignKey(Field):
-    def __init__(self, to: Type['BaseModel'], on_delete: str = 'CASCADE', **kwargs):
+    def __init__(self, to: Type['BaseModel'], on_delete: str = 'CASCADE',
+                related_name: Optional[str] = None, **kwargs):
         super().__init__(field_type='INTEGER', **kwargs)
         self.to = to  # This is the related model class
         self.on_delete = on_delete  # Specifies the behavior when the referenced row is deleted
-        # PostgreSQL usually uses INTEGER or BIGINT for foreign key references.
-
+        self.related_name = related_name  
+        
 class FloatField(Field):
     def __init__(self, **kwargs):
         super().__init__(field_type='REAL', **kwargs)  # PostgreSQL uses REAL for floating point numbers
