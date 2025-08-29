@@ -47,7 +47,7 @@ class Category(SQLiteModel):
 class Post(SQLiteModel):
     title = psql.CharField(max_length=100, unique=True)
     create_time = psql.DateTimeField(auto_now=True)
-    category = psql.ForeignKey(Category)
+    category = psql.ForeignKey(Category, related_name="posts")
     class Meta:
         db_config = DATABASE_CONFIG['postgresql']
 ```
@@ -86,6 +86,18 @@ post_data = Post.get(id=1)
 if post_data:
     print("Post with ID 1:", post_data)
 ```
+
+#### Using `related_name` in Relationships
+
+From version `v5.4.0` onwards, you can use the `related_name` attribute in `ForeignKey` fields.  
+This feature makes accessing related objects easier and more intuitive.
+
+```python
+category = Category.get(id=1)
+latest_post = category.posts.all().order_by('-create_time')
+print(latest_post)  # Returns a list of posts related to a specific category
+
+
 ### Filtering Records
 The `filter()` method allows you to retrieve records based on specified criteria. You can use keyword arguments to filter by field values and sort the results using `order_by`.
 ```python

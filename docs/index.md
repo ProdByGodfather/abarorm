@@ -35,8 +35,10 @@ title: "Welcome to AbarORM"
 - **New in v4.2.3**: Added `first()`, `last()`, `exists()`, and `paginate()` methods to the QuerySet class for more powerful querying capabilities.
 - **New in v5.0.0**: Fix `PostgreSQL` Bugs and structure.
 - **New in v5.1.0**: Enhanced functionality for better usability and robustness:
-   - **mproved `delete` Method:** Now supports filtering by additional fields beyond id, allowing more flexible deletion queries.
-   - **Enhanced `contains` Method:** Allows dynamic keyword arguments (`**kwargs`) for filtering, enabling intuitive queries.
+- **New in v5.2.0**: Introduced `bulk_create` for efficient batch insertions.
+- **New in v5.3.0**: Added `filter` support to the QuerySet class for in-memory filtering.
+- **New in v5.4.0**: PostgreSQL database creation improved, added `related_name` support for ForeignKeys.
+
 
 
 
