@@ -54,7 +54,7 @@ DATABASE_CONFIG = {
     },
     'postgresql': {
         'host': 'localhost',
-        'user': 'hoopad',
+        'user': 'godfather',
         'password': 'db_password',
         'database': 'example_db',  # Ensure this matches everywhere
         'port': 5432,
