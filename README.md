@@ -24,7 +24,14 @@
 - **New in v5.2.0**: Introduced `bulk_create` for efficient batch insertions.
 - **New in v5.3.0**: Added `filter` support to the QuerySet class for in-memory filtering.
 - **New in v5.4.0**: PostgreSQL database creation improved, added `related_name` support for ForeignKeys.
-
+- **v5.5.0 (Next)**
+  - Hardened against SQL injection for both SQLite and PostgreSQL using strict field validation and parameterized queries.
+  - Unified behavior of `create`, `bulk_create`, `update`, `delete`, and `save` across SQLite/PostgreSQL.
+  - `save()` now always updates existing instances and sets `id` for newly created objects.
+  - `bulk_create` and `ForeignKey` handling refined and consistent on both engines.
+  - `QuerySet.contains()` improved for `datetime`/`date` fields.
+  - Better `__repr__` output for models and QuerySets.
+  - More complete structure of `sqlite` and `postgresql` fields.
 
 
 
@@ -215,6 +222,17 @@ posts = Post.all().contains(title='god').order_by('create_time').paginate(1, 4).
 ```
 
 These methods are particularly useful for data manipulation and debugging, as they provide a simple way to view and interact with your database records.
+
+
+---
+
+## Security
+
+- All queries use **parameterized SQL** to prevent SQL injection on both SQLite and PostgreSQL.
+- All field names used in filters, updates, deletes and ordering are validated against the model’s declared fields.
+- Invalid field names raise a `ValueError` instead of generating unsafe SQL.
+
+---
 
 
 ## Contributing

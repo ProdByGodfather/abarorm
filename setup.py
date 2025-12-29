@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys
 
-__version__ = '5.4.1'
+__version__ = '5.5.0'
 
 
 if '--version' in sys.argv:
@@ -27,7 +27,7 @@ setup(
         'postgresql': ['psycopg2-binary>=2.9.0']
     },
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3.8',
@@ -36,6 +36,13 @@ setup(
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
+        'Topic :: Database', 
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Operating System :: OS Independent',
     ],
+    keywords='orm database sqlite postgresql mysql lightweight python',
+    license='Apache License', 
+    include_package_data=True,
 )
 

@@ -2,77 +2,89 @@ import psycopg2
 from psycopg2 import sql, Error
 from typing import List, Optional, Dict
 import datetime
-from .fields.psql import Field, DateTimeField, DecimalField, TimeField, DateField, CharField, ForeignKey
-
+from datetime import date
+from .fields.psql import Field, DateTimeField, DecimalField, TimeField, DateField, CharField, ForeignKey, EmailField, URLField
 
 
 class RelatedManager:
-    """Manager for handling related objects from ForeignKey."""
+    """Manager for handling related objects from ForeignKey"""
+    
     def __init__(self, model, field_name, instance_id):
         self.model = model
         self.field_name = field_name
         self.instance_id = instance_id
 
     def all(self):
+        """Get all related objects"""
         return self.model.filter(**{self.field_name: self.instance_id})
 
     def filter(self, **kwargs):
+        """Filter related objects"""
         return self.model.filter(**{self.field_name: self.instance_id, **kwargs})
 
     def first(self):
+        """Get first related object"""
         qs = self.all()
         return qs.first() if qs.exists() else None
 
     def last(self):
+        """Get last related object"""
         qs = self.all()
         return qs.last() if qs.exists() else None
 
     def count(self):
+        """Count related objects"""
         return self.all().count()
     
     def to_dict(self) -> List[Dict]:
-            """Returns the results as a list of dictionaries."""
-            return [obj.__dict__ for obj in self.results]
-        
-        
+        """Convert related objects to list of dicts"""
+        return self.all().to_dict()
+
+
 class ModelMeta(type):
+    """Metaclass for automatic table creation and related_name setup"""
+    
     def __new__(cls, name, bases, dct):
         new_cls = super().__new__(cls, name, bases, dct)
 
+        # Set table name
         if not hasattr(new_cls.Meta, 'table_name') or not new_cls.Meta.table_name:
             new_cls.table_name = name.lower()
         else:
             new_cls.table_name = new_cls.Meta.table_name
 
-        if hasattr(new_cls.Meta, 'db_config') and new_cls.Meta.db_config:
-            new_cls.create_table()
-
+        # Setup related_name for ForeignKeys
         for attr, field in dct.items():
             if isinstance(field, ForeignKey) and field.related_name:
                 def related_manager(self, _model=new_cls, _field=attr):
                     return RelatedManager(_model, _field, self.id)
                 setattr(field.to, field.related_name, property(related_manager))
 
+        # Auto-create table if db_config exists
+        if hasattr(new_cls.Meta, 'db_config') and new_cls.Meta.db_config:
+            new_cls.create_table()
+
         return new_cls
 
 
 class BaseModel(metaclass=ModelMeta):
+    """Base model class for PostgreSQL ORM"""
+    
     table_name = ''
     
     class QuerySet:
+        """QuerySet for handling query results"""
+        
         def __init__(self, results, total_count, page, page_size):
             self.results = results
-            self.total_count = total_count  
-            self.page = page  
+            self.total_count = total_count
+            self.page = page
             self.page_size = page_size
         
         def filter(self, **kwargs) -> 'QuerySet':
-            """
-            Filters the QuerySet based on exact matches or comparison operators
-            like __gte, __lte, __gt, __lt, __exact.
-            """
+            """Filter QuerySet results in-memory"""
             if not kwargs:
-                raise ValueError("At least one filter must be provided.")
+                raise ValueError("At least one filter must be provided")
 
             filtered_results = []
 
@@ -82,6 +94,7 @@ class BaseModel(metaclass=ModelMeta):
                     if '__' in key:
                         field_name, op = key.split('__', 1)
                         field_value = getattr(obj, field_name, None)
+                        
                         if op == 'gte' and not (field_value >= value):
                             match = False
                             break
@@ -108,24 +121,25 @@ class BaseModel(metaclass=ModelMeta):
                     filtered_results.append(obj)
 
             return self.__class__(filtered_results, len(filtered_results), self.page, self.page_size)
-
+        
         def count(self) -> int:
-            """Returns the number of results."""
+            """Count results"""
             return len(self.results)
 
         def to_dict(self) -> List[Dict]:
-            """Returns the results as a list of dictionaries."""
+            """Convert results to list of dictionaries"""
             return [obj.__dict__ for obj in self.results]
+        
         def __repr__(self):
-            """Returns a string representation of the QuerySet."""
-            # If there are results, show the first 3 as a sample
-            sample = self.to_dict()[:3]  # Show first 3 items for example
-            return f"<QuerySet(count={self.count()}, first_3_fitst_items={sample})>" 
+            """String representation"""
+            sample = self.to_dict()[:3]
+            return f"<QuerySet(count={self.count()}, first_3_items={sample})>"
         
         def order_by(self, field: str):
-            """Orders the results by the specified field."""
+            """Order results by field"""
             reverse = field.startswith('-')
             field_name = field.lstrip('-')
+            
             try:
                 sorted_results = sorted(
                     self.results,
@@ -133,39 +147,37 @@ class BaseModel(metaclass=ModelMeta):
                     reverse=reverse
                 )
             except AttributeError:
-                raise ValueError(f"Field '{field_name}' does not exist in the model.")
+                raise ValueError(f"Field '{field_name}' does not exist")
+            
             return self.__class__(sorted_results, self.total_count, self.page, self.page_size)
         
         def first(self):
-            """Returns the first result or None if no results."""
+            """Get first result"""
             return self.results[0] if self.results else None
 
         def last(self):
-            """Returns the last result or None if no results."""
+            """Get last result"""
             return self.results[-1] if self.results else None
         
         def exists(self) -> bool:
-            """Checks if the QuerySet contains any results."""
+            """Check if results exist"""
             return bool(self.results)
 
-        
         def paginate(self, page: int, page_size: int):
-            """Handles pagination of the results."""
+            """Paginate results"""
+            if page < 1:
+                raise ValueError("Page number must be >= 1")
+            if page_size < 1:
+                raise ValueError("Page size must be >= 1")
+            
             offset = (page - 1) * page_size
             paginated_results = self.results[offset:offset + page_size]
-            # Return a new QuerySet with paginated results
             return self.__class__(paginated_results, self.total_count, page, page_size)
         
         def contains(self, **kwargs) -> 'QuerySet':
-            """
-            Performs case-insensitive 'contains' searches for the given fields and their values.
-            Can handle various data types such as strings, numbers, and datetime.
-
-            :param kwargs: Key-value pairs where key is the field name and value is the search value.
-            :return: A new QuerySet with the filtered results.
-            """
+            """Case-insensitive contains search"""
             if not kwargs:
-                raise ValueError("At least one field and value must be provided for the 'contains' filter.")
+                raise ValueError("At least one field must be provided")
 
             filtered_results = []
 
@@ -174,25 +186,18 @@ class BaseModel(metaclass=ModelMeta):
                 for field, value in kwargs.items():
                     field_value = getattr(obj, field, None)
                     
-                    # If the field's value is a string
                     if isinstance(field_value, str):
-                        # Perform a case-insensitive substring search
-                        if not value.lower() in field_value.lower():
+                        if str(value).lower() not in field_value.lower():
                             match = False
                             break
-                    # If the field's value is a number (int, float)
                     elif isinstance(field_value, (int, float)):
-                        # Check if the number contains the value as a substring (as string)
-                        if not str(value) in str(field_value):
+                        if str(value) not in str(field_value):
                             match = False
                             break
-                    # If the field's value is a datetime or date
-                    elif isinstance(field_value, (datetime, date)):
-                        # Check if the value is a substring of the date (formatted as string)
-                        if not str(value) in field_value.strftime('%Y-%m-%d'):
+                    elif isinstance(field_value, (datetime.datetime, datetime.date)):
+                        if str(value) not in field_value.strftime('%Y-%m-%d'):
                             match = False
                             break
-                    # For other field types, apply an appropriate check (e.g., exact match)
                     elif field_value != value:
                         match = False
                         break
@@ -202,13 +207,17 @@ class BaseModel(metaclass=ModelMeta):
 
             return self.__class__(filtered_results, len(filtered_results), self.page, self.page_size)
 
-    
     def __repr__(self):
-        field_values = {attr: getattr(self, attr) for attr in self.__class__.__dict__ if isinstance(self.__class__.__dict__[attr], Field)}
+        """String representation of model instance"""
+        field_values = {
+            attr: getattr(self, attr, None) 
+            for attr in self.__class__.__dict__ 
+            if isinstance(self.__class__.__dict__[attr], Field)
+        }
         return f"<{self.__class__.__name__} {field_values}>"
     
     class Meta:
-        db_config = {}  # Default empty config, should be overridden in the actual model
+        db_config = {}
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -216,8 +225,11 @@ class BaseModel(metaclass=ModelMeta):
 
     @classmethod
     def connect(cls):
+        """Create database connection"""
         if not hasattr(cls, 'Meta') or not hasattr(cls.Meta, 'db_config'):
-            raise AttributeError(f"Class {cls.__name__} must define 'Meta.db_config' with database connection details.")
+            raise AttributeError(
+                f"Class {cls.__name__} must define 'Meta.db_config' with database connection details"
+            )
 
         db_config = cls.Meta.db_config
 
@@ -244,13 +256,14 @@ class BaseModel(metaclass=ModelMeta):
 
     @classmethod
     def _create_database(cls):
+        """Create database if it doesn't exist"""
         try:
-            db_config = cls.Meta.db_config 
+            db_config = cls.Meta.db_config
             conn = psycopg2.connect(
                 host=db_config['host'],
                 user=db_config['user'],
                 password=db_config['password'],
-                database="postgres", 
+                database="postgres",
                 port=db_config['port']
             )
             conn.autocommit = True
@@ -259,7 +272,7 @@ class BaseModel(metaclass=ModelMeta):
             db_name = db_config['database']
 
             cursor.execute(
-                "SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s", 
+                "SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s",
                 (db_name,)
             )
             if not cursor.fetchone():
@@ -273,290 +286,428 @@ class BaseModel(metaclass=ModelMeta):
         except Exception as e:
             raise ConnectionError(f"Error creating PostgreSQL database: {e}")
 
-
     @classmethod
     def create_table(cls):
+        """Create database table with foreign key constraints"""
         conn = cls.connect()
-        cursor = conn.cursor()
         try:
-            columns = cls._get_column_definitions(cursor) 
-            cursor.execute(f"CREATE TABLE IF NOT EXISTS {cls.table_name} (id SERIAL PRIMARY KEY, {', '.join(columns)})")
-            cls._update_table_structure(cursor)
+            with conn.cursor() as cursor:
+                columns = cls._get_column_definitions()
+                
+                # Create table
+                cursor.execute(
+                    f"CREATE TABLE IF NOT EXISTS {cls.table_name} "
+                    f"(id SERIAL PRIMARY KEY, {', '.join(columns)})"
+                )
+                
+                # Add foreign key constraints
+                cls._add_foreign_key_constraints(cursor)
+                
+                # Update existing table structure
+                cls._update_table_structure(cursor)
+                
             conn.commit()
         finally:
-            cursor.close()
             conn.close()
 
     @classmethod
-    def _get_column_definitions(cls, cursor):
+    def _get_column_definitions(cls):
+        """Generate column definitions for CREATE TABLE"""
         columns = []
+        
         for attr, field in cls.__dict__.items():
-            if isinstance(field, Field):
-                col_type = field.field_type
-                if isinstance(field, DecimalField):
-                    col_type += f"({field.max_digits}, {field.decimal_places})"
-                column_definition = f"{attr} {col_type}"
-                if field.unique:
-                    column_definition += " UNIQUE"
-                if field.null:
-                    column_definition += " NULL"
+            if not isinstance(field, Field):
+                continue
+            
+            # Skip ForeignKey constraint definition here (added separately)
+            col_type = field.field_type
+            
+            if isinstance(field, DecimalField):
+                col_type = f"DECIMAL({field.max_digits}, {field.decimal_places})"
+            elif isinstance(field, CharField):
+                col_type = f"VARCHAR({field.max_length})"
+            
+            column_def = f"{attr} {col_type}"
+            
+            if field.unique:
+                column_def += " UNIQUE"
+            
+            if not field.null:
+                column_def += " NOT NULL"
+            
+            if field.default is not None:
+                if isinstance(field, BooleanField):
+                    column_def += f" DEFAULT {field.set_default()}"
+                elif isinstance(field.default, str):
+                    column_def += f" DEFAULT '{field.default}'"
                 else:
-                    column_definition += " NOT NULL"
-                if field.default is not None:
-                    if isinstance(field.default, str):
-                        column_definition += f" DEFAULT '{field.default}'"
-                    else:
-                        column_definition += f" DEFAULT {field.default}"
-                else:
-                    column_definition += " DEFAULT NULL"  # Allow NULL by default to avoid errors
-                columns.append(column_definition)
+                    column_def += f" DEFAULT {field.default}"
+            
+            columns.append(column_def)
+        
         return columns
 
     @classmethod
+    def _add_foreign_key_constraints(cls, cursor):
+        """Add FOREIGN KEY constraints after table creation"""
+        for attr, field in cls.__dict__.items():
+            if isinstance(field, ForeignKey):
+                try:
+                    constraint_sql = field.get_constraint(attr, cls.table_name)
+                    cursor.execute(constraint_sql)
+                except psycopg2.Error as e:
+                    # Constraint might already exist
+                    if "already exists" not in str(e):
+                        print(f"Warning: Could not add foreign key constraint for {attr}: {e}")
+
+    @classmethod
     def _update_table_structure(cls, cursor):
+        """Add new columns to existing table"""
         existing_columns = cls._get_existing_columns(cursor)
-        new_columns = [attr for attr in cls.__dict__ if isinstance(cls.__dict__[attr], Field) and attr not in existing_columns]
+        new_columns = [
+            attr for attr in cls.__dict__ 
+            if isinstance(cls.__dict__[attr], Field) and attr not in existing_columns
+        ]
 
         for column in new_columns:
             field = cls.__dict__[column]
             col_type = field.field_type
-            if isinstance(field, DecimalField):
-                col_type += f"({field.max_digits}, {field.decimal_places})"
-
-            column_definition = f"ALTER TABLE {cls.table_name} ADD COLUMN {column} {col_type}"
-            column_definition += " NULL" if field.null else " NOT NULL"
             
-            if field.unique:
-                column_definition += " UNIQUE"
+            if isinstance(field, DecimalField):
+                col_type = f"DECIMAL({field.max_digits}, {field.decimal_places})"
+            elif isinstance(field, CharField):
+                col_type = f"VARCHAR({field.max_length})"
+            
+            column_def = f"ALTER TABLE {cls.table_name} ADD COLUMN {column} {col_type}"
+            
+            # For new columns, allow NULL initially
+            column_def += " NULL"
+            
             if field.default is not None:
-                if isinstance(field.default, str):
-                    column_definition += f" DEFAULT '{field.default}'"
+                if isinstance(field, BooleanField):
+                    column_def += f" DEFAULT {field.set_default()}"
+                elif isinstance(field.default, str):
+                    column_def += f" DEFAULT '{field.default}'"
                 else:
-                    column_definition += f" DEFAULT {field.default}"
-            else:
-                column_definition += " DEFAULT NULL"
+                    column_def += f" DEFAULT {field.default}"
 
             try:
-                cursor.execute(column_definition)
+                cursor.execute(column_def)
             except psycopg2.Error as e:
-                if "NOT NULL" in str(e):
-                    print(f"Adding column {column} with NULL temporarily due to NOT NULL constraint failure.")
-                    cursor.execute(f"ALTER TABLE {cls.table_name} ADD COLUMN {column} {col_type} NULL")
-                else:
-                    raise e
-            
+                print(f"Warning: Could not add column {column}: {e}")
 
     @classmethod
     def _get_existing_columns(cls, cursor):
-        cursor.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{cls.table_name}'")
+        """Get existing columns from table"""
+        cursor.execute(
+            f"SELECT column_name FROM information_schema.columns WHERE table_name = '{cls.table_name}'"
+        )
         return {row[0] for row in cursor.fetchall()}
-
+    
+    @classmethod
+    def _get_valid_fields(cls):
+        """Cache valid field names for performance"""
+        if not hasattr(cls, '_valid_fields_cache'):
+            cls._valid_fields_cache = {
+                attr for attr, field in cls.__dict__.items() 
+                if isinstance(field, Field)
+            }
+        return cls._valid_fields_cache
+    
+    @classmethod
+    def _validate_and_convert_values(cls, **kwargs):
+        """Validate and convert field values using field validators"""
+        validated = {}
+        
+        for attr, field in cls.__dict__.items():
+            if not isinstance(field, Field):
+                continue
+            
+            # Handle ForeignKey
+            if isinstance(field, ForeignKey):
+                if attr in kwargs:
+                    try:
+                        validated[attr] = field.validate(kwargs[attr])
+                    except ValueError as e:
+                        raise ValueError(f"Validation error for field '{attr}': {e}")
+                continue
+            
+            # Handle regular fields
+            if attr in kwargs:
+                # Apply field validation if method exists
+                if hasattr(field, 'validate'):
+                    try:
+                        validated[attr] = field.validate(kwargs[attr])
+                    except ValueError as e:
+                        raise ValueError(f"Validation error for field '{attr}': {e}")
+                else:
+                    validated[attr] = kwargs[attr]
+            
+            # Handle auto_now and auto_now_add
+            elif isinstance(field, (DateField, DateTimeField)):
+                if field.auto_now or field.auto_now_add:
+                    if isinstance(field, DateField):
+                        validated[attr] = datetime.datetime.now().date()
+                    else:
+                        validated[attr] = datetime.datetime.now()
+        
+        return validated
+    
     @classmethod
     def all(cls, order_by: Optional[str] = None) -> 'QuerySet':
+        """Get all records"""
         conn = cls.connect()
-        cursor = conn.cursor()
-        query = f"SELECT * FROM {cls.table_name}"
-        cursor.execute(query)
-        results = cursor.fetchall()
-        total_count = len(results) 
-        conn.close()
-        return cls.QuerySet(
-            [cls(**dict(zip([c[0] for c in cursor.description], row))) for row in results],
-            total_count,
-            page=1, 
-            page_size=total_count 
-        )
+        try:
+            with conn.cursor() as cursor:
+                query = f"SELECT * FROM {cls.table_name}"
+                
+                if order_by:
+                    field_name = order_by.lstrip('-')
+                    valid_fields = cls._get_valid_fields()
+                    if field_name not in valid_fields:
+                        raise ValueError(f"Invalid field name for ordering: {field_name}")
+                    
+                    direction = "DESC" if order_by.startswith('-') else "ASC"
+                    query += f" ORDER BY {field_name} {direction}"
+                
+                cursor.execute(query)
+                results = cursor.fetchall()
+                
+                return cls.QuerySet(
+                    [cls(**dict(zip([c[0] for c in cursor.description], row))) for row in results],
+                    len(results),
+                    page=1,
+                    page_size=len(results)
+                )
+        finally:
+            conn.close()
 
     @classmethod
     def filter(cls, **kwargs) -> 'QuerySet':
-        conn = cls.connect()
-        cursor = conn.cursor()
+        """Filter records with various operators"""
+        if not kwargs:
+            return cls.all()
+        
         conditions = []
         values = []
+        valid_fields = cls._get_valid_fields()
 
         for key, value in kwargs.items():
+            base_key = key
+            operator = "="
+            
             if key.endswith("__gte"):
-                conditions.append(f"{key[:-5]} >= %s")
+                base_key = key[:-5]
+                operator = ">="
             elif key.endswith("__lte"):
-                conditions.append(f"{key[:-5]} <= %s")
-            else:
-                conditions.append(f"{key} = %s")
+                base_key = key[:-5]
+                operator = "<="
+            elif key.endswith("__gt"):
+                base_key = key[:-4]
+                operator = ">"
+            elif key.endswith("__lt"):
+                base_key = key[:-4]
+                operator = "<"
+            elif key.endswith("__ne"):
+                base_key = key[:-4]
+                operator = "!="
+            elif key.endswith("__icontains"):
+                base_key = key[:-11]
+                if base_key not in valid_fields:
+                    raise ValueError(f"Invalid field name: {base_key}")
+                conditions.append(f"{base_key} ILIKE %s")
+                values.append(f"%{value}%")
+                continue
+            elif key.endswith("__contains"):
+                base_key = key[:-10]
+                if base_key not in valid_fields:
+                    raise ValueError(f"Invalid field name: {base_key}")
+                conditions.append(f"{base_key} LIKE %s")
+                values.append(f"%{value}%")
+                continue
+            elif key.endswith("__in"):
+                base_key = key[:-4]
+                if not isinstance(value, (list, tuple)):
+                    raise ValueError(f"Value for {key} must be a list or tuple")
+                if base_key not in valid_fields:
+                    raise ValueError(f"Invalid field name: {base_key}")
+                placeholders = ", ".join(["%s" for _ in value])
+                conditions.append(f"{base_key} IN ({placeholders})")
+                values.extend(value)
+                continue
+            
+            if base_key not in valid_fields:
+                raise ValueError(f"Invalid field name: {base_key}")
+            
+            conditions.append(f"{base_key} {operator} %s")
             values.append(value)
 
         query = f"SELECT * FROM {cls.table_name} WHERE " + " AND ".join(conditions)
-        cursor.execute(query, tuple(values))
-        results = cursor.fetchall()
-        total_count = len(results) 
-        conn.close()
-
-        return cls.QuerySet(
-            [cls(**dict(zip([c[0] for c in cursor.description], row))) for row in results],
-            total_count,
-            page=1, 
-            page_size=total_count  
-        )
+        
+        conn = cls.connect()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(query, tuple(values))
+                results = cursor.fetchall()
+                
+                return cls.QuerySet(
+                    [cls(**dict(zip([c[0] for c in cursor.description], row))) for row in results],
+                    len(results),
+                    page=1,
+                    page_size=len(results)
+                )
+        finally:
+            conn.close()
 
     @classmethod
     def get(cls, **kwargs) -> Optional['BaseModel']:
-        conn = cls.connect()
-        cursor = conn.cursor()
-        query = f"SELECT * FROM {cls.table_name} WHERE " + " AND ".join([f"{k} = %s" for k in kwargs.keys()])
-        cursor.execute(query, tuple(kwargs.values()))
-        result = cursor.fetchone()
-        conn.close()
-        if result:
-            return cls(**dict(zip([c[0] for c in cursor.description], result)))
-        return None
-
-    @classmethod
-    def create(cls, **kwargs) -> None:
-        conn = cls.connect()
-        cursor = conn.cursor()
-        columns = []
-        placeholders = []
-        values = []
+        """Get single record"""
+        if not kwargs:
+            raise ValueError("At least one filter must be provided")
         
-        for attr, field in cls.__dict__.items():
-            if isinstance(field, Field):
-                if isinstance(field, ForeignKey):
-                    if isinstance(kwargs[attr], int):
-                        related_instance = field.to.get(id=kwargs[attr])
-                        if not related_instance:
-                            raise ValueError(f"Related {field.to.__name__} with ID {kwargs[attr]} does not exist.")
-                    
-                    elif isinstance(kwargs[attr], field.to):
-                        values.append(kwargs[attr].id)  # Assuming the ID attribute is called `id`
-                    else:
-                        raise ValueError(f"Invalid value for foreign key {attr}. Must be an integer ID or instance of {field.to.__name__}.")
+        valid_fields = cls._get_valid_fields()
+        
+        for key in kwargs.keys():
+            if key not in valid_fields:
+                raise ValueError(f"Invalid field name: {key}")
+        
+        conn = cls.connect()
+        try:
+            with conn.cursor() as cursor:
+                query = f"SELECT * FROM {cls.table_name} WHERE " + " AND ".join([f"{k} = %s" for k in kwargs.keys()])
+                cursor.execute(query, tuple(kwargs.values()))
+                result = cursor.fetchone()
                 
-                if attr in kwargs:
-                    columns.append(attr)
-                    placeholders.append('%s')
-                    values.append(kwargs[attr])
-                elif isinstance(field, DateField) and field.auto_now:
-                    columns.append(attr)
-                    placeholders.append('%s')
-                    values.append(datetime.datetime.now().strftime('%Y-%m-%d'))
-                elif isinstance(field, DateField) and field.auto_now_add:
-                    columns.append(attr)
-                    placeholders.append('%s')
-                    values.append(datetime.datetime.now().strftime('%Y-%m-%d'))
-                elif isinstance(field, DateTimeField) and field.auto_now:
-                    columns.append(attr)
-                    placeholders.append('%s')
-                    values.append(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-                elif isinstance(field, DateTimeField) and field.auto_now_add:
-                    columns.append(attr)
-                    placeholders.append('%s')
-                    values.append(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                if result:
+                    return cls(**dict(zip([c[0] for c in cursor.description], result)))
+                return None
+        finally:
+            conn.close()
 
-        cursor.execute(f"INSERT INTO {cls.table_name} ({', '.join(columns)}) VALUES ({', '.join(placeholders)})", tuple(values))
-        conn.commit()
-        conn.close()
-        return True  # Return True on successful creation
+    @classmethod
+    def create(cls, **kwargs) -> int:
+        """Create new record with validation"""
+        # Validate and convert all values
+        validated_data = cls._validate_and_convert_values(**kwargs)
+        
+        conn = cls.connect()
+        try:
+            with conn.cursor() as cursor:
+                columns = list(validated_data.keys())
+                placeholders = ['%s' for _ in columns]
+                values = list(validated_data.values())
+                
+                query = f"INSERT INTO {cls.table_name} ({', '.join(columns)}) VALUES ({', '.join(placeholders)}) RETURNING id"
+                cursor.execute(query, tuple(values))
+                new_id = cursor.fetchone()[0]
+            
+            conn.commit()
+            return new_id
+        finally:
+            conn.close()
     
     @classmethod
-    def bulk_create(cls, records: list) -> None:
-        conn = cls.connect()
-        cursor = conn.cursor()
-        
+    def bulk_create(cls, records: list) -> int:
+        """Bulk create records with validation"""
         if not records:
-            raise ValueError("The records list is empty.")
-
-        columns = []
-        placeholders = []
-        all_values = []
-
-        for record in records:
-            values = []
-            for attr, field in cls.__dict__.items():
-                if isinstance(field, Field):
-                    if isinstance(field, ForeignKey):
-                        if isinstance(record[attr], int):
-                            related_instance = field.to.get(id=record[attr])
-                            if not related_instance:
-                                raise ValueError(f"Related {field.to.__name__} with ID {record[attr]} does not exist.")
-                        elif isinstance(record[attr], field.to):
-                            values.append(record[attr].id) 
-                        else:
-                            raise ValueError(f"Invalid value for foreign key {attr}. Must be an integer ID or instance of {field.to.__name__}.")
-                    
-                    if attr in record:
-                        values.append(record[attr])
-                    elif isinstance(field, DateField) and field.auto_now:
-                        values.append(datetime.datetime.now().strftime('%Y-%m-%d'))
-                    elif isinstance(field, DateField) and field.auto_now_add:
-                        values.append(datetime.datetime.now().strftime('%Y-%m-%d'))
-                    elif isinstance(field, DateTimeField) and field.auto_now:
-                        values.append(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-                    elif isinstance(field, DateTimeField) and field.auto_now_add:
-                        values.append(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-
-            all_values.append(tuple(values))  
-
-        # ایجاد کوئری INSERT دسته‌ای برای چندین رکورد
-        columns = [attr for attr, field in cls.__dict__.items() if isinstance(field, Field)]
-        placeholders = ", ".join(["%s" for _ in columns])
-        query = f"INSERT INTO {cls.table_name} ({', '.join(columns)}) VALUES ({placeholders})"
+            raise ValueError("The records list is empty")
         
-        cursor.executemany(query, all_values)  # استفاده از executemany برای وارد کردن دسته‌ای رکوردها
-        conn.commit()
-        conn.close()
-        return True  # بازگشت به True پس از موفقیت
+        conn = cls.connect()
+        try:
+            with conn.cursor() as cursor:
+                all_values = []
+                
+                for record in records:
+                    validated_data = cls._validate_and_convert_values(**record)
+                    all_values.append(tuple(validated_data.values()))
+                
+                # Use columns from first validated record
+                first_validated = cls._validate_and_convert_values(**records[0])
+                columns = list(first_validated.keys())
+                placeholders = ", ".join(["%s" for _ in columns])
+                query = f"INSERT INTO {cls.table_name} ({', '.join(columns)}) VALUES ({placeholders})"
+                
+                cursor.executemany(query, all_values)
+            
+            conn.commit()
+            return len(all_values)
+        finally:
+            conn.close()
 
-    
     def save(self):
+        """Save instance (insert or update)"""
         if hasattr(self, 'id') and self.id:
             data = self.__dict__.copy()
             data.pop('id', None)
-            self.__class__.update(self.id, **data)
+            try:
+                self.__class__.update(self.id, **data)
+            except ValueError as e:
+                raise ValueError(f"Cannot save: {e}")
         else:
-            self.__class__.create(**self.__dict__)
-
+            data = self.__dict__.copy()
+            data.pop('id', None)
+            new_id = self.__class__.create(**data)
+            self.id = new_id
 
     @classmethod
-    def update(cls, id: int, **kwargs) -> None:
+    def update(cls, id: int, **kwargs) -> bool:
+        """Update record with validation"""
+        if not kwargs:
+            raise ValueError("At least one field to update must be provided")
+        
+        # Validate fields
+        validated_data = cls._validate_and_convert_values(**kwargs)
+        
         conn = cls.connect()
-        cursor = conn.cursor()
-        set_clause = ', '.join([f"{k} = %s" for k in kwargs.keys()])
-        values = []
-        for key, value in kwargs.items():
-            field = getattr(cls, key)
-            if isinstance(field, DateTimeField) and field.auto_now:
-                value = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            if isinstance(field, DateField) and field.auto_now:
-                value = datetime.datetime.now().strftime('%Y-%m-%d')
-
-            values.append(value)
-
-        cursor.execute(f"UPDATE {cls.table_name} SET {set_clause} WHERE id = %s", (*values, id))
-        conn.commit()
-        conn.close()
-        return True
+        try:
+            with conn.cursor() as cursor:
+                set_clause = ', '.join([f"{k} = %s" for k in validated_data.keys()])
+                values = list(validated_data.values())
+                
+                cursor.execute(
+                    f"UPDATE {cls.table_name} SET {set_clause} WHERE id = %s",
+                    (*values, id)
+                )
+                updated_rows = cursor.rowcount
+            
+            conn.commit()
+            
+            if updated_rows == 0:
+                raise ValueError(f"No record found with id={id}")
+            
+            return True
+        finally:
+            conn.close()
         
     @classmethod
     def delete(cls, **filters) -> int:
+        """Delete records"""
         if not filters:
-            raise ValueError("At least one filter to remove must be specified.")
-
-        # make if
-        where_clause = " AND ".join(f"{key} = %s" for key in filters.keys())
-        values = tuple(filters.values())
-
-        query = f"DELETE FROM {cls.table_name} WHERE {where_clause}"
-
-        # run query for delete
-        conn = cls.connect()
-        cursor = conn.cursor()
-        cursor.execute(query, values)
-        deleted_rows = cursor.rowcount 
-        conn.commit()
-        conn.close()
-
-        return deleted_rows
+            raise ValueError("At least one filter must be specified")
         
+        valid_fields = cls._get_valid_fields()
+        
+        for key in filters.keys():
+            if key not in valid_fields:
+                raise ValueError(f"Invalid field name: {key}")
+        
+        conn = cls.connect()
+        try:
+            with conn.cursor() as cursor:
+                where_clause = " AND ".join(f"{key} = %s" for key in filters.keys())
+                values = tuple(filters.values())
+                query = f"DELETE FROM {cls.table_name} WHERE {where_clause}"
+                
+                cursor.execute(query, values)
+                deleted_rows = cursor.rowcount
+            
+            conn.commit()
+            return deleted_rows
+        finally:
+            conn.close()
 
 
 class PostgreSQLModel(BaseModel):
+    """PostgreSQL model class"""
     class Meta:
-        db_config = {}  # To be overridden by the model class
+        db_config = {}
