@@ -27,7 +27,7 @@ setup(
         'postgresql': ['psycopg2-binary>=2.9.0']
     },
     classifiers=[
-        'Development Status :: 4 - Alpha',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3.8',
