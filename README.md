@@ -24,7 +24,7 @@
 - **New in v5.2.0**: Introduced `bulk_create` for efficient batch insertions.
 - **New in v5.3.0**: Added `filter` support to the QuerySet class for in-memory filtering.
 - **New in v5.4.0**: PostgreSQL database creation improved, added `related_name` support for ForeignKeys.
-- **v5.5.0 (Next)**
+- **v5.5.2 (Next)**
   - Hardened against SQL injection for both SQLite and PostgreSQL using strict field validation and parameterized queries.
   - Unified behavior of `create`, `bulk_create`, `update`, `delete`, and `save` across SQLite/PostgreSQL.
   - `save()` now always updates existing instances and sets `id` for newly created objects.

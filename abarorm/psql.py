@@ -56,10 +56,8 @@ class ModelMeta(type):
         else:
             new_cls.table_name = new_cls.Meta.table_name
 
-        # Setup related_name for ForeignKeys
         for attr, field in dct.items():
             if isinstance(field, ForeignKey) and field.related_name:
-                # استفاده از factory function برای avoid کردن closure issue
                 def create_related_manager(source_model, source_field):
                     """Factory function to create related manager property"""
                     def get_manager(self):
@@ -313,7 +311,6 @@ class BaseModel(metaclass=ModelMeta):
                 conn.rollback()
                 if "already exists" not in str(e):
                     print(f"Warning during table creation: {e}")
-                # ایجاد cursor جدید بعد از rollback
                 cursor.close()
                 cursor = conn.cursor()
             
@@ -325,7 +322,6 @@ class BaseModel(metaclass=ModelMeta):
                 conn.rollback()
                 if "already exists" not in str(e):
                     print(f"Warning during foreign key creation: {e}")
-                # ایجاد cursor جدید بعد از rollback
                 cursor.close()
                 cursor = conn.cursor()
             
@@ -400,7 +396,6 @@ class BaseModel(metaclass=ModelMeta):
         for attr, field in cls.__dict__.items():
             if isinstance(field, ForeignKey):
                 try:
-                    # چک کن constraint قبلاً اضافه نشده باشه
                     constraint_name = f"fk_{cls.table_name}_{attr}"
                     cursor.execute(
                         """
@@ -414,16 +409,13 @@ class BaseModel(metaclass=ModelMeta):
                         # Constraint already exists
                         continue
                     
-                    # اضافه کردن constraint
                     constraint_sql = field.get_constraint(attr, cls.table_name)
                     cursor.execute(constraint_sql)
                     
                 except psycopg2.Error as e:
-                    # اگه constraint از قبل وجود داره یا مشکلی هست، ادامه بده
                     if "already exists" in str(e) or "duplicate" in str(e).lower():
                         continue
                     else:
-                        # برای error های دیگه، log کن ولی exception نده
                         print(f"Warning: Could not add foreign key constraint for {attr}: {e}")
 
     @classmethod
@@ -483,7 +475,6 @@ class BaseModel(metaclass=ModelMeta):
                 attr for attr, field in cls.__dict__.items() 
                 if isinstance(field, Field)
             }
-            # اضافه کردن 'id' به عنوان فیلد معتبر
             cls._valid_fields_cache.add('id')
         return cls._valid_fields_cache
     
@@ -640,7 +631,6 @@ class BaseModel(metaclass=ModelMeta):
         
         valid_fields = cls._get_valid_fields()
         
-        # Validation - اجازه دسترسی به 'id'
         for key in kwargs.keys():
             if key != 'id' and key not in valid_fields:
                 raise ValueError(f"Invalid field name: {key}")
@@ -729,7 +719,6 @@ class BaseModel(metaclass=ModelMeta):
         if not kwargs:
             raise ValueError("At least one field to update must be provided")
         
-        # نباید id رو update کرد
         if 'id' in kwargs:
             raise ValueError("Cannot update 'id' field")
         
@@ -765,7 +754,6 @@ class BaseModel(metaclass=ModelMeta):
         
         valid_fields = cls._get_valid_fields()
         
-        # Validation - اجازه دسترسی به id
         for key in filters.keys():
             if key != 'id' and key not in valid_fields:
                 raise ValueError(f"Invalid field name: {key}")

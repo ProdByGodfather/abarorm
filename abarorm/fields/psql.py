@@ -66,22 +66,29 @@ class IntegerField(Field):
 
 
 class BooleanField(Field):
-    """Boolean field stored as INTEGER (0/1) in SQLite"""
-    
+    """Boolean field for PostgreSQL"""
+
     def __init__(self, default: bool = False, **kwargs):
-        # SQLite doesn't have BOOLEAN, use INTEGER
-        super().__init__(field_type='INTEGER', default=1 if default else 0, **kwargs)
-        self.default_bool = default
-    
+        super().__init__(field_type='BOOLEAN', default=default, **kwargs)
+
+    def set_default(self):
+        """
+        Return SQL-safe default value for BOOLEAN
+        """
+        if self.default is True:
+            return "TRUE"
+        if self.default is False:
+            return "FALSE"
+        return "NULL"
+
     def validate(self, value):
         if value is None:
             if not self.null:
                 raise ValueError("BooleanField cannot be null")
             return None
-        return 1 if value else 0
-    
+        return bool(value)
+
     def to_python(self, value):
-        """Convert database INTEGER to Python bool"""
         if value is None:
             return None
         return bool(value)
@@ -212,7 +219,6 @@ class ForeignKey(Field):
                 f"Valid options: {', '.join(valid_options)}"
             )
         
-        # فقط Field-specific arguments رو به parent پاس بده
         super().__init__(
             field_type='INTEGER',
             null=null,
