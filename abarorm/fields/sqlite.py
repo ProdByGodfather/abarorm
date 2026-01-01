@@ -69,9 +69,9 @@ class BooleanField(Field):
     """Boolean field stored as INTEGER (0/1) in SQLite"""
     
     def __init__(self, default: bool = False, **kwargs):
+        self.default_bool = default
         # SQLite doesn't have BOOLEAN, use INTEGER
         super().__init__(field_type='INTEGER', default=1 if default else 0, **kwargs)
-        self.default_bool = default
     
     def validate(self, value):
         if value is None:
@@ -91,10 +91,10 @@ class DateTimeField(Field):
     """DateTime field with auto_now and auto_now_add support"""
     
     def __init__(self, auto_now: bool = False, auto_now_add: Optional[bool] = None, **kwargs):
-        # SQLite stores datetime as TEXT in ISO format
-        super().__init__(field_type='TEXT', **kwargs)
         self.auto_now = auto_now
         self.auto_now_add = auto_now_add
+        # SQLite stores datetime as TEXT in ISO format
+        super().__init__(field_type='TEXT', **kwargs)
     
     def validate(self, value):
         if value is None:
@@ -129,9 +129,9 @@ class DateField(Field):
     """Date field with auto_now and auto_now_add support"""
     
     def __init__(self, auto_now: bool = False, auto_now_add: Optional[bool] = None, **kwargs):
-        super().__init__(field_type='TEXT', **kwargs)
         self.auto_now = auto_now
         self.auto_now_add = auto_now_add
+        super().__init__(field_type='TEXT', **kwargs)
     
     def validate(self, value):
         if value is None:
@@ -197,8 +197,9 @@ class ForeignKey(Field):
     """Foreign key field with relationship support"""
     
     def __init__(self, to: Type['BaseModel'], on_delete: str = 'CASCADE',
-                 related_name: Optional[str] = None, **kwargs):
-        super().__init__(field_type='INTEGER', **kwargs)
+                 related_name: Optional[str] = None, null: bool = False,
+                 unique: bool = False, default: Optional[str] = None):
+        # ذخیره ForeignKey-specific attributes
         self.to = to
         self.on_delete = on_delete.upper()
         self.related_name = related_name
@@ -210,6 +211,14 @@ class ForeignKey(Field):
                 f"Invalid on_delete option: {on_delete}. "
                 f"Valid options: {', '.join(valid_options)}"
             )
+        
+        # فقط Field-specific arguments رو به parent پاس بده
+        super().__init__(
+            field_type='INTEGER',
+            null=null,
+            unique=unique,
+            default=default
+        )
     
     def validate(self, value):
         """Validate foreign key value"""
@@ -232,15 +241,23 @@ class ForeignKey(Field):
             f"got {type(value).__name__}"
         )
     
-    def get_constraint(self, field_name: str) -> str:
-        """Generate SQL FOREIGN KEY constraint"""
+    def get_constraint(self, field_name: str, table_name: str = None) -> str:
+        """Generate SQL FOREIGN KEY constraint for SQLite
+        
+        Args:
+            field_name: Name of the foreign key field
+            table_name: Name of the table (optional, for compatibility with PostgreSQL)
+        
+        Returns:
+            SQL constraint string
+        """
+        # SQLite doesn't need table_name in the FOREIGN KEY clause itself
+        # But we accept it for API compatibility with PostgreSQL
         return (
             f"FOREIGN KEY ({field_name}) "
             f"REFERENCES {self.to.table_name}(id) "
             f"ON DELETE {self.on_delete}"
         )
-
-
 class FloatField(Field):
     """Float field stored as REAL in SQLite"""
     
@@ -263,13 +280,14 @@ class DecimalField(Field):
     """Decimal field with precision validation"""
     
     def __init__(self, max_digits: int, decimal_places: int, **kwargs):
-        # SQLite stores as REAL
-        super().__init__(field_type='REAL', **kwargs)
         self.max_digits = max_digits
         self.decimal_places = decimal_places
         
         if decimal_places > max_digits:
             raise ValueError("decimal_places cannot be greater than max_digits")
+        
+        # SQLite stores as REAL
+        super().__init__(field_type='REAL', **kwargs)
     
     def validate(self, value):
         if value is None:

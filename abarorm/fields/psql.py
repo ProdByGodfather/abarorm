@@ -4,7 +4,7 @@ import datetime
 
 
 class Field:
-    """Base field class for all PostgreSQL field types"""
+    """Base field class for all field types"""
     
     def __init__(self, field_type: str, max_length: Optional[int] = None, unique: bool = False,
                  null: bool = False, default: Optional[str] = None):
@@ -28,7 +28,7 @@ class CharField(Field):
     """Character field with max_length validation"""
     
     def __init__(self, max_length: int = 255, **kwargs):
-        super().__init__(field_type='VARCHAR', max_length=max_length, **kwargs)
+        super().__init__(field_type='TEXT', max_length=max_length, **kwargs)
     
     def validate(self, value):
         if value is None:
@@ -66,40 +66,22 @@ class IntegerField(Field):
 
 
 class BooleanField(Field):
-    """Boolean field stored as BOOLEAN in PostgreSQL"""
+    """Boolean field stored as INTEGER (0/1) in SQLite"""
     
     def __init__(self, default: bool = False, **kwargs):
-        super().__init__(field_type='BOOLEAN', default=default, **kwargs)
+        # SQLite doesn't have BOOLEAN, use INTEGER
+        super().__init__(field_type='INTEGER', default=1 if default else 0, **kwargs)
         self.default_bool = default
-    
-    def set_default(self):
-        """Return PostgreSQL default value"""
-        return 'TRUE' if self.default else 'FALSE'
     
     def validate(self, value):
         if value is None:
             if not self.null:
                 raise ValueError("BooleanField cannot be null")
             return None
-        
-        # PostgreSQL accepts boolean directly
-        if isinstance(value, bool):
-            return value
-        
-        # Convert string to boolean
-        if isinstance(value, str):
-            if value.lower() in ('true', '1', 't', 'yes', 'y'):
-                return True
-            elif value.lower() in ('false', '0', 'f', 'no', 'n'):
-                return False
-            else:
-                raise ValueError(f"Cannot convert '{value}' to boolean")
-        
-        # Convert int to boolean
-        return bool(value)
+        return 1 if value else 0
     
     def to_python(self, value):
-        """Convert database value to Python bool"""
+        """Convert database INTEGER to Python bool"""
         if value is None:
             return None
         return bool(value)
@@ -109,7 +91,8 @@ class DateTimeField(Field):
     """DateTime field with auto_now and auto_now_add support"""
     
     def __init__(self, auto_now: bool = False, auto_now_add: Optional[bool] = None, **kwargs):
-        super().__init__(field_type='TIMESTAMP', **kwargs)
+        # SQLite stores datetime as TEXT in ISO format
+        super().__init__(field_type='TEXT', **kwargs)
         self.auto_now = auto_now
         self.auto_now_add = auto_now_add
     
@@ -119,36 +102,34 @@ class DateTimeField(Field):
                 raise ValueError("DateTimeField cannot be null")
             return None
         
-        # If already a datetime object
+        # If already a datetime object, convert to ISO string
         if isinstance(value, datetime.datetime):
-            return value
+            return value.isoformat()
         
-        # If string, try to parse
+        # If string, validate ISO format
         if isinstance(value, str):
             try:
-                return datetime.datetime.fromisoformat(value)
+                datetime.datetime.fromisoformat(value)
+                return value
             except ValueError:
-                try:
-                    return datetime.datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
-                except ValueError:
-                    raise ValueError(f"Invalid datetime format: {value}")
+                raise ValueError(f"Invalid datetime format: {value}. Expected ISO format.")
         
         raise ValueError(f"Invalid type for DateTimeField: {type(value).__name__}")
     
     def to_python(self, value):
-        """Convert database value to Python datetime"""
+        """Convert database TEXT to Python datetime"""
         if value is None:
             return None
         if isinstance(value, datetime.datetime):
             return value
-        return datetime.datetime.fromisoformat(str(value))
+        return datetime.datetime.fromisoformat(value)
 
 
 class DateField(Field):
     """Date field with auto_now and auto_now_add support"""
     
     def __init__(self, auto_now: bool = False, auto_now_add: Optional[bool] = None, **kwargs):
-        super().__init__(field_type='DATE', **kwargs)
+        super().__init__(field_type='TEXT', **kwargs)
         self.auto_now = auto_now
         self.auto_now_add = auto_now_add
     
@@ -159,30 +140,31 @@ class DateField(Field):
             return None
         
         if isinstance(value, datetime.date):
-            return value
+            return value.isoformat()
         
         if isinstance(value, str):
             try:
-                return datetime.date.fromisoformat(value)
+                datetime.date.fromisoformat(value)
+                return value
             except ValueError:
                 raise ValueError(f"Invalid date format: {value}. Expected ISO format (YYYY-MM-DD).")
         
         raise ValueError(f"Invalid type for DateField: {type(value).__name__}")
     
     def to_python(self, value):
-        """Convert database value to Python date"""
+        """Convert database TEXT to Python date"""
         if value is None:
             return None
         if isinstance(value, datetime.date):
             return value
-        return datetime.date.fromisoformat(str(value))
+        return datetime.date.fromisoformat(value)
 
 
 class TimeField(Field):
     """Time field"""
     
     def __init__(self, **kwargs):
-        super().__init__(field_type='TIME', **kwargs)
+        super().__init__(field_type='TEXT', **kwargs)
     
     def validate(self, value):
         if value is None:
@@ -191,31 +173,33 @@ class TimeField(Field):
             return None
         
         if isinstance(value, datetime.time):
-            return value
+            return value.isoformat()
         
         if isinstance(value, str):
             try:
-                return datetime.time.fromisoformat(value)
+                datetime.time.fromisoformat(value)
+                return value
             except ValueError:
                 raise ValueError(f"Invalid time format: {value}. Expected ISO format (HH:MM:SS).")
         
         raise ValueError(f"Invalid type for TimeField: {type(value).__name__}")
     
     def to_python(self, value):
-        """Convert database value to Python time"""
+        """Convert database TEXT to Python time"""
         if value is None:
             return None
         if isinstance(value, datetime.time):
             return value
-        return datetime.time.fromisoformat(str(value))
+        return datetime.time.fromisoformat(value)
 
 
 class ForeignKey(Field):
     """Foreign key field with relationship support"""
     
     def __init__(self, to: Type['BaseModel'], on_delete: str = 'CASCADE',
-                 related_name: Optional[str] = None, **kwargs):
-        super().__init__(field_type='INTEGER', **kwargs)
+                 related_name: Optional[str] = None, null: bool = False, 
+                 unique: bool = False, default: Optional[str] = None):
+        # ذخیره ForeignKey-specific attributes
         self.to = to
         self.on_delete = on_delete.upper()
         self.related_name = related_name
@@ -227,6 +211,14 @@ class ForeignKey(Field):
                 f"Invalid on_delete option: {on_delete}. "
                 f"Valid options: {', '.join(valid_options)}"
             )
+        
+        # فقط Field-specific arguments رو به parent پاس بده
+        super().__init__(
+            field_type='INTEGER',
+            null=null,
+            unique=unique,
+            default=default
+        )
     
     def validate(self, value):
         """Validate foreign key value"""
@@ -250,7 +242,15 @@ class ForeignKey(Field):
         )
     
     def get_constraint(self, field_name: str, table_name: str) -> str:
-        """Generate SQL FOREIGN KEY constraint for PostgreSQL"""
+        """Generate SQL FOREIGN KEY constraint for PostgreSQL
+        
+        Args:
+            field_name: Name of the foreign key field
+            table_name: Name of the table containing the foreign key
+        
+        Returns:
+            SQL ALTER TABLE statement to add the constraint
+        """
         return (
             f"ALTER TABLE {table_name} "
             f"ADD CONSTRAINT fk_{table_name}_{field_name} "
@@ -261,7 +261,7 @@ class ForeignKey(Field):
 
 
 class FloatField(Field):
-    """Float field stored as REAL in PostgreSQL"""
+    """Float field stored as REAL in SQLite"""
     
     def __init__(self, **kwargs):
         super().__init__(field_type='REAL', **kwargs)
@@ -282,7 +282,8 @@ class DecimalField(Field):
     """Decimal field with precision validation"""
     
     def __init__(self, max_digits: int, decimal_places: int, **kwargs):
-        super().__init__(field_type='DECIMAL', **kwargs)
+        # SQLite stores as REAL
+        super().__init__(field_type='REAL', **kwargs)
         self.max_digits = max_digits
         self.decimal_places = decimal_places
         

@@ -1,8 +1,12 @@
 import sqlite3
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Type
 import datetime
 from datetime import date
-from .fields.sqlite import Field, DateTimeField, DecimalField, TimeField, DateField, CharField, ForeignKey, EmailField, URLField
+from .fields.sqlite import (
+    Field, DateTimeField, DecimalField, TimeField, DateField, 
+    CharField, ForeignKey, EmailField, URLField, BooleanField,
+    IntegerField, FloatField, TextField
+)
 
 
 class RelatedManager:
@@ -40,36 +44,50 @@ class RelatedManager:
         return self.all().to_dict()
 
 
-class ModelMeta(type):
-    """Metaclass for automatic table creation and related_name setup"""
-    
-    def __new__(cls, name, bases, dct):
-        new_cls = super().__new__(cls, name, bases, dct)
-
-        # Set table name
-        if not hasattr(new_cls.Meta, 'table_name') or not new_cls.Meta.table_name:
-            new_cls.table_name = name.lower()
-        else:
-            new_cls.table_name = new_cls.Meta.table_name
-
-        # Setup related_name for ForeignKeys
-        for attr, field in dct.items():
-            if isinstance(field, ForeignKey) and field.related_name:
-                def related_manager(self, _model=new_cls, _field=attr):
-                    return RelatedManager(_model, _field, self.id)
-                setattr(field.to, field.related_name, property(related_manager))
-
-        # Auto-create table if db_config exists
-        if hasattr(new_cls.Meta, 'db_config') and new_cls.Meta.db_config:
-            new_cls.create_table()
-
-        return new_cls
-
-
-class BaseModel(metaclass=ModelMeta):
+class BaseModel:
     """Base model class for SQLite ORM"""
     
     table_name = ''
+    
+    def __init_subclass__(cls, **kwargs):
+        """Called when a subclass is created"""
+        super().__init_subclass__(**kwargs)
+        
+        # Set table name
+        if not hasattr(cls, 'Meta') or not hasattr(cls.Meta, 'table_name') or not cls.Meta.table_name:
+            cls.table_name = cls.__name__.lower()
+        else:
+            cls.table_name = cls.Meta.table_name
+        
+        # Setup related_name for ForeignKeys
+        for attr_name in dir(cls):
+            if attr_name.startswith('_'):
+                continue
+            
+            try:
+                field = getattr(cls, attr_name)
+            except AttributeError:
+                continue
+            
+            if isinstance(field, ForeignKey) and field.related_name:
+                # استفاده از closure با default arguments برای capture کردن مقادیر
+                def create_related_manager(source_model, source_field):
+                    """Factory function to create related manager property"""
+                    @property
+                    def get_manager(self):
+                        if not hasattr(self, 'id') or self.id is None:
+                            raise ValueError(f"Cannot access related '{source_field}' before saving the object")
+                        return RelatedManager(source_model, source_field, self.id)
+                    return get_manager
+                
+                # Set property on the related model
+                related_prop = create_related_manager(cls, attr_name)
+                setattr(field.to, field.related_name, related_prop)
+                print(f"✓ Set related_name '{field.related_name}' on {field.to.__name__} for {cls.__name__}.{attr_name}")
+        
+        # Auto-create table if db_config exists
+        if hasattr(cls, 'Meta') and hasattr(cls.Meta, 'db_config') and cls.Meta.db_config:
+            cls.create_table()
     
     class QuerySet:
         """QuerySet for handling query results"""
@@ -238,25 +256,58 @@ class BaseModel(metaclass=ModelMeta):
     def create_table(cls):
         """Create database table with foreign key constraints"""
         conn = cls.connect()
+        cursor = None
+        
         try:
             cursor = conn.cursor()
-            columns = cls._get_column_definitions()
-            foreign_keys = cls._get_foreign_key_constraints()
             
-            # Build CREATE TABLE statement
-            table_parts = [f"id INTEGER PRIMARY KEY AUTOINCREMENT"]
-            table_parts.extend(columns)
-            table_parts.extend(foreign_keys)
+            # Step 1: Create table if not exists
+            try:
+                columns = cls._get_column_definitions()
+                foreign_keys = cls._get_foreign_key_constraints()
+                
+                # Build CREATE TABLE statement
+                table_parts = ["id INTEGER PRIMARY KEY AUTOINCREMENT"]
+                table_parts.extend(columns)
+                table_parts.extend(foreign_keys)
+                
+                create_sql = f"CREATE TABLE IF NOT EXISTS {cls.table_name} ({', '.join(table_parts)})"
+                cursor.execute(create_sql)
+                conn.commit()
+            except sqlite3.Error as e:
+                conn.rollback()
+                if "already exists" not in str(e):
+                    print(f"Warning during table creation: {e}")
+                cursor.close()
+                cursor = conn.cursor()
             
-            create_sql = f"CREATE TABLE IF NOT EXISTS {cls.table_name} ({', '.join(table_parts)})"
-            cursor.execute(create_sql)
-            
-            # Update existing table structure
-            cls._update_table_structure(cursor)
-            
-            conn.commit()
+            # Step 2: Update table structure (add new columns)
+            try:
+                cls._update_table_structure(cursor)
+                conn.commit()
+            except sqlite3.Error as e:
+                conn.rollback()
+                print(f"Warning during table update: {e}")
+                
+        except Exception as e:
+            if conn:
+                try:
+                    conn.rollback()
+                except:
+                    pass
+            raise ConnectionError(f"Failed to create table {cls.table_name}: {e}")
+        
         finally:
-            conn.close()
+            if cursor:
+                try:
+                    cursor.close()
+                except:
+                    pass
+            if conn:
+                try:
+                    conn.close()
+                except:
+                    pass
 
     @classmethod
     def _get_column_definitions(cls):
@@ -267,12 +318,29 @@ class BaseModel(metaclass=ModelMeta):
             if not isinstance(field, Field):
                 continue
             
-            # Skip ForeignKey columns (they're regular INTEGER with constraints)
+            if isinstance(field, ForeignKey):
+                col_type = field.field_type
+                column_def = f"{attr} {col_type}"
+                
+                if field.unique:
+                    column_def += " UNIQUE"
+                
+                if not field.null:
+                    column_def += " NOT NULL"
+                
+                if field.default is not None:
+                    if isinstance(field.default, str):
+                        column_def += f" DEFAULT '{field.default}'"
+                    else:
+                        column_def += f" DEFAULT {field.default}"
+                
+                columns.append(column_def)
+                continue
+            
             col_type = field.field_type
             
             if isinstance(field, DecimalField):
-                # Note: SQLite doesn't support DECIMAL(m,n) syntax, stores as REAL
-                pass
+                col_type = "REAL"
             
             column_def = f"{attr} {col_type}"
             
@@ -283,23 +351,25 @@ class BaseModel(metaclass=ModelMeta):
                 column_def += " NOT NULL"
             
             if field.default is not None:
-                if isinstance(field.default, str):
+                if isinstance(field, BooleanField):
+                    column_def += f" DEFAULT {field.default}"
+                elif isinstance(field.default, str):
                     column_def += f" DEFAULT '{field.default}'"
                 else:
                     column_def += f" DEFAULT {field.default}"
-            
+        
             columns.append(column_def)
         
         return columns
 
     @classmethod
     def _get_foreign_key_constraints(cls):
-        """Generate FOREIGN KEY constraints"""
+        """Generate FOREIGN KEY constraints for CREATE TABLE"""
         constraints = []
         
         for attr, field in cls.__dict__.items():
             if isinstance(field, ForeignKey):
-                constraints.append(field.get_constraint(attr))
+                constraints.append(field.get_constraint(attr, cls.table_name))
         
         return constraints
 
@@ -316,13 +386,16 @@ class BaseModel(metaclass=ModelMeta):
             field = cls.__dict__[column]
             col_type = field.field_type
             
+            if isinstance(field, DecimalField):
+                col_type = "REAL"
+
             column_def = f"ALTER TABLE {cls.table_name} ADD COLUMN {column} {col_type}"
-            
-            # For new columns, always allow NULL initially to avoid errors
             column_def += " NULL"
             
             if field.default is not None:
-                if isinstance(field.default, str):
+                if isinstance(field, BooleanField):
+                    column_def += f" DEFAULT {field.default}"
+                elif isinstance(field.default, str):
                     column_def += f" DEFAULT '{field.default}'"
                 else:
                     column_def += f" DEFAULT {field.default}"
@@ -330,8 +403,11 @@ class BaseModel(metaclass=ModelMeta):
             try:
                 cursor.execute(column_def)
             except sqlite3.OperationalError as e:
-                print(f"Warning: Could not add column {column}: {e}")
-    
+                if "duplicate column name" in str(e).lower():
+                    continue
+                else:
+                    print(f"Warning: Could not add column {column}: {e}")
+
     @classmethod
     def _get_existing_columns(cls, cursor):
         """Get existing columns from table"""
@@ -346,6 +422,7 @@ class BaseModel(metaclass=ModelMeta):
                 attr for attr, field in cls.__dict__.items() 
                 if isinstance(field, Field)
             }
+            cls._valid_fields_cache.add('id')
         return cls._valid_fields_cache
     
     @classmethod
@@ -353,40 +430,49 @@ class BaseModel(metaclass=ModelMeta):
         """Validate and convert field values using field validators"""
         validated = {}
         
-        for attr, field in cls.__dict__.items():
+        # اول همه kwargs رو validate کن
+        for key, value in kwargs.items():
+            # پیدا کردن field مربوطه
+            field = getattr(cls, key, None)
+            
+            if field is None or not isinstance(field, Field):
+                # اگه field پیدا نشد، مستقیم استفاده کن
+                validated[key] = value
+                continue
+            
+            # Validate using field's validate method
+            if hasattr(field, 'validate'):
+                try:
+                    validated[key] = field.validate(value)
+                except ValueError as e:
+                    raise ValueError(f"Validation error for field '{key}': {e}")
+            else:
+                validated[key] = value
+        
+        # بعد auto_now و auto_now_add رو اضافه کن
+        for attr_name in dir(cls):
+            if attr_name.startswith('_'):
+                continue
+            
+            try:
+                field = getattr(cls, attr_name)
+            except AttributeError:
+                continue
+            
             if not isinstance(field, Field):
                 continue
             
-            # Handle ForeignKey
-            if isinstance(field, ForeignKey):
-                if attr in kwargs:
-                    try:
-                        validated[attr] = field.validate(kwargs[attr])
-                    except ValueError as e:
-                        raise ValueError(f"Validation error for field '{attr}': {e}")
-                continue
-            
-            # Handle regular fields
-            if attr in kwargs:
-                # Apply field validation if method exists
-                if hasattr(field, 'validate'):
-                    try:
-                        validated[attr] = field.validate(kwargs[attr])
-                    except ValueError as e:
-                        raise ValueError(f"Validation error for field '{attr}': {e}")
-                else:
-                    validated[attr] = kwargs[attr]
-            
-            # Handle auto_now and auto_now_add
-            elif isinstance(field, (DateField, DateTimeField)):
-                if field.auto_now or field.auto_now_add:
-                    if isinstance(field, DateField):
-                        validated[attr] = datetime.datetime.now().date().isoformat()
-                    else:
-                        validated[attr] = datetime.datetime.now().isoformat()
+            if isinstance(field, (DateField, DateTimeField)):
+                if attr_name not in validated:  # فقط اگه از قبل set نشده
+                    if field.auto_now or field.auto_now_add:
+                        if isinstance(field, DateField):
+                            validated[attr_name] = datetime.datetime.now().date().isoformat()
+                        else:
+                            validated[attr_name] = datetime.datetime.now().isoformat()
         
         return validated
-    
+
+
     @classmethod
     def all(cls, order_by: Optional[str] = None) -> 'QuerySet':
         """Get all records"""
@@ -398,7 +484,7 @@ class BaseModel(metaclass=ModelMeta):
             if order_by:
                 field_name = order_by.lstrip('-')
                 valid_fields = cls._get_valid_fields()
-                if field_name not in valid_fields:
+                if field_name != 'id' and field_name not in valid_fields:
                     raise ValueError(f"Invalid field name for ordering: {field_name}")
                 
                 direction = "DESC" if order_by.startswith('-') else "ASC"
@@ -447,14 +533,14 @@ class BaseModel(metaclass=ModelMeta):
                 operator = "!="
             elif key.endswith("__contains"):
                 base_key = key[:-10]
-                if base_key not in valid_fields:
+                if base_key != 'id' and base_key not in valid_fields:
                     raise ValueError(f"Invalid field name: {base_key}")
                 conditions.append(f"{base_key} LIKE ?")
                 values.append(f"%{value}%")
                 continue
             elif key.endswith("__icontains"):
                 base_key = key[:-11]
-                if base_key not in valid_fields:
+                if base_key != 'id' and base_key not in valid_fields:
                     raise ValueError(f"Invalid field name: {base_key}")
                 conditions.append(f"LOWER({base_key}) LIKE LOWER(?)")
                 values.append(f"%{value}%")
@@ -463,14 +549,14 @@ class BaseModel(metaclass=ModelMeta):
                 base_key = key[:-4]
                 if not isinstance(value, (list, tuple)):
                     raise ValueError(f"Value for {key} must be a list or tuple")
-                if base_key not in valid_fields:
+                if base_key != 'id' and base_key not in valid_fields:
                     raise ValueError(f"Invalid field name: {base_key}")
                 placeholders = ", ".join(["?" for _ in value])
                 conditions.append(f"{base_key} IN ({placeholders})")
                 values.extend(value)
                 continue
             
-            if base_key not in valid_fields:
+            if base_key != 'id' and base_key not in valid_fields:
                 raise ValueError(f"Invalid field name: {base_key}")
             
             conditions.append(f"{base_key} {operator} ?")
@@ -502,7 +588,7 @@ class BaseModel(metaclass=ModelMeta):
         valid_fields = cls._get_valid_fields()
         
         for key in kwargs.keys():
-            if key not in valid_fields:
+            if key != 'id' and key not in valid_fields:
                 raise ValueError(f"Invalid field name: {key}")
         
         conn = cls.connect()
@@ -521,7 +607,6 @@ class BaseModel(metaclass=ModelMeta):
     @classmethod
     def create(cls, **kwargs) -> int:
         """Create new record with validation"""
-        # Validate and convert all values
         validated_data = cls._validate_and_convert_values(**kwargs)
         
         conn = cls.connect()
@@ -555,7 +640,6 @@ class BaseModel(metaclass=ModelMeta):
                 validated_data = cls._validate_and_convert_values(**record)
                 all_values.append(tuple(validated_data.values()))
             
-            # Use columns from first validated record
             first_validated = cls._validate_and_convert_values(**records[0])
             columns = list(first_validated.keys())
             placeholders = ", ".join(["?" for _ in columns])
@@ -588,7 +672,9 @@ class BaseModel(metaclass=ModelMeta):
         if not kwargs:
             raise ValueError("At least one field to update must be provided")
         
-        # Validate fields
+        if 'id' in kwargs:
+            raise ValueError("Cannot update 'id' field")
+        
         validated_data = cls._validate_and_convert_values(**kwargs)
         
         conn = cls.connect()
@@ -620,7 +706,7 @@ class BaseModel(metaclass=ModelMeta):
         valid_fields = cls._get_valid_fields()
         
         for key in filters.keys():
-            if key not in valid_fields:
+            if key != 'id' and key not in valid_fields:
                 raise ValueError(f"Invalid field name: {key}")
         
         conn = cls.connect()

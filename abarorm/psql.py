@@ -1,9 +1,12 @@
 import psycopg2
 from psycopg2 import sql, Error
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Type
 import datetime
 from datetime import date
-from .fields.psql import Field, DateTimeField, DecimalField, TimeField, DateField, CharField, ForeignKey, EmailField, URLField
+from .fields.psql import (
+    Field, DateTimeField, DecimalField, TimeField, DateField, 
+    CharField, ForeignKey, EmailField, URLField, BooleanField
+)
 
 
 class RelatedManager:
@@ -56,16 +59,21 @@ class ModelMeta(type):
         # Setup related_name for ForeignKeys
         for attr, field in dct.items():
             if isinstance(field, ForeignKey) and field.related_name:
-                def related_manager(self, _model=new_cls, _field=attr):
-                    return RelatedManager(_model, _field, self.id)
-                setattr(field.to, field.related_name, property(related_manager))
+                # استفاده از factory function برای avoid کردن closure issue
+                def create_related_manager(source_model, source_field):
+                    """Factory function to create related manager property"""
+                    def get_manager(self):
+                        return RelatedManager(source_model, source_field, self.id)
+                    return property(get_manager)
+                
+                # Set property on the related model
+                setattr(field.to, field.related_name, create_related_manager(new_cls, attr))
 
         # Auto-create table if db_config exists
         if hasattr(new_cls.Meta, 'db_config') and new_cls.Meta.db_config:
             new_cls.create_table()
 
         return new_cls
-
 
 class BaseModel(metaclass=ModelMeta):
     """Base model class for PostgreSQL ORM"""
@@ -290,25 +298,64 @@ class BaseModel(metaclass=ModelMeta):
     def create_table(cls):
         """Create database table with foreign key constraints"""
         conn = cls.connect()
+        cursor = None
+        
         try:
-            with conn.cursor() as cursor:
+            cursor = conn.cursor()
+            
+            # Step 1: Create table if not exists
+            try:
                 columns = cls._get_column_definitions()
-                
-                # Create table
-                cursor.execute(
-                    f"CREATE TABLE IF NOT EXISTS {cls.table_name} "
-                    f"(id SERIAL PRIMARY KEY, {', '.join(columns)})"
-                )
-                
-                # Add foreign key constraints
+                create_sql = f"CREATE TABLE IF NOT EXISTS {cls.table_name} (id SERIAL PRIMARY KEY, {', '.join(columns)})"
+                cursor.execute(create_sql)
+                conn.commit()
+            except psycopg2.Error as e:
+                conn.rollback()
+                if "already exists" not in str(e):
+                    print(f"Warning during table creation: {e}")
+                # ایجاد cursor جدید بعد از rollback
+                cursor.close()
+                cursor = conn.cursor()
+            
+            # Step 2: Add foreign key constraints
+            try:
                 cls._add_foreign_key_constraints(cursor)
-                
-                # Update existing table structure
+                conn.commit()
+            except psycopg2.Error as e:
+                conn.rollback()
+                if "already exists" not in str(e):
+                    print(f"Warning during foreign key creation: {e}")
+                # ایجاد cursor جدید بعد از rollback
+                cursor.close()
+                cursor = conn.cursor()
+            
+            # Step 3: Update table structure (add new columns)
+            try:
                 cls._update_table_structure(cursor)
+                conn.commit()
+            except psycopg2.Error as e:
+                conn.rollback()
+                print(f"Warning during table update: {e}")
                 
-            conn.commit()
+        except Exception as e:
+            if conn:
+                try:
+                    conn.rollback()
+                except:
+                    pass
+            raise ConnectionError(f"Failed to create table {cls.table_name}: {e}")
+        
         finally:
-            conn.close()
+            if cursor:
+                try:
+                    cursor.close()
+                except:
+                    pass
+            if conn:
+                try:
+                    conn.close()
+                except:
+                    pass
 
     @classmethod
     def _get_column_definitions(cls):
@@ -353,11 +400,30 @@ class BaseModel(metaclass=ModelMeta):
         for attr, field in cls.__dict__.items():
             if isinstance(field, ForeignKey):
                 try:
+                    # چک کن constraint قبلاً اضافه نشده باشه
+                    constraint_name = f"fk_{cls.table_name}_{attr}"
+                    cursor.execute(
+                        """
+                        SELECT 1 FROM information_schema.table_constraints 
+                        WHERE constraint_name = %s AND table_name = %s
+                        """,
+                        (constraint_name, cls.table_name)
+                    )
+                    
+                    if cursor.fetchone():
+                        # Constraint already exists
+                        continue
+                    
+                    # اضافه کردن constraint
                     constraint_sql = field.get_constraint(attr, cls.table_name)
                     cursor.execute(constraint_sql)
+                    
                 except psycopg2.Error as e:
-                    # Constraint might already exist
-                    if "already exists" not in str(e):
+                    # اگه constraint از قبل وجود داره یا مشکلی هست، ادامه بده
+                    if "already exists" in str(e) or "duplicate" in str(e).lower():
+                        continue
+                    else:
+                        # برای error های دیگه، log کن ولی exception نده
                         print(f"Warning: Could not add foreign key constraint for {attr}: {e}")
 
     @classmethod
@@ -394,13 +460,18 @@ class BaseModel(metaclass=ModelMeta):
             try:
                 cursor.execute(column_def)
             except psycopg2.Error as e:
-                print(f"Warning: Could not add column {column}: {e}")
+                if "already exists" in str(e).lower() or "duplicate" in str(e).lower():
+                    # Column already exists, skip
+                    continue
+                else:
+                    print(f"Warning: Could not add column {column}: {e}")
 
     @classmethod
     def _get_existing_columns(cls, cursor):
         """Get existing columns from table"""
         cursor.execute(
-            f"SELECT column_name FROM information_schema.columns WHERE table_name = '{cls.table_name}'"
+            "SELECT column_name FROM information_schema.columns WHERE table_name = %s",
+            (cls.table_name,)
         )
         return {row[0] for row in cursor.fetchall()}
     
@@ -412,6 +483,8 @@ class BaseModel(metaclass=ModelMeta):
                 attr for attr, field in cls.__dict__.items() 
                 if isinstance(field, Field)
             }
+            # اضافه کردن 'id' به عنوان فیلد معتبر
+            cls._valid_fields_cache.add('id')
         return cls._valid_fields_cache
     
     @classmethod
@@ -464,7 +537,7 @@ class BaseModel(metaclass=ModelMeta):
                 if order_by:
                     field_name = order_by.lstrip('-')
                     valid_fields = cls._get_valid_fields()
-                    if field_name not in valid_fields:
+                    if field_name != 'id' and field_name not in valid_fields:
                         raise ValueError(f"Invalid field name for ordering: {field_name}")
                     
                     direction = "DESC" if order_by.startswith('-') else "ASC"
@@ -513,14 +586,14 @@ class BaseModel(metaclass=ModelMeta):
                 operator = "!="
             elif key.endswith("__icontains"):
                 base_key = key[:-11]
-                if base_key not in valid_fields:
+                if base_key != 'id' and base_key not in valid_fields:
                     raise ValueError(f"Invalid field name: {base_key}")
                 conditions.append(f"{base_key} ILIKE %s")
                 values.append(f"%{value}%")
                 continue
             elif key.endswith("__contains"):
                 base_key = key[:-10]
-                if base_key not in valid_fields:
+                if base_key != 'id' and base_key not in valid_fields:
                     raise ValueError(f"Invalid field name: {base_key}")
                 conditions.append(f"{base_key} LIKE %s")
                 values.append(f"%{value}%")
@@ -529,14 +602,14 @@ class BaseModel(metaclass=ModelMeta):
                 base_key = key[:-4]
                 if not isinstance(value, (list, tuple)):
                     raise ValueError(f"Value for {key} must be a list or tuple")
-                if base_key not in valid_fields:
+                if base_key != 'id' and base_key not in valid_fields:
                     raise ValueError(f"Invalid field name: {base_key}")
                 placeholders = ", ".join(["%s" for _ in value])
                 conditions.append(f"{base_key} IN ({placeholders})")
                 values.extend(value)
                 continue
             
-            if base_key not in valid_fields:
+            if base_key != 'id' and base_key not in valid_fields:
                 raise ValueError(f"Invalid field name: {base_key}")
             
             conditions.append(f"{base_key} {operator} %s")
@@ -567,8 +640,9 @@ class BaseModel(metaclass=ModelMeta):
         
         valid_fields = cls._get_valid_fields()
         
+        # Validation - اجازه دسترسی به 'id'
         for key in kwargs.keys():
-            if key not in valid_fields:
+            if key != 'id' and key not in valid_fields:
                 raise ValueError(f"Invalid field name: {key}")
         
         conn = cls.connect()
@@ -655,6 +729,10 @@ class BaseModel(metaclass=ModelMeta):
         if not kwargs:
             raise ValueError("At least one field to update must be provided")
         
+        # نباید id رو update کرد
+        if 'id' in kwargs:
+            raise ValueError("Cannot update 'id' field")
+        
         # Validate fields
         validated_data = cls._validate_and_convert_values(**kwargs)
         
@@ -687,8 +765,9 @@ class BaseModel(metaclass=ModelMeta):
         
         valid_fields = cls._get_valid_fields()
         
+        # Validation - اجازه دسترسی به id
         for key in filters.keys():
-            if key not in valid_fields:
+            if key != 'id' and key not in valid_fields:
                 raise ValueError(f"Invalid field name: {key}")
         
         conn = cls.connect()
