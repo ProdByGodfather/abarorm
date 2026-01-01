@@ -43,6 +43,57 @@ title: "Welcome to AbarORM"
 
 
 
+## ✨ Key Features
+
+- Define database models using clean and simple Python classes
+- Automatic table creation and schema synchronization
+- Unified and predictable CRUD behavior across SQLite & PostgreSQL
+- Powerful and expressive QuerySet API
+- Built-in ForeignKey relationship handling
+- Custom field types with validation and constraints
+- Optimized for clarity, safety, and long-term maintainability
+
+---
+
+## 🛡️ What’s New in v5.5.2 (Latest)
+
+### AbarORM v5.5.2 — Security, Stability & Unified Behavior
+
+This release focuses on **security hardening**, **behavior consistency**, and
+**internal robustness** across both supported database engines.
+
+### 🚀 Highlights
+
+- **SQL Injection Protection**
+  All CRUD operations are now fully protected against SQL injection using
+  strict field validation and parameterized queries for both SQLite and PostgreSQL.
+
+- **Unified CRUD Behavior**
+  Methods such as `create`, `bulk_create`, `update`, `delete`, and `save`
+  now behave identically across databases—no surprises, fewer bugs.
+
+- **Improved `save()` Logic**
+  - Existing objects are always updated
+  - Newly created objects always receive their `id`
+
+- **Refined `bulk_create` & ForeignKey Handling**
+  Batch inserts and ForeignKey relations are now consistent, reliable,
+  and engine-agnostic.
+
+- **Enhanced `QuerySet.contains()`**
+  Improved filtering support for `date` and `datetime` fields.
+
+- **Better Debugging Experience**
+  Clearer and more informative `__repr__` output for models and QuerySets.
+
+- **Improved Field Architecture**
+  SQLite and PostgreSQL field implementations are now more complete,
+  structured, and future-proof.
+
+- **Performance & Reliability Improvements**
+  Core methods have been rewritten for faster execution and safer operations.
+
+---
 
 
 

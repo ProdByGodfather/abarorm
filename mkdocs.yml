@@ -1,77 +1,98 @@
 site_name: abarorm
-site_description: 'abarorm is a lightweight and easy-to-use Object-Relational Mapping (ORM) library for SQLite databases in Python. It aims to provide a simple and intuitive interface for managing database models and interactions.'
-repo_url: 'https://github.com/prodbygodfather/abarorm'
-repo_name: 'abarorm'
+site_description: >
+  abarorm is a lightweight and easy-to-use Object-Relational Mapping (ORM)
+  library for SQLite databases in Python. It provides a simple and intuitive
+  interface for managing database models and interactions.
+site_url: https://prodbygodfather.github.io/abarorm/
 
+repo_url: https://github.com/prodbygodfather/abarorm
+repo_name: abarorm
+edit_uri: edit/main/docs/
 
+# =========================
+# Navigation
+# =========================
 nav:
   - Home:
-      - en: 'index.md'
-      - fa: 'index.fa.md'
+      - en: index.md
+      - fa: index.fa.md
   - Introduction:
-      - en: 'Introduction.md'
-      - fa: 'Introduction.fa.md'
+      - en: Introduction.md
+      - fa: Introduction.fa.md
   - Basic Usage:
-      - en: 'basic_usage.md'
-      - fa: 'basic_usage.fa.md'
+      - en: basic_usage.md
+      - fa: basic_usage.fa.md
   - Modeling:
       - en:
-          - 'SQLite Modeling': 'modeling/sqlite_modeling.md'
-          - 'PostgreSQL Modeling': 'modeling/postgresql_modeling.md'
+          - SQLite Modeling: modeling/sqlite_modeling.md
+          - PostgreSQL Modeling: modeling/postgresql_modeling.md
       - fa:
-          - 'مدل‌سازی SQLite': 'modeling/sqlite_modeling.fa.md'
-          - 'مدل‌سازی PostgreSQL': 'modeling/postgresql_modeling.fa.md'
+          - مدل‌سازی SQLite: modeling/sqlite_modeling.fa.md
+          - مدل‌سازی PostgreSQL: modeling/postgresql_modeling.fa.md
   - Field Types:
-      - en: 'field_types.md'
-      - fa: 'field_types.fa.md'
+      - en: field_types.md
+      - fa: field_types.fa.md
   - API Reference:
-      - en: 'api_reference.md'
-      - fa: 'api_reference.fa.md'
+      - en: api_reference.md
+      - fa: api_reference.fa.md
   - Issues:
-      - en: 'issues.md'
-      - fa: 'issues.fa.md'
+      - en: issues.md
+      - fa: issues.fa.md
 
+# =========================
+# Theme (Material)
+# =========================
 theme:
-  name: 'material'
+  name: material
+  language: en
+
   icon:
-    repo: "fontawesome/brands/github"
-  logo: 'images/logo.png' 
-  favicon: 'images/favicon.ico' 
+    repo: fontawesome/brands/github
+
+  logo: images/logo.png
+  favicon: images/favicon.ico
+
+  font:
+    text: Roboto
+    code: Roboto Mono
+
   palette:
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: 'yellow'
-      accent: 'amber'
+      primary: yellow
+      accent: amber
       toggle:
         icon: material/brightness-7
         name: Switch to light mode
-    - media: "(prefers-color-scheme: light)"  
+
+    - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: 'yellow'
-      accent: 'amber'
+      primary: yellow
+      accent: amber
       toggle:
         icon: material/brightness-4
         name: Switch to dark mode
-  font:
-    text: 'Roboto'
-    code: 'Roboto Mono'
+
   features:
     - navigation.instant
-    - search.highlight
-    - mermaid
+    - navigation.tabs
+    - navigation.toggle
+    - navigation.top
     - content.code.copy
     - content.code.select
     - content.code.annotate
-    - navigation.tabs 
-    - navigation.toggle 
-    - language_switcher: true  
+    - search.highlight
+    - mermaid
 
+# =========================
+# Markdown Extensions
+# =========================
 markdown_extensions:
   - admonition
-  - codehilite
   - footnotes
   - toc:
       permalink: true
+
   - pymdownx.arithmatex
   - pymdownx.betterem:
       smart_enable: all
@@ -85,6 +106,7 @@ markdown_extensions:
   - pymdownx.mark
   - pymdownx.smartsymbols
   - pymdownx.superfences
+  - pymdownx.snippets
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
@@ -92,58 +114,63 @@ markdown_extensions:
       anchor_linenums: true
       line_spans: __span
       pygments_lang_class: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.superfences
 
-extra:
-  alternate:
-      # Switch to English
-      - name: English
-        link: /en/
-        lang: en
-
-      # Switch to French
-      - name: Persian
-        link: /fa/
-        lang: fa
-  social:
-    - icon: fontawesome/brands/github
-      link: 'https://github.com/prodbygodfather/abarorm'
-    - icon: fontawesome/brands/linkedin
-      link: 'https://www.linkedin.com/in/prodbygodfathers'
-  navbar:
-    - text: 'GitHub'
-      link: 'https://github.com/prodbygodfather/abarorm'
-      icon: 'fab fa-github'
-  language_switcher: true
-
+# =========================
+# Plugins
+# =========================
 plugins:
   - search
   - i18n:
+      default_language: en
       languages:
-        en: "English"
-        fa: "فارسی"
-      default_language: 'en'
+        en: English
+        fa: فارسی
       no_translation:
         en: "This page isn't translated to English."
         fa: "این صفحه به فارسی ترجمه نشده است."
       translate_nav:
         en:
-          Home: "Home"
-          Introduction: "Introduction"
-          Basic Usage: "Basic Usage"
-          Modeling: "Modeling"
-          Field Types: "Field Types"
-          API Reference: "API Reference"
-          Issues: "Issues"
+          Home: Home
+          Introduction: Introduction
+          Basic Usage: Basic Usage
+          Modeling: Modeling
+          Field Types: Field Types
+          API Reference: API Reference
+          Issues: Issues
         fa:
-          Home: "خانه"
-          Introduction: "مقدمه"
-          Basic Usage: "استفاده پایه"
-          Modeling: "مدل‌سازی"
-          Field Types: "نوع فیلد"
-          API Reference: "مراجع API"
-          Issues: "مسائل"
+          Home: خانه
+          Introduction: مقدمه
+          Basic Usage: استفاده پایه
+          Modeling: مدل‌سازی
+          Field Types: نوع فیلد
+          API Reference: مراجع API
+          Issues: مسائل
 
-copyright: Copyright &copy; 2024 AbarVision co - Mahdi Ghasemi (Dokey)
+# =========================
+# Extra
+# =========================
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/prodbygodfather/abarorm
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/prodbygodfathers
+
+  alternate:
+    - name: English
+      link: /en/
+      lang: en
+    - name: فارسی
+      link: /fa/
+      lang: fa
+
+# =========================
+# Footer
+# =========================
+copyright: >
+  Copyright © 2024 AbarVision Co —
+  Mahdi Ghasemi (Dokey)
+
+
+extra_css:
+  - stylesheets/extra.css
