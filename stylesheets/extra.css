@@ -1,0 +1,6 @@
+@import url('https://cdn.jsdelivr.net/npm/vazirmatn@33.003/Vazirmatn-font-face.css');
+
+:root {
+  --md-text-font: "Vazirmatn", Roboto, system-ui;
+  --md-code-font: "Vazirmatn", "Roboto Mono", monospace;
+}
