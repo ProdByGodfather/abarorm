@@ -70,7 +70,6 @@ class BaseModel:
                 continue
             
             if isinstance(field, ForeignKey) and field.related_name:
-                # استفاده از closure با default arguments برای capture کردن مقادیر
                 def create_related_manager(source_model, source_field):
                     """Factory function to create related manager property"""
                     @property
@@ -430,13 +429,10 @@ class BaseModel:
         """Validate and convert field values using field validators"""
         validated = {}
         
-        # اول همه kwargs رو validate کن
         for key, value in kwargs.items():
-            # پیدا کردن field مربوطه
             field = getattr(cls, key, None)
             
             if field is None or not isinstance(field, Field):
-                # اگه field پیدا نشد، مستقیم استفاده کن
                 validated[key] = value
                 continue
             
@@ -449,7 +445,6 @@ class BaseModel:
             else:
                 validated[key] = value
         
-        # بعد auto_now و auto_now_add رو اضافه کن
         for attr_name in dir(cls):
             if attr_name.startswith('_'):
                 continue
@@ -463,7 +458,7 @@ class BaseModel:
                 continue
             
             if isinstance(field, (DateField, DateTimeField)):
-                if attr_name not in validated:  # فقط اگه از قبل set نشده
+                if attr_name not in validated: 
                     if field.auto_now or field.auto_now_add:
                         if isinstance(field, DateField):
                             validated[attr_name] = datetime.datetime.now().date().isoformat()

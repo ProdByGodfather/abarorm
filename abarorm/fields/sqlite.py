@@ -212,7 +212,6 @@ class ForeignKey(Field):
                 f"Valid options: {', '.join(valid_options)}"
             )
         
-        # فقط Field-specific arguments رو به parent پاس بده
         super().__init__(
             field_type='INTEGER',
             null=null,
