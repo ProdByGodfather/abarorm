@@ -32,6 +32,7 @@
   - `QuerySet.contains()` improved for `datetime`/`date` fields.
   - Better `__repr__` output for models and QuerySets.
   - More complete structure of `sqlite` and `postgresql` fields.
+  - is the first **stable and production-ready** release.
 
 
 
